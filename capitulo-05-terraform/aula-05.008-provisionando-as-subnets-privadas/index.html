@@ -1,0 +1,595 @@
+<!-- 
+    Aula 05.008. Provisionando as Subnets Privadas
+
+1. Vamos criar, agora, as Sub-Redes privadas, que eh onde a gente vai colocar o Banco de Dados, okay?
+
+2. Na verdade, o Banco de Dados vai ficar em Uma delas, e, nas outras, vai ficar as Instancias Stand-by, esperando, caso de problema em alguma, as outras assumem. Okay? 
+
+3. O Banco, na verdade, fica em Uma, so, e as outras, as Instancias de Stand-By.
+
+4. Bom, vamos la. 
+
+5. Vamos criar essas Sub-redes.
+
+6. Bom, eu vou colocar, eu vou dividir a VPC, entao, a gente tem uma VPC, no 192.168.0.0/16, e eu vou criar /24 para as Sub-Redes, para baixo.
+
+7. Okay?
+
+8. Entao, olha so, 192.168.10.0/24, entao, todos os IP's que forem sendo dados, aqui, dentro, vai ser 192.168.10.1, 2, 3, 4,..., por ai, vai.
+
+9. Okay? Ate 255.
+
+10. Para a Sub-Rede, aqui, da outra AZ, 192.168.20.0/24, e a outra, 192.168.30.0/24. Okay?
+
+11. Todas elas /24.
+
+12. Bom, vamos la, entao, vamos para o Terraform, comecar a fazer isso.
+
+13. Okay?
+
+14. Vamos, aqui, dentro do arquivo de network.tf, mesmo, aqui, embaixo, a gente vai usar o resource, "aws_subnet", a gente tem que dar um nome para ela, "private_subnet", pode ser "main_private_subnet", alguma coisa assim. Okay?
+
+resource "aws_vpc" "main" {
+    cidr_block = "192.168.0.0/16"
+
+    tags {
+        Name = "hibicode"
+    }
+}
+
+resource "aws_subnet" "private_subnet" {
+    
+    cidr_block = ""
+    vpc_id = "${aws_vpc.main.id}"
+}
+
+15. Bom, aqui, o IntelliJ ja me ajudou com o Plugin, qual que eh a ajuda dele? Ele me ajudou, ja, aqui, colocando vpc_id. Olha so, uma Subnet, ela esta dentro de uma VPC. E eu preciso referenciar essa VPC, aqui dentro. Como que eu faco isso? Entao, abro Strings, $, abre chaves, eu vou colocar o nome do Recurso, olha so, esse nome, aqui, eh exatamente o mesmo,
+
+resource ">>> aws_vpc" "main" {
+    cidr_block = "192.168.0.0/16"
+
+    tags {
+        Name = "hibicode"
+    }
+}
+
+resource "aws_subnet" "private_subnet" {
+    
+    cidr_block = ""
+    vpc_id = "${>>> aws_vpc.main.id}"
+}
+
+16. E esse, aqui, tambem, main,
+
+resource "aws_vpc" ">>> main" {
+    cidr_block = "192.168.0.0/16"
+
+    tags {
+        Name = "hibicode"
+    }
+}
+
+resource "aws_subnet" "private_subnet" {
+    
+    cidr_block = ""
+    vpc_id = "${aws_vpc.>>> main.id}"
+}
+
+, entao, olha so, aws_vpc.main.id. O id eh a variavel de saida desse Recurso aws_vpc,
+
+>>> resource "aws_vpc" "main" {
+    cidr_block = "192.168.0.0/16"
+
+    tags {
+        Name = "hibicode"
+    }
+}
+
+17. Lembra que eu falei que esse cara eh como se fosse um objeto? Ele tem coisas de saida. Entao, olha so, id eh um desses atributos de saida do Recurso aws_vpc,
+
+>>> resource "aws_vpc" "main" {
+    cidr_block = "192.168.0.0/16"
+
+    tags {
+        Name = "hibicode"
+    }
+}
+
+18. Okay? E, ai, eu referencio, aqui,
+
+resource "aws_subnet" "private_subnet" {
+    
+    cidr_block = ""
+    vpc_id = "${aws_vpc.main.>>> id}"
+}
+
+, porque o aws_subnet pertence a uma vpc,
+
+>>> resource "aws_vpc" "main" {
+    cidr_block = "192.168.0.0/16"
+
+    tags {
+        Name = "hibicode"
+    }
+}
+
+19. E o Terraform eh inteligente o suficiente para saber que esse recurso, 
+
+resource "aws_subnet" "private_subnet" {
+    
+    cidr_block = ""
+    vpc_id = "${aws_vpc.main.id}"
+}
+
+, depende desse,
+
+resource "aws_vpc" "main" {
+    cidr_block = "192.168.0.0/16"
+
+    tags {
+        Name = "hibicode"
+    }
+}
+
+20. Entao, ele tem que criar esse,
+
+resource "aws_vpc" "main" {
+    cidr_block = "192.168.0.0/16"
+
+    tags {
+        Name = "hibicode"
+    }
+}
+
+, primeiro, antes de criar esse,
+
+resource "aws_subnet" "private_subnet" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = ""
+}
+
+, okay?
+
+21. E, ai, eu tenho que falar qual eh o cidr_block dessa Subnet,
+
+resource "aws_subnet" "private_subnet" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = ""
+}
+
+22. Nao eh?, A gente colocou, aqui, 192.168.10.0/24. Entao, seria, 
+
+resource "aws_subnet" "private_subnet" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = ">>> 192.168.10.0/24"
+}
+
+23. Eu vou colocar ele, tambem, dentro de Uma Zona de Disponibilidade, eu vou colocar, aqui, availability_zone, a gente esta trabalhando na "us-east-1". Entao, "us-east-1a", eh Uma das Zonas de Disponibilidades dessa Regiao. Normalmente, eh colocar letrinhas na frente, a, b, c, d, e por ai vai,
+
+resource "aws_subnet" "private_subnet" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+}
+
+24. Okay? Vamos colocar uma Tag, aqui, tambem, para a gente conseguir diferenciar, Name, vamos colocar, aqui, hibicode_private_subnet_1, algo assim,
+
+resource "aws_subnet" "private_subnet" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+
+    tags {
+        Name = "hibicode_private_subnet_1"
+    }
+}
+
+25. Okay?
+
+26. E, ai, a gente teria que, teria,..., que duplicar isso, aqui, 3 vezes, nao eh?, entao, aqui, a gente teria que ter private_subnet_1, private_subnet_2, private_subnet_3,
+
+resource "aws_subnet" "private_subnet_1" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+
+    tags {
+        Name = "hibicode_private_subnet_1"
+    }
+}
+
+resource "aws_subnet" "private_subnet_2" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+
+    tags {
+        Name = "hibicode_private_subnet_1"
+    }
+}
+
+resource "aws_subnet" "private_subnet_3" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+
+    tags {
+        Name = "hibicode_private_subnet_1"
+    }
+}
+
+, porque eh importante, esse nome, aqui, nao pode se repetir,
+
+resource "aws_subnet" >>> "private_subnet_1" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+
+    tags {
+        Name = "hibicode_private_subnet_1"
+    }
+}
+
+, dentro do seu Projeto, okay? Ai, eu teria que mudar o cidr_block para 20 e 30, availability_zone para us-east-2a, us-east-3a, Name para hibicode_private_subnet_2, hibicode_private_subnet_3,
+
+resource "aws_subnet" "private_subnet_1" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+
+    tags {
+        Name = "hibicode_private_subnet_1"
+    }
+}
+
+resource "aws_subnet" "private_subnet_2" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.20.0/24"
+    availability_zone = "us-east-2a"
+
+    tags {
+        Name = "hibicode_private_subnet_2"
+    }
+}
+
+resource "aws_subnet" "private_subnet_3" {
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.30.0/24"
+    availability_zone = "us-east-3a"
+
+    tags {
+        Name = "hibicode_private_subnet_3"
+    }
+}
+
+27. Olha so, esta vendo que esta tendo uma repeticao de codigo, aqui, que esta seguindo um padrao?
+
+28. E, ai, o Terraform pensou numa forma de a gente resolver isso.
+
+29. Ao inves de ter que duplicar esse codigo, vamos fazer um loop, aqui.
+
+30. Okay? Vamos fazer um loop, aqui. Entao, como que a gente faz um loop?
+
+31. Atraves de uma variavel chamada count, eu vou colocar, aqui, o numero 3, eu quero criar 3 recursos de aws_subnet, entao, eu vou colocar 3,
+
+resource "aws_subnet" "private_subnet_1" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+
+    tags {
+        Name = "hibicode_private_subnet_1"
+    }
+}
+
+, ai, eu nao preciso colocar, aqui, uma identificacao, eh "private_subnet", mesmo,
+
+resource "aws_subnet" >>> "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+
+    tags {
+        Name = "hibicode_private_subnet_1"
+    }
+}
+
+32. Pronto, okay?
+
+33. Entao, eu vou criar 3 dela. So que eu nao posso criar 3 com esse mesmo cidr_block e nem com a mesma availability_zone, e nem com o mesmo nome.
+
+34. Nao eh? Entao, eu tenho que dar um jeito de,..., o vpc_id, okay, mas eu tenho que dar um jeito de isso, daqui,
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    >>> cidr_block = "192.168.10.0/24"
+    >>> availability_zone = "us-east-1a"
+
+    tags {
+        >>> Name = "hibicode_private_subnet_1"
+    }
+}
+
+, ser variavel.
+
+35. Nao eh? Entao, da para a gente fazer isso. Vamos comecar pela Tag, que eh a mais facil, aqui?
+
+36. Vamos la, entao, oh?
+
+37. Eu consigo fazer isso, daqui, "hibicode_private_subnet_${}", uma interpolacao, aqui dentro. Entao, count.index, ele vai pegar, aqui, o index desse count. Entao, aqui, vai ser 0, comeca no zero, entao, vai ficar 0, 1, e 2, okay?,
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "us-east-1a"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+38. Okay? Entao, bem simples, assim, mesmo.
+
+39. E, aqui, eu consigo fazer a mesma coisa?
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = ">>> us-east-1a <<<"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+40. Bom, eu prefiro, aqui, fazer de outra forma.
+
+41. Eu vou criar um arquivo chamado variables.tf, dentro da pasta terraform, e, nesse arquivo variables.tf, eu vou criar uma variavel. Isso mesmo, uma variavel, que eu vou chamar de availability_zones, e, aqui, eu vou cadastrar todas as availability_zones, em forma de um array,
+
+variable "availability_zones" {
+    default = [
+    
+    ]
+}
+
+42. Entao, olha so, o valor dessa variavel, vai ser um default, vai ser um array, e, aqui, eu vou colocar "us-east-1a", e, dai, eu posso ir colocando, aqui, oh,
+
+variable "availability_zones" {
+    default = [
+        "us-east-1a",
+        "us-east-1b",
+        "us-east-1c"
+    ]
+}
+
+43. Okay?
+
+44. So isso. variables, coloque esse cara, dessa forma. Bom, vamos ver se ele vai reclamar na hora de executar.
+
+45. Entao, aqui, agora, em network.tf, ao inves de eu colocar interpolacao, para availability_zone, eu posso fazer o seguinte, eu posso usar aquela variavel. E, ai, para usar aquela variavel, eu posso, simplesmente, vir, aqui, e colocar ${var.availability_zones[count.index]}, ai, ele vai conseguir vir, aqui, em variables.tf, para buscar as posicoes 0, 1, e 2, da lista default,
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/24"
+    availability_zone = "${var.availability_zones[count.index]}"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+46. Okay?
+
+47. Bom, esta faltando, agora, para o cidr_block. Como eh que eu posso usar esse index, aqui?
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    >>> cidr_block = "192.168.10.0/24"
+    availability_zone = "${var.availability_zones[count.index]}"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+48. Mas, olha so, nao eh so troca esse numerozinho, aqui,
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168. >>> 10.0/24"
+    availability_zone = "${var.availability_zones[count.index]}"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+, eu tenho que mudar, aqui, tambem,
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    cidr_block = "192.168.10.0/ >>> 24"
+    availability_zone = "${var.availability_zones[count.index]}"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+, nao eh?
+
+49. Mas, ai, existe, ja, algo que o Terraform ja faz para a gente. Vamos pesquisar, aqui, no Google, terraform builtin functions, https://www.terraform.io/docs/configuration-0-11/interpolation.html#built-in-functions.
+
+50. Existem algumas funcoes que o Terraform ja criou para poder nos auxiliar nessas tarefas comuns. Uma delas eh, justamente, que mexe com cidr para sub-redes, oh, cidrsubnet(), eh essa daqui, https://www.terraform.io/docs/configuration-0-11/interpolation.html#cidrsubnet-iprange-newbits-netnum-
+
+51. E olha so como ele funciona. Voce passa, aqui, um IP, uma Rede de CIDR, de origem,
+
+cidrsubnet(>>> iprange, newbits, netnum)
+
+, quantos bits novos voce quer criar, e o valor que voce quer iniciar. Entao, olha so, 
+
+cidrsubnet("10.0.0.0/8", 8, 2)
+
+, aqui, do exemplo dele. O que que isso, aqui, vai retornar? Essa, aqui, eh a rede de partida,
+
+cidrsubnet(">>> 10.0.0.0/8", 8, 2)
+
+, no caso nosso, vai ser a rede da nossa VPC. Eu quero passar, aqui, 8 para frente. Entao, olha so, 8 para frente, ele foi para 16, ou seja, 10.0.0.0/16. Entao, se a gente tem que andar 8 na nossa rede /16, ela vai virar uma rede /24, que eh o que a gente quer. E, ai, qual que eh o valor que a gente quer que ele coloque la, oh, 
+
+cidrsubnet("10.0.0.0/8", 8, >>> 2)
+
+, entao, aqui, ele colocou 2,
+
+10.>>> 2.0.0/16
+
+52. No nosso caso, a gente vai colocar 10, 20, e 30. Okay?
+
+53. Entao, bem simples, apesar de parecer um pouco confuso, vamos la, oh, cidr_block = ${cidrsubnet()}, okay?, colocamos, como primeiro parametro, o Range de IP. Eu nao vou colocar isso, aqui, na mao, fixo, porque ja esta aqui, dentro,
+
+resource "aws_vpc" "main" {
+    cidr_block = ">>> 192.168.0.0/16"
+
+    tags {
+        Name = "hibicode"
+    }
+}
+
+, entao, eu vou colocar o que? aws_vpc.main.cidr_block,
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    >>> cidr_block = "${cidrsubnet(aws_vpc.main.cird_block, , )}192.168.10.0/24"
+    availability_zone = "${var.availability_zones[count.index]}"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+, quantos que eu quero andar para frente?
+
+54. Oito,
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    >>> cidr_block = "${cidrsubnet(aws_vpc.main.cird_block, 8, )}192.168.10.0/24"
+    availability_zone = "${var.availability_zones[count.index]}"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+55. Com qual valor? Entao, eu vou colocar count.index + 10,
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    >>> cidr_block = "${cidrsubnet(aws_vpc.main.cird_block, 8, count.index + 10)}192.168.10.0/24"
+    availability_zone = "${var.availability_zones[count.index]}"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+56. Posso apagar esse resto, aqui,
+
+resource "aws_subnet" "private_subnet" {
+    count = 3
+    
+    vpc_id = "${aws_vpc.main.id}"
+    >>> cidr_block = "${cidrsubnet(aws_vpc.main.cird_block, 8, count.index = 10)}"
+    availability_zone = "${var.availability_zones[count.index]}"
+
+    tags {
+        Name = "hibicode_private_subnet_${count.index}"
+    }
+}
+
+57. Entao, agora, olha so, pega o cidr_block da aws_vpc, ando 8, para transformar numa rede /24, ai, vai colocar 10, depois, 20, depois, 30.
+
+58. Okay?
+
+59. Vamos ver se isso funciona?
+
+60. Vamos no Prompt de comando, e vamos colocar terraform init, 
+
+> terraform init
+
+, para ver se tem que inicializar alguma coisa. Muitas vezes, voce usar um Recurso, aqui, referenciado nos arquivos do Terraform, que precisa ser inicializado, entao, da um comando de terraform init. O terraform init, tambem, eh um cara bom para ver se esta tudo certo, se voce tem algum erro, ali, de estrutura no seu arquivo do Terraform.
+
+61. Agora,
+
+> terraform apply
+
+62. us-east-1
+
+63. Entao, olha la, o que que ele esta falando que vai criar?
+
+64. Vai criar 3 subnets pra mim. A 192.168.10.0/24, na "us-east-1a", a 192.168.11.0/24, opa, ficou 11, nao eh? E 12. Porque, se comeca no 0,..., entao, vamos atualizar aqui. Entao, vamos atualizar aqui, no Desenho, em draw.io, vai ficar 192.168.10.0/24, 192.168.11.0/24, 192.168.12.0/24.
+
+65. Entao, vamos deixar, assim, 10, 11 e 12.
+
+66. Teria que multiplicar, se eu quisesse dessa forma, ou seja, 10, 20, 30.
+
+67. Mas, vamos deixar assim. Cada uma em uma Zona diferente, isso que eh importante a gente conferir, "us-east-1a", "us-east-1b" e "us-east-1c".
+
+68. Okay? Os nomes, tambem, ou seja, tags.Name, esta todos diferentes.
+
+69. Posso dar o yes, aqui, e, depois, olhar no Console, se tudo deu certo.
+
+70. Importante serem criadas dentro da VPC correta, tambem.
+
+71. Nao eh? Vamos olhar, aqui, no Console da AWS, vamos la no Servico de VPC, vamos buscar, aqui, as Subnets, temos que ter 3 Subnets novas, aqui, oh, 3 subnets novas, olha la, subnet_0, 1 e 2. Elas estao dentro da VPC hibicode.
+
+72. Entao, esta certinho, foi o que eu quis criar, oh, dentro da zona 1a, 1b e 1c.
+
+73. Eu tenho os CIDR's delas 10, 11 e 12, tem 251 IP's disponiveis dentro de cada uma.
+
+74. Ah, Normandes, nao era para ter mais?
+
+75. Sim, mas a AWS rouba alguns, ali, tambem, okay? Ela pega alguns para fazer para uso dela, ali.
+
+76. Beleza?
+
+77. Bom, entao, eh isso, daqui, estamos com as subnets privadas criadas, aqui, dentro ja.
+
+78. Fim da     Aula 05.008. Provisionando as Subnets Privadas.
+
+-->

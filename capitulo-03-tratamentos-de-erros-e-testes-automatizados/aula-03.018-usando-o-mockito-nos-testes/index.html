@@ -1,0 +1,1776 @@
+<!-- 
+
+Aula 03.018. Usando o Mockito nos Testes
+
+
+
+1. Para a gente, entao, nao receber esse NullPointerException, vamos adicionar o Mockito, aqui, no Projeto.
+
+
+
+2. O Mockito, entao, vai substituir esse objeto, aqui,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+@Autowired
+
+private >>> Beers <<< beers;
+
+
+
+public Beer save(Beer beer) {
+
+Optional<Beer> beerByNameAndType = this.beers.save(beer);
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+return this.beers.save(beer);
+
+}
+
+} 
+
+
+
+, por um que a gente controle.
+
+
+
+3. Okay? E a forma legal de a gente poder fazer isso eh injetar esse atributo,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+@Autowired
+
+>>> private Beers beers; <<<
+
+
+
+public Beer save(Beer beer) {
+
+Optional<Beer> beerByNameAndType = this.beers.save(beer);
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+return this.beers.save(beer);
+
+}
+
+} 
+
+
+
+, no Construtor, ao inves de ser, aqui, por um Autowired.
+
+
+
+4. Voce vai entender por que em alguns segundos.
+
+
+
+5. Entao, eu vou criar, aqui, o Construtor, que vai receber Beers, e esse cara vai inicializar o beers, aqui. 
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+@Autowired
+
+private Beers beers;
+
+
+
+public BeerService(Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+Optional<Beer> beerByNameAndType = this.beers.save(beer);
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+return this.beers.save(beer);
+
+}
+
+} 
+
+
+
+6. E a gente adiciona a anotacao @Autowired aqui, no Construtor,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+Optional<Beer> beerByNameAndType = this.beers.save(beer);
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+return this.beers.save(beer);
+
+}
+
+}
+
+
+
+7. Bom, por que que a gente vai fazer isso?
+
+
+
+8. Primeiro, porque, quando eu for usar, aqui, em BeerServiceTest,
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+@Before
+
+public void setUp() {
+
+this.beerService = new BeerService();
+
+}
+
+
+
+...
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+this.beerService.save(newBeer);
+
+}
+
+}
+
+
+
+, nao eh?, aqui, na hora de criar o BeerService,
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+@Before
+
+public void setUp() {
+
+this.beerService = new BeerService(>>> <<<);
+
+}
+
+
+
+...
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+this.beerService.save(newBeer);
+
+}
+
+}
+
+
+
+, eu posso passar o objeto que eu controle.
+
+
+
+9. Quando eu estiver executando no contexto do Spring, o objeto eh injetado, aqui, para mim,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(>>> @Autowired Beers beers<<< ) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+
+
+...
+
+}
+
+}
+
+
+
+10. Quando eu estiver fazendo o Teste Unitario, eu passo o valor que eu quiser,
+
+
+
+...
+
+
+
+public class BeerServiceTest {
+
+...
+
+
+
+@Before
+
+public void setUp() {
+
+this.beerService = new BeerService( >>> <<<);
+
+}
+
+
+
+11. E uma outra coisa legal, de fazer injecao no Construtor,
+
+
+
+...
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+...
+
+}
+
+
+
+, eh que, se voce estiver crescendo demais essa lista, aqui,
+
+
+
+...
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(>>> @Autowired Beers beers <<<) {
+
+this.beers = beers;
+
+}
+
+
+
+...
+
+}
+
+
+
+, 5, 6, 7, 10, imagina, bom, parece que essa classe, aqui, esta tendo responsabilidade demais.
+
+
+
+12. Entao, isso, tambem te daria um insight, assim, para: "Opa, eu acho que isso esta fazendo muita coisa, deixa eu quebrar.".
+
+
+
+13. Beleza?
+
+
+
+14. Entao, por esse motivo, tambem eh legal de a gente fazer injecao pelo Construtor.
+
+
+
+15. Entao, okay. Para eu injetar, entao, um objeto que eu controle, eu vou cria-lo, esse objeto, aqui, oh, private Beers beersMocked, vou colocar esse nome de Mocked, para a gente ter certeza de que eh um cara mocado. 
+
+
+
+...
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+>>> private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+this.beerService = new BeerService();
+
+}
+
+
+
+...
+
+
+
+15. E, ai, eu vou adicionar uma anotacao @Mock, do pacote org.mockito, anotacao do Mockito, okay?
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+@Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+this.beerService = new BeerService();
+
+}
+
+
+
+...
+
+
+
+16. E, aqui, dentro do setUp(), agora, eu vou, simplesmente, fazer MockitoAnnotations.initMocks(), passando this, ou seja, inicie os mocks que estao neste objeto, aqui,
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+@Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService();
+
+}
+
+
+
+...
+
+
+
+17. Beleza?
+
+
+
+18. E, agora, depois que esses caras, nao eh?, inicializados, todos os Mocks,
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+>>> @Mock
+
+>>> private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService();
+
+}
+
+
+
+...
+
+
+
+, pode ter mais de um Mock, aqui,
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+>>> @Mock
+
+>>> private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService();
+
+}
+
+
+
+...
+
+
+
+, todos eles tiveram que ser inicializados, eu posso passar esse Mock,
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+@Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService(>>> beersMocked);
+
+}
+
+
+
+...
+
+
+
+, aqui, para a classe de Servico,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(>>> @Autowired Beers beers<<< ) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+
+
+...
+
+}
+
+}
+
+
+
+19. Beleza?
+
+
+
+20. Essa eh a configuracao,
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+>>> @Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService(beersMocked);
+
+} <<<
+
+
+
+...
+
+
+
+21. Ah, Normandes, mas, ainda, eu nao entendi. Como que eu uso esse beersMocked?,
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+@Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService(>>> beersMocked);
+
+}
+
+
+
+...
+
+
+
+22. Bom, ele tem que fazer o papel que ele faria, aqui, no Banco de Dados,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+>>> private Beers beers <<<;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+
+
+Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+...
+
+
+}
+
+}
+
+
+
+23. Entao, oh, findByNameAndType(),
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+
+
+Optional<Beer> beerByNameAndType = this.beers. >>>findByNameAndType(beer.getName(), beer.getType());
+
+
+
+...
+
+
+}
+
+}
+
+
+
+24. Quando acontecer isso, daqui,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+
+
+Optional<Beer> beerByNameAndType = this.beers. >>>findByNameAndType(beer.getName(), beer.getType());
+
+
+
+...
+
+
+}
+
+}
+
+
+
+, findByNameAndType(), eu quero que ele retorne um Objeto, um Optional de Beer,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+
+
+>>> Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+...
+
+
+}
+
+}
+
+
+
+25. E eh exatamente isso que a gente escreve. Entao, vamos, oh, vamos comecar, aqui, no should_deny_creation_of_beer_that_exists(),
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+@Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService(>>> beersMocked);
+
+}
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+...
+
+
+
+26. Entao, veja bem, eu vou fazer um import estatico, aqui, primeiro, eu vou colocar esse import aqui, oh, import static org.mockito.Mockito.when;
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+>>> import static org.mockito.Mockito.when;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+@Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService(beersMocked);
+
+}
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+...
+
+
+
+27. Olha so, agora, quando, when(), eu estou usando aquele metodo estatico que eu implementei, quando, when(), em beersMocked.findByNameAndType(), for chamado, passando, recebendo, nao eh?, esses parametros, aqui, oh, "Heineken", e BeerType.LAGER, quando isso acontecer, entao, thenReturn(), eu quero que voce retorne um Optional, de, Optional.of(), algum objeto que a gente vai criar, eu vou colocar, aqui, oh, beerInDatabase, algo assim que a gente vai criar, aqui, agora, oh, Beer beerInDatabase = new Beer();
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+import static org.mockito.Mockito.when;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+@Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService(beersMocked);
+
+}
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+Beer beerInDatabase = new Beer();
+
+when(beersMocked.findByNameAndType("Heineken", BeerType.LAGER)).thenReturn(Optional.of(beerInDatabase));
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+...
+
+
+
+28. E, ai, vamos setar, aqui, os atributos? beerInDatabase.setId(10L), vamos imaginar que teria um ID, ali, que estaria no Banco, nao tem, nao eh? beerInDatabase.setName("Heineken");, beerInDatabase.setVolume(new BigDecimal("355")), e beerInDatabase.setType(BeerType.LAGER);
+
+
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+Beer beerInDatabase = new Beer();
+
+beerInDatabase.setId(10L);
+
+beerInDatabase.setName("Heineken");
+
+beerInDatabase.setVolume(new BigDecimal("355"));
+
+beerInDatabase.setType(BeerType.LAGER);
+
+when(beersMocked.findByNameAndType("Heineken", BeerType.LAGER)).thenReturn(Optional.of(beerInDatabase));
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+29. Entao, oh, vamos repassar essa parte, aqui, mais uma vez.
+
+
+
+30. Eu crio um objeto, 
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+
+>>> Beer beerInDatabase = new Beer();
+
+beerInDatabase.setId(10L);
+
+beerInDatabase.setName("Heineken");
+
+beerInDatabase.setVolume(new BigDecimal("355"));
+
+beerInDatabase.setType(BeerType.LAGER);
+
+<<<
+
+
+
+when(beersMocked.findByNameAndType("Heineken", BeerType.LAGER)).thenReturn(Optional.of(beerInDatabase));
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+, que eu quero que seja no Banco de Dados, que seria o objeto retornado por esse cara, aqui, oh, 
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+
+
+Optional<Beer> beerByNameAndType = >>> this.beers.findByNameAndType(beer.getName(), beer.getType()); <<<
+
+
+
+...
+
+
+}
+
+}
+
+
+
+, por esse metodo, findByNameAndType(). So que eu nao vou no Banco de Dados, entao, eu tenho que mocar.
+
+
+
+31. Entao, esse objeto, 
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+
+>>> Beer beerInDatabase = new Beer(); <<<
+
+beerInDatabase.setId(10L);
+
+beerInDatabase.setName("Heineken");
+
+beerInDatabase.setVolume(new BigDecimal("355"));
+
+beerInDatabase.setType(BeerType.LAGER);
+
+
+
+when(beersMocked.findByNameAndType("Heineken", BeerType.LAGER)).thenReturn(Optional.of(beerInDatabase));
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+, tem que ser retornado pelo objeto Mock,
+
+
+
+...
+
+
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
+
+
+
+import static org.mockito.Mockito.when;
+
+
+
+public class BeerServiceTest {
+
+
+private BeerService beerService;
+
+
+
+@Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService(>>> beersMocked<<< );
+
+}
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+Beer beerInDatabase = new Beer();
+
+beerInDatabase.setId(10L);
+
+beerInDatabase.setName("Heineken");
+
+beerInDatabase.setVolume(new BigDecimal("355"));
+
+beerInDatabase.setType(BeerType.LAGER);
+
+
+
+when(beersMocked.findByNameAndType("Heineken", BeerType.LAGER)).thenReturn(Optional.of(beerInDatabase));
+
+
+
+...
+
+}
+
+
+
+...
+
+
+
+, que a gente passou para o BeerService.
+
+
+
+32. Entao, oh, quando o beersMocked.findByNameAndType(), receber essa String: "Heineken", e esse tipo: LAGER, entao, ele vai retornar um Optional desse beerInDatabase,
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+Beer beerInDatabase = new Beer();
+
+beerInDatabase.setId(10L);
+
+beerInDatabase.setName("Heineken");
+
+beerInDatabase.setVolume(new BigDecimal("355"));
+
+beerInDatabase.setType(BeerType.LAGER);
+
+
+
+>>> when(beersMocked.findByNameAndType("Heineken", BeerType.LAGER)).thenReturn(Optional.of(beerInDatabase));
+
+
+
+...
+
+}
+
+
+
+...
+
+
+
+33. So isso?
+
+
+
+34. So isso.
+
+
+
+35. Mais nada.
+
+
+
+36. Acabou, okay?
+
+
+
+37. Isso, daqui, ja vai fazer esse Mock funcionar. Vamos testar so a execucao desse teste, aqui, ou seja, should_deny_creation_of_beer_that_exists? Vamos esperar ele carregar, o teste que ficar verdinho.
+
+
+
+38. Beleza, oh, o teste ficou verdinho.
+
+
+
+39. Entao, para esse Teste, esta certo.
+
+
+
+40. Para o teste should_create_new_beer(), 
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+Beer beerSaved = this.beerService.save(newBeer);
+
+
+
+L. 63 assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.getName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER));
+
+
+
+
+
+}
+
+
+
+, ainda nao vai funcionar, vamos executar esse, daqui. Retornou,
+
+
+
+java.lang.NullPointerException
+
+at com.hibicode.beerstore.service.BeerServiceTest.should_create_new_beer(BeerServiceTest.java:63)
+
+
+
+41. Por que nao? Porque a gente nao fez o Mock do save(), nao eh? A gente nao fez as coisas, la ainda. Entao, ainda vamos receber um NullPointerException aqui. A gente nao esta recebendo nada, aqui,
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+Beer >>> beerSaved = this.beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.getName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER));
+
+
+
+
+
+}
+
+
+
+42. Okay?
+
+
+
+43. Entao, oh, para o should_create_new_beer(), o que que a gente pode fazer?
+
+
+
+44. A gente pode, poderia, simplesmente, colocar, aqui, tambem, oh, when(),
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+>>> when();
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+Beer beerSaved = this.beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.getName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER));
+
+
+
+
+
+}
+
+
+
+, ou, entao, vamos colocar, aqui, um pouquinho, antes do save(). Entao, vamos la, oh, quando, when(), no beersMocked, o metodo save(), for chamado, recebendo uma Cerveja, do tipo newBeer, Entao, eu Quero que ele retorne uma Cerveja que ja esteja salva no Banco de Dados. Concorda comigo? Eh uma Cerveja mocada la dentro. Entao, eu vou colocar beerInDatabase, tambem, na verdade, vamos chama-la de newBeerInDatabase, porque eh a nova Cerveja que foi salva no Banco,
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+when(beersMocked.save(newBeer)).thenReturn(newBeerInDatabase);
+
+Beer beerSaved = this.beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.getName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER));
+
+
+
+
+
+}
+
+
+45. Entao, vai ser Beer newBeerInDatabase = new Beer();,
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+Beer newBeerInDatabase = new Beer();
+
+when(beersMocked.save(newBeer)).thenReturn(newBeerInDatabase);
+
+Beer beerSaved = this.beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.getName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER));
+
+
+
+
+
+}
+
+
+
+, newBeerInDatabase.setId(10L), vamos colocar, aqui, oh, tem que ser exatamente esses caras, aqui, agora,
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.getName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER));
+
+
+
+, newBeerInDatabase.setName("Heineken");, se digita uma letrinha errada, vai dar problema, newBeerInDatabase.setType(BeerType.LAGER);
+
+
+
+46. Okay? Vamos ver agora,
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+Beer newBeerInDatabase = new Beer();
+
+newBeerInDatabase.setId(10L);
+
+newBeerInDatabase.setName("Heineken");
+
+newBeerInDatabase.setType(BeerType.LAGER);
+
+when(beersMocked.save(newBeer)).thenReturn(newBeerInDatabase);
+
+Beer beerSaved = this.beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.getName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER));
+
+
+
+
+
+}
+
+
+
+47. Agora, passou: Tests passed: 1.
+
+
+
+48. Agora, passou sem nenhum problema.
+
+
+
+49. Okay?
+
+
+
+50. Entao, oh, a gente esta com os dois Testes passando, BeerServiceTest, se eu mandar Executar BeerServiceTest, ele vai executar os dois metodos de Teste, e os dois estao verdinhos: Tests passed: 2.
+
+
+
+51. Se os dois estao verdinhos, a gente nao tem nada para refatorar, aqui,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+
+
+Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+return this.beers.save(beer);
+
+
+}
+
+}
+
+
+
+, a nossa Tarefa terminou.
+
+
+
+52. Nao eh? A gente pode ir para as proximas tarefas, e, ai, a gente vai testar outras coisas. Vamos adicionar metodos para testar a Edicao, por exemplo, sera, quando eu estiver editando uma Cerveja, tem alguma Regra especial?
+
+
+
+53. Nao eh? Entao, a gente vai ver isso na proxima aula.
+
+
+
+54. Fim da Aula 03.018. Usando o Mockito nos Testes.
+
+
+
+-->​

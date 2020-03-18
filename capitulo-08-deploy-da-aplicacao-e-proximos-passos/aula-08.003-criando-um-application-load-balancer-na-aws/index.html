@@ -1,0 +1,871 @@
+<!-- 
+
+Aula 08.003. Criando um Application Load Balancer na AWS
+
+
+
+1. Entao, vamos la. Vamos criar o noss Application Load Balancer, aqui.
+
+
+
+2. Entao, vamos criar um novo arquivo, aqui, no IntelliJ, New / File, eu vou chamar de loadbalancer.tf.
+
+
+
+3. Entao, vamos la. A primeira coisa que a gente precisa criar, "aws_lb", de Load Balancer, eu vou chamar dele de "alb", que a gente vai criar um Application Load Balancer, okay?
+
+
+
+4. Entao, lembrando, eu estou criando esse cara, aqui, esse Laranjinha, aqui, que eh o Load Balancer, beleza?
+
+
+
+resource "aws_lb" "alb" {
+
+
+
+}
+
+
+
+5. Qual eh o nome dele?
+
+
+
+6. Nos vamos colocar, aqui, "hibicode-beerstore-alb", okay?
+
+
+
+resource "aws_lb" "alb" {
+
+name = "hibicode-beerstore-alb"
+
+
+
+
+
+}
+
+
+
+7. A gente precisa do Security Groups dele, tambem, e quais as redes ele vai entrar, tambem. Quais sao os Security Groups que esse cara vai participar?
+
+
+
+8. Entao, security_groups = []
+
+
+
+resource "aws_lb" "alb" {
+
+name = "hibicode-beerstore-alb"
+
+
+
+security_groups = []
+
+}
+
+
+
+9. Entao, eu tenho que liberar a porta 80. Eu tenho que liberar a porta 80 para esse Load Balancer, nao eh?
+
+
+
+10. Entao, daqui a pouquinho, a gente chega la.
+
+
+
+11. Vamos deixar, aqui, sem, por enquanto.
+
+
+
+12. As subnets, que esse cara participa,
+
+
+
+resource "aws_lb" "alb" {
+
+name = "hibicode-beerstore-alb"
+
+
+
+security_groups = []
+
+
+
+subnets = []
+
+}
+
+
+
+13. Ai, a gente pode copiar, por exemplo, eu acho que, do banco de dados, em database.tf. Sim, a gente pode pegar, aqui, oh, as subnet_ids, a gente pode pegar essa parte, aqui,
+
+
+
+"${flatten(chuncklist(aws_subnet.private_subnet.*.id, 1))}"
+
+
+
+, para fazer a recuperacao, isso,
+
+
+
+resource "aws_lb" "alb" {
+
+name = "hibicode-beerstore-alb"
+
+
+
+security_groups = []
+
+
+
+subnets = ["${flatter(chuncklist(aws_subnet.private_subnet.*.id, 1))}"]
+
+}
+
+
+
+14. Entao, ele participa de todas essas subredes ai, nao eh? So que, aqui, nao seriam as private_subnet's, sao as public_subnet's, a gente esta na rede publica, para receber as requisicoes e encaminhar para as nossas Instancias EC2,
+
+
+
+resource "aws_lb" "alb" {
+
+name = "hibicode-beerstore-alb"
+
+
+
+security_groups = []
+
+
+
+subnets = ["${flatten(chuncklist(aws_subnet.public_subnet.*.id, 1))}"]
+
+}
+
+
+
+15. Okay?
+
+
+
+16. Bom, tem, aqui, enable_deletion_protection, eu vou colocar como false, 
+
+
+
+resource "aws_lb" "alb" {
+
+name = "hibicode-beerstore-alb"
+
+
+
+security_groups = []
+
+
+
+subnets = ["${flatten(chuncklist(aws_subnet.public_subnet.*.id, 1))}"]
+
+
+
+enable_deletion_protection = false
+
+}
+
+
+
+17. Se fosse em Producao, seria interessante voce colocar como true, para evitar apagar, por engano, por exemplo.
+
+
+
+18. Beleza?
+
+
+
+19. Bom, entao, isso, aqui, a gente criou esse cara, ou seja o Load Balancer.
+
+
+
+20. O que a gente pode fazer, agora?
+
+
+
+21. Vamos criar um Target Group, que, ai, depois, a gente, simplesmente, cria o Listener, e encaminha a Requisicao para o Target Group.
+
+
+
+22. Okay?
+
+
+
+23. Entao, vamos la.
+
+
+
+24. resource "aws_lb_target_group" "", entao, vamos chamar, aqui, de "alt_tg", de Target Group. Entao, vamos la,
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+
+name = ""
+
+port = 
+
+protocol = ""
+
+vpc_id = ""
+
+
+
+}
+
+
+
+25. name. O Target Group, se voce olhar, aqui, ele esta,..., ou seja, eh o Grupo Alvo, eh o Grupo onde estao as nossas Instancias EC2, que eu quero receber a Requisicao.
+
+
+
+26. Entao, eu vou chamar, aqui, de "hibicode-beerstore". Okay? Entao, eh o Grupo que manda para o "beerstore". Qual eh a porta que ele vai, desse Target Group?
+
+
+
+27. Aqui, a nossa Aplicacao, esta escutando na porta 8080, nao eh?
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+
+name = "hibicode-beerstore"
+
+port = 8080
+
+protocol = "HTTP"
+
+vpc_id = ""
+
+
+
+}
+
+
+
+
+
+28. Qual eh o protocolo? HTTP
+
+
+
+29. Qual eh a VPC ID?
+
+
+
+30. ${aws_vpc.main.id}
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+name = "hibicode-beerstore"
+
+vpc_id = "${aws_vpc.main.id}"
+
+port = 8080
+
+protocol = "HTTP"
+
+}
+
+
+
+31. Vamos definir o health_check, agora, nao eh?
+
+
+
+32. Lembra, aqui, oh, na figura? Tem um health check, eh a requisicao que ele vai ficar fazendo para as Instancias, para todas as Instancias, para verificar se elas estao saudaveis ou nao.
+
+
+
+33. Entao, tem um monte de parametros para eu colocar, aqui, comecando pelo path, o que que ele vai chamar?
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+name = "hibicode-beerstore"
+
+vpc_id = "${aws_vpc.main.id}"
+
+port = 8080
+
+protocol = "HTTP"
+
+
+
+health_check {
+
+path = ""
+
+}
+
+}
+
+
+
+34. Na nossa aplicacao, se voce olhar, aqui, no build.gradle, a gente adicionou o actuator,
+
+
+
+...
+
+compile 'org.springframework.boot:spring-boot-starter-actuator'
+
+
+
+35. O Actuator, ele levanta uma API, que a gente pode chamar para ele retornar se esta Saudavel ou nao.
+
+
+
+36. Entao, eu consigo vir, aqui, oh, em path, "/actuator/health",
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+name = "hibicode-beerstore"
+
+vpc_id = "${aws_vpc.main.id}"
+
+port = 8080
+
+protocol = "HTTP"
+
+
+
+health_check {
+
+path = "/actuator/health"
+
+}
+
+}
+
+
+
+37. Isso, aqui, ele vai me retornar um 200, falando se deu Okay ou nao. Se ele retornar 200, significa que a aplicacao esta saudavel,
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+name = "hibicode-beerstore"
+
+vpc_id = "${aws_vpc.main.id}"
+
+port = 8080
+
+protocol = "HTTP"
+
+
+
+health_check {
+
+path = "/actuator/health"
+
+matcher = 200
+
+}
+
+}
+
+
+
+38. Beleza?
+
+
+
+39. Em quanto em quanto tempo ele vai ficar fazendo isso?
+
+
+
+40. Em 2 em 2 minutos, ele fica fazendo isso,
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+name = "hibicode-beerstore"
+
+vpc_id = "${aws_vpc.main.id}"
+
+port = 8080
+
+protocol = "HTTP"
+
+
+
+health_check {
+
+path = "/actuator/health"
+
+matcher = 200
+
+interval = 120
+
+}
+
+}
+
+
+
+41. Para considerar uma instancia saudavel, tem que retornar 5 vezes com sucesso,
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+name = "hibicode-beerstore"
+
+vpc_id = "${aws_vpc.main.id}"
+
+port = 8080
+
+protocol = "HTTP"
+
+
+
+health_check {
+
+path = "/actuator/health"
+
+matcher = 200
+
+interval = 120
+
+healthy_threshold = 5
+
+}
+
+}
+
+
+
+42. Para tratar uma Instancia como nao saudavel, eu coloco 3 vezes. Se ele retornar 3 vezes com problema, a nossa Instancia nao esta saudavel mais,
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+name = "hibicode-beerstore"
+
+vpc_id = "${aws_vpc.main.id}"
+
+port = 8080
+
+protocol = "HTTP"
+
+
+
+health_check {
+
+path = "/actuator/health"
+
+matcher = 200
+
+interval = 120
+
+healthy_threshold = 5
+
+unhealthy_threshold = 3
+
+}
+
+}
+
+
+
+43. E eu vou esperar, no maximo, 10 segundos, por uma resposta.
+
+
+
+resource "aws_lb_target_group" "alb_tg" {
+
+name = "hibicode-beerstore"
+
+vpc_id = "${aws_vpc.main.id}"
+
+port = 8080
+
+protocol = "HTTP"
+
+
+
+health_check {
+
+path = "/actuator/health"
+
+matcher = 200
+
+interval = 120
+
+healthy_threshold = 5
+
+unhealthy_threshold = 3
+
+timeout = 10
+
+}
+
+}
+
+
+
+44. Se passar de 10 segundos, significa que esta ruim tambem essa minha aplicacao.
+
+
+
+45. Okay?
+
+
+
+46. Bom, esse eh o Target Group.
+
+
+
+47. Agora, esse Target Group precisa estar associado as nossas Instancias.
+
+
+
+48. Entao, existe um resource, aqui, "aws_lb_target_group_attachment", okay?
+
+
+
+49. Esse cara, "alb_group_attachment", eh o que faz a associacao entre um Target Group e todas as nossas instancias.
+
+
+
+50. Okay?
+
+
+
+51. Entao, o que que eu vou fazer aqui?
+
+
+
+52. Se eu tenho 3 instancias, count = "3", okay? target_group_arn: qual que eh o Target Group que eu criei? Esse, aqui, eh a identificacao desse Target Group, aqui, ou seja, "alb_tg", e ele faz por essa associacao de arn. arn seria uma forma de identificar o recurso, dentro da AWS, tambem. Okay?
+
+
+
+53. Entao, ${aws_lb_target_group.alb_tg.arn},
+
+
+
+resource "aws_lb_target_group_attachment" "alb_group_attachment" {
+
+count = "3"
+
+target_group_arn = "${aws_lb_target_group.alb_tg.id}"
+
+target_id = ""
+
+}
+
+
+
+54. Como eu disse, uma outra forma de identificar.
+
+
+
+55. E ele vai mandar para quem?
+
+
+
+56. Ele vai mandar para as nossas Instancias.
+
+
+
+57. Eu nao tenho 3 Instancias?
+
+
+
+58. Entao, eu tenho que pegar uma a uma. Entao, em target_id, nos vamos usar aquele "${}element()", a gente ja viu, ${element(aws_instance.)}, todas as nossas instancias, ${element(aws_instance.instances.*.id)}, so que ele vai pegar count.index, ou seja, uma a uma,
+
+
+
+resource "aws_lb_target_group_attachment" "alb_group_attachment" {
+
+count = "3"
+
+target_group_arn = "${aws_lb_target_group.alb_tg.id}"
+
+target_id = "${element(aws_instance.instances.*.id, count.index)}"
+
+}
+
+
+
+59. E qual eh a porta que esta escutando la? A porta 8080,
+
+
+
+resource "aws_lb_target_group_attachment" "alb_group_attachment" {
+
+count = "3"
+
+target_group_arn = "${aws_lb_target_group.alb_tg.id}"
+
+target_id = "${element(aws_instance.instances.*.id, count.index)}"
+
+port = 8080
+
+}
+
+
+
+60. Okay?
+
+
+
+61. Bom, entao, a gente fez o heath check, aqui, criamos o target group, e fizemos a associacao, agora, que eh esse attachment, que seria ligar as Instancias, no Target Group.
+
+
+
+62. Entao, falta a gente criar o Listener e esse Listener apontar para ca, para o Target Group.
+
+
+
+63. Okay?
+
+
+
+64. Entao, vamos la.
+
+
+
+resource "aws_lb_listener" "alb_listener" {
+
+load_balancer_arn = ""
+
+port = 0
+
+
+
+"default_action" {
+
+type = ""
+
+}
+
+}
+
+
+
+65. Entao, qual eh o load balancer que esse Listener esta associado?
+
+
+
+66. Eu preciso associar ele ao Load Balancer, que eh esse primeiro que a gente criou, ou seja, "alb".
+
+
+
+67. Entao, vamos la, vai ser o ${aws_lb.alb.arn}
+
+
+
+resource "aws_lb_listener" "alb_listener" {
+
+load_balancer_arn = "${aws_lb.alb.arn}"
+
+port = 0
+
+
+
+"default_action" {
+
+type = ""
+
+}
+
+}
+
+
+
+68. Qual eh a porta que o Listener vai ouvir?
+
+
+
+69. Eh a porta que vai estar exposta para o mundo.
+
+
+
+70. Eu quero que ele escute na porta 80
+
+
+
+71. Ele encaminha para dentro na porta 8080, mas ele escuta na porta 80. Legal isso, nao eh?
+
+
+
+72. Em qual protocolo?
+
+
+
+73. HTTP,
+
+
+
+
+
+resource "aws_lb_listener" "alb_listener" {
+
+load_balancer_arn = "${aws_lb.alb.arn}"
+
+port = 80
+
+protocol = "HTTP"
+
+
+
+"default_action" {
+
+type = ""
+
+}
+
+}
+
+
+
+74. Bom, lembra que eu falei que, as vezes, tem as regras, aqui, no Listener?
+
+
+
+75. Entao, eu posso ter varias regras, aqui, e ter uma Regra default.
+
+
+
+76. A gente so vai criar a regra default.
+
+
+
+77. Mas, se voce quiser, voce pode criar mais de uma Regra, oh, como esta definido aqui. Voce pode ter regras diferentes.
+
+
+
+78. E uma regra default.
+
+
+
+79. Okay?
+
+
+
+80. Qual que eh o tipo dessa regra?
+
+
+
+81. Eh uma regra de encaminhamento, "forward", e ele vai encaminhar para quem? target_group_arn, e, ai, a gente encaminha para o "${aws_lb_target_group.alb_tg.arn}"
+
+
+
+82. Okay?
+
+
+
+83. Eu vou colocar um output, aqui, para a gente ver a URL dele,
+
+
+
+output "loadbalancer" {
+
+value = "${aws_lb.alb.dns_name}"
+
+}
+
+
+
+, e a gente vai ver o valor do DNS, aqui, tambem, usando essa saida de "loadbalancer".
+
+
+
+84. Complicado? Eu concordo que eh um pouquinho sim. Tem muita coisa para a gente criar no Load Balancer, mas, Load Balancer nao eh algo simples, mesmo, nao eh?
+
+
+
+85. Mas, se voce ficar fazendo sempre a associacao com essa Imagem, eu acho que tende a ficar um pouco mais simples: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html.
+
+
+
+86. Entao, voce tem que criar 3 coisas, nao eh? O Load Balancer, o Listener, e o Target Group.
+
+
+
+87. Depois, voce tem que associar o Listener ao Load Balancer, e tem que associar o Target Group ao Listener.
+
+
+
+88. Okay?
+
+
+
+89. E tem as regras do Listener.
+
+
+
+90. E tem o Health Check, dentro do Target Group.
+
+
+
+91. Entao, sao as pecas, nao eh?, alguns legos, que a gente precisa encaixar, ai.
+
+
+
+92. Bom, eh isso, daqui. Eu vou fazer o seguinte, vamos executar, aqui, esse terraform, mas, na proxima aula, que a gente vai mexer em Security Group, e tal, porque, senao, esta aula ja esta ficando bem grande, entao, eu vou parar, por aqui, so para a gente ver se esta tudo certo.
+
+
+
+terraform> run-terraform.bat
+
+
+
+93. Ele ja esta pedindo, aqui, falando que vai criar, nao eh?, o Load Balancer, o Listener, o Target Group, e tal, eu vou dar um yes, esperar ele criar, mas, se a gente tentar acessar, a gente vai ver que nao vai conseguir, porque a gente nao tem regras de Security Group, ainda.
+
+
+
+94. Okay?
+
+
+
+95. Entao, eu vou deixar para fazer isso na proxima aula. Se voce quiser gastar um pouquinho, ai, de tempo e tentar criar esse Security Group e associar, fique a vontade, antes de passar para a proxima aula.
+
+
+
+96. Entao, eu so vou esperar criar esse Load Balancer, e testar, para a gente ver que nao esta funcionando, e, ai, a gente vai para a proxima. A gente tem que mexer em 2 Security Groups, nao eh?, o Security Group do Load Balancer, e o Security Group da Aplicacao.
+
+
+
+97. Entao, eu so vou esperar, aqui, essa criacao.
+
+
+
+98. Criou o Load Balancer, e ele mostrou, aqui, oh, a URL que ele criou, do nosso Load Balancer. Okay?
+
+
+
+99. Entao, seria essa, daqui, que a gente vai colocar aqui, no Postaman, agora, a gente vai tirar, inclusive, a porta: GET, http://hibicode-beerstore-alb-817412003.us-east-1.elb.amazonaws.com/beers
+
+
+
+100. So que a gente ja sabe que nao vai funcionar, porque nao tem regras de seguranca para a gente chegar la. Beleza? Entao, na proxima aula, a gente configura isso dai.
+
+
+
+101. Fim da Aula 08.003. Criando um Application Load Balancer na AWS.
+
+
+
+-->​

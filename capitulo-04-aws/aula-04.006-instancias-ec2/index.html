@@ -1,0 +1,255 @@
+<!-- 
+
+Aula 04.006. Instancias EC2
+
+
+
+1. Vamos falar, agora, da Amazon EC2.
+
+
+
+2. Eh um dos principais servicos da AWS, https://aws.amazon.com/pt/ec2.
+
+
+
+3. EC2 eh a sigla para Elastic Compute Cloud.
+
+
+
+4. Okay? Entao, eh uma forma de fazer Computacao Elastica na Cloud, nao eh?, eu acho que esse eh o objetivo do nome.
+
+
+
+5. Por que Elastico?
+
+
+
+6. Porque a gente consegue criar quantas maquinas a gente quiser, com varios formatos, enfim, eh algo bem, bem flexivel, mesmo.
+
+
+
+7. Vamos dar uma olhada aqui, oh, no Desenho.
+
+
+
+8. Uma Instancia EC2, voce representa por esse desenhozinho, aqui, Laranja.
+
+
+
+9. E, normalmente, eh uma boa pratica voce colocar o nome embaixo daquilo que representa.
+
+
+
+10. Entao, Uma Maquina EC2, e, ai, ja vamos chamar pelo Nome Correto, que eh Uma Instancia, eh como se fosse..., nao eh um Servidor na Nuvem, eh uma Maquina Virtual na Nuvem.
+
+
+
+11. Nao eh um Servidor Fisico, seu, eh uma Maquina Virtual, apesar de que voce consegue contratar Servidores fisicos dedicados na AWS, mas, dai, entao, sao bem mais caros. Normalmente, a maioria das pessoas, das Empresas, contratam Instancias que sao Maquinas Virtuais.
+
+
+
+12. Okay?
+
+
+
+13. Bom, entao, eh esse desenho, que voce vair ver, quando estiver trabalhando com Uma Instancia EC2.
+
+
+
+14. E, quando forem varias, voce quer representar varias Instancias EC2, eh esse desenhozinho, onde tem essas instancias uma atras da outra, sao 3, assim, ai, a gente coloca no plural.
+
+
+
+15. Okay?
+
+
+
+16. Vamos dar uma olhada aqui, em algumas das caracteristicas, aqui,
+
+
+
+
+
+EC2
+
+
+
+
+
+1. AMI - Imagem de Maquina Amazon (Sistema Operacional, software instalados)
+
+
+
+2. Tipos de Instancia (CPU, memoria)
+
+
+
+3. Disco de Armazenamento (EBS)
+
+
+
+Etc...
+
+
+
+17. Por exemplo, quando a gente estiver falando de EC2, a gente tem que falar sobre AMI, que eh a Imagem da Maquina Amazon.
+
+
+
+18. Onde, voce vai definir o Sistema Operacional, Quais softwares ja vem instalados. Entao, na AMI, quando a gente for selecionar, voce vai falar o seguinte, 'Ah, eu quero uma maquina Ubuntu'.
+
+
+
+19. Beleza, entao, voce tem que selecionar uma AMI que tenha Ubuntu.
+
+
+
+20. Ah, nao, eu quero com CentOS. Entao, tem que selecionar uma outra AMI que vem com CentOS.
+
+
+
+21. Eh a partir dela que a sua Maquina Virtual sera criada, a sua Instancia sera criada.
+
+
+
+22. Okay?
+
+
+
+23. Bom, se voce escolheu AMI, depois, voce pode escolher o Tipo de Instancia. Entao, o Tipo de Instancia vai te falar: 1. O quanto de CPU que voce vai ter, o quanto de Memoria. E, ai, obviamente, quanto maior a maquina, dependendo das caracteristicas, mais caro vai ficando.
+
+
+
+24. Entao, o Tipo de Instancia tambem define, principalmente, uma das coisas principais para definir, o Preco que voce vai pagar.
+
+
+
+25. Okay?
+
+
+
+26. Se voce esta dentro da Conta Gratis, nao sao todas as Instancias que voce pode selecionar para serem gratis, okay?
+
+
+
+27. Sao algumas que da para funcionar gratis.
+
+
+
+28. E eu vou te mostrar, la, como que voce faz para descobrir. Beleza?
+
+
+
+29. Bom, tambem, a gente tem que escolher o Disco de Armazenamento, nao eh?, o HD nao eh?, que voce vai usar, que, dentro do Universo AWS, eh chamado de EBS.
+
+
+
+30. Entao, esse EBS eh como se fosse um HD da sua maqina Virtual.
+
+
+
+31. Okay? Eh como se fosse, porque nao eh um HD que vai la e esta atrelado aquela maquina, nao eh?, eh tudo virtual.
+
+
+
+32. Entao, voce tem um bloco de armazenamento para voce poder usar.
+
+
+
+33. Okay? E etc., mais algumas coisas que a gente vai definir na Instancia EC2, e, quando a gente estiver fazendo na pratica, eu vou te mostrar.
+
+
+
+34. Ah, Normandes, eu quero saber um pouquinho mais de Preco, como eh que funciona Preco, aqui, das Maquinas EC2.
+
+
+
+35. Nao eh um negocio simplezinho, nao, tem hora que,..., tem muitos detalhes.
+
+
+
+36. Oh, tem coisas sob demanda, Instancias Spot, Instancias Reservadas, Hosts Dedicados, eu estava falando, que seria um Servidor Fisico, dedicado, nao eh?, exclusivo ao seu uso, isso, aqui, vai ser bem mais caro.
+
+
+
+37. Tem outros tipos de Instancia, eu acho que eh essa Instancia Spot, aqui, eu, ainda, nunca usei, mas, sao Instancias que falam assim, 'Voce tem um inicio, e um final de processamento. Assim, oh, eu vou comecar, eu so preciso dessa maquina para processar das 4 as 5 da manha, alguma coisa assim, das 2 as 5 da manha'. E voce pode agendar, entao, nesse periodo, a execucao das suas maquinas, as Instancias Spot, elas vao ser bem mais baratas, olha so, com desconto de, ate, 90% das Instancias Sob Demanda, que eh, normalmente, o que a gente escolhe.
+
+
+
+38. Instancias Sob Demanda eh o mais comum. Instancias Spot eh quando voce tem esse tipo de Aplicacao. Entao, imagina, 'Ah, eu tenho um processamento PAT, aqui, que eu preciso executar de vez em quando'. 
+
+
+
+39. Tenta criar uma Instancia Spot, que vai ser bem mais barato. Ela vai estar disponivel para voce so naquele periodo que voce selecionar.
+
+
+
+40. Okay?
+
+
+
+41. Bom, ai, por que que vai depender do preco? 
+
+
+
+42. Vai depender do Tipo da Maquina, entao, olha so, e da Regiao. Isso que eh importante, tambem.
+
+
+
+43. Entao, se voce estiver por exemplo, em Sau Paulo, eh mais caro do que nos Estados Unidos, 
+
+
+
+https://aws.amazon.com/pt/ec2/pricing/on-demand
+
+
+
+, da para a gente imaginar, nao eh?
+
+
+
+44. Entao, olha so, vamos pegar esse, aqui, oh, t3.nano, 0,0084 USD, por hora.
+
+
+
+45. Se a gente pegar, aqui, nos Estados Unidos, o Norte da Virginia, t3.nano, 0,0052 USD por hora, era 0,0084, ficou para 0,0052.
+
+
+
+46. Okay?
+
+
+
+47. Nao da nem Um Centavo, aqui, por hora, mas voce ve que dar uma diferenca boa, nao eh?
+
+
+
+48. Assim, eh barato, ainda, mas eh mais caro em Sao Paulo do que nos Estados Unidos.
+
+
+
+49. Okay?
+
+
+
+50. Entao, para os nossos testes, que a gente for fazer aqui, se voce estiver com a conta gratis, eh bem possivel que nao tenha nada de cobranca, a gente vai usar a maioria das coisas, ou quase 100%, na conta gratis. 
+
+
+
+51. Se cobrar, vai ser coisas poucas, assim. E, ai, escolha no norte da Virginia, que vai ser o mais barato, para a gente poder, se a gente precisar pagar alguma coisa. Okay? Entao, eh isso, vamos para a proxima. Quando a gente estiver provisionando as Instancias, EC2, a gente vai ver mais e mais detalhes.
+
+
+
+52. Fim da Aula 04.006. Instancias EC2.
+
+
+
+
+
+
+
+
+
+
+
+-->

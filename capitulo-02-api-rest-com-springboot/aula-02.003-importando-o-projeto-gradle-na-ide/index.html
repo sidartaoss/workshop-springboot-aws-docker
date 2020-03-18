@@ -1,0 +1,125 @@
+<!--
+    Aula 02.003. Importando o Projeto Gradle na IDE
+
+1. Com o Projeto extraido, vamos importar ele na IDE que voce quer usar.
+
+2. Bom, eu vou usar o IntelliJ, na versao Community. Se voce quiser usar o Eclipse, nao tem problema, pode usar o Eclipse, tambem. Quer usar STS? Pode usar. Nao tem problema nenhum. 
+
+3. Eu vou te mostrar como importar o Projeto nos Dois, aqui, tanto no Eclipse, quanto no ItelliJ. Mas, ai, depois voce segue a vontade, para usar qua voce quiser.
+
+4. Beleza?
+
+5. Bom, vamos importar, primeiro, o projeto, aqui, no Eclipse.
+
+6. Mas, antes de a gente fazer isso no Eclipse, a gente vai precisar instalar o Plugin, aqui, do Gradle.
+
+7. Voce vai clicar em Help / Eclipse Marketplace, Ah, importantissimo, baixa a versao Eclipse IDE for Java EE Developers, okay? Eclipse IDE for Java EE Developers. Isso eh muito importante.
+
+8. Baixe essa versao, do Eclipse. Entao, oh, tem para Windows, pra Mac, e para Linux.
+
+9. Por que essa versao?
+
+10. Porque ela tem mais coisas para gente poder desenvolver uma Aplicacao Web.
+
+11. Entao, eu sei que, com ela, a gente vai conseguir instalar esse Plugin do Gradle. Pode ser que, se voce baixar a versao so para Java Developers, nao tenho certeza, talvez, ate funcione, tem, aqui, Maven and Gradle integration, sim, funcionaria. Mas, a versao for Java EE Developers eh a que a gente mais utiliza para desenvolver aplicacoes Web.
+
+12. Aqui, Web Applications esta sempre nessa versao. 
+
+13. Okay?
+
+14. Entao, vamos la.
+
+15. Se voce for baixar o IntelliJ, voce pode baixar a versao Community. Se for a Ultimate, voce pode usar ela por 30 dias, se nao me engano, gratis. A Community, nao, a Community ja eh gratis para sempre.
+
+16. O STS, tambem, eh gratis.
+
+17. Okay?
+
+18. Entao, vamos la, eu estava, aqui, no Eclipse. A gente veio no Marketplace, e procura, ai, por Gradle, digita, ai, na Pesquisa, Gradle.
+
+19. E, ai, ele vai filtrar, aqui, olha so, qual que voce vai instalar?
+
+20. Voce vai instalar esse, daqui, oh, Buildship Gradle Integration 3.0.
+
+21. Eh o que tem o elefantinho, aqui.
+
+22. Voce vai clicar em instalar, ai, ele vai pedir para reiniciar o Eclipse, essas coisas. Eu ja tenho instalado, aqui.
+
+23. Entao, eh isso que voce precisa fazer.
+
+24. Primeiro, vai la, instala, ele reinicia o Eclipse, e, ai, okay, voce ja pode comecar a importar o Projeto.
+
+25. Como?
+
+26. Vem, aqui, em Import... / A gente pode pesquisar, aqui, por Gradle / Existing Gradle Project, nos vamos pular, aqui, a primeira tela no Wizard, onde que o projeto esta, Project root directory,
+
+C:\Users\SEMPR\workshop-springboot-aws-docker\capitulo-02-api-rest-com-springboot\aula-02.003-importando-o-projeto-gradle-na-ide\beerstore
+
+27. Clica em Next, nao precisa mudar nada, aqui, nesta tela do Wizard, Next, tambem nao precisa mudar nada nessa ultima tela do Wizard, ele so vai mostrar, nao eh?, o final do que que ele vai fazer, e clicar em Finish, quando liberar, aqui.
+
+28. Pronto. So clicar em Finish, agora. Lembrando que, se o Projeto estiver, aqui, em Downloads, o projeto vai ficar la em Downloads. Okay?
+
+29. Entao, se voce quiser que o seu projeto fique dentro do diretorio correto, mova ele antes de importar.
+
+30. E, como eu nao vou usar o Eclipse, eu vou usar o IntelliJ, eu deixei ele ai, mesmo.
+
+31. So dar um Finish, e, ai, esperar ele baixar as dependencias.
+
+32. Okay? Daqui um pouquinho, a gente volta, aqui, no Eclipse. Vamos la para o IntelliJ.
+
+33. No IntelliJ, a gente vai abrir o Projeto. Da um Open, so que, aqui, ao inves de abrir o Projeto em Downloads, eu vou mover ele la para dentro da pasta que eu quero.
+
+34. Entao, eu nao quero que esse Projeto fique dentro de \Downloads. Entao, eu vou copiar o .zip, aqui, e vou mover o .zip, aqui, para dentro da pasta \code. Essa pasta \code\eclipse, aqui, apareceu, porque o Workspace do Eclipse esta setado, aqui, para dentro de \code.
+
+35. Okay?
+
+36. Eu vou extrair esse cara, aqui, \code\beerstore. Entao, dentro de code, esta beerstore.
+
+37. Vamos continuar, aqui, na IDE do IntelliJ.
+
+38. Entao, eu venho, aqui, agora, para abrir o Projeto, entao, eu coloquei ele dentro de 
+
+C:\Users\SEMPR\workshop-springboot-aws-docker\capitulo-02-api-rest-com-springboot\aula-02.003-importando-o-projeto-gradle-na-ide\beerstore
+
+39. Vou abrir esse carinha.
+
+40. Eu vou marcar, aqui, Use auto-import, porque, toda vez que eu alterar alguma coisa no Gradle, ele importa para mim, automaticamente. 
+
+41. O resto eu posso deixar da forma como esta, so confirma, ai, nao eh?, que a gente esta usando a versao 8 do Java. Beleza. So dar um Ok.
+
+42. E esperar o IntelliJ baixar o Projeto.
+
+43. Ele vai comecar a baixar as coisas, aqui, tambem, nao eh?, assim como o Eclipse fez. O Eclipse, inclusive, ja terminou.
+
+44. Entao, aqui, esta o Projeto, src/main/java/,..., a classe Principal que foi gerada la, nao eh?, pelo Spring Initializr, nao eh? Esta, aqui, o codigo principal. Entao, o projeto esta aqui, se voce quiser usar o Eclipse, ou o STS, pode ser sim. Se voce quiser usar o IntelliJ...
+
+45. Por que que eu uso o IntelliJ?
+
+46. Aproveitar esses segundinhos, ai, enquanto ele esta baixando.
+
+47. Eu comecei a usar o IntelliJ, porque, no projeto que eu estou trabalhando, agora, eh um projeto que ele so estava funcionando dentro do IntelliJ, de tao grande que ele esta.
+
+48. Entao, eh um Projeto muito grande, tem muitas e muitas classes, e esse Projeto, no Eclipse, eu acho que a forma como o Eclipse trabalha com os arquivos nao tinha condicoes, a maquina nao conseguia.
+
+49. E o IntelliJ, eu acho que a forma que ele indexa os arquivos, deve ser uma forma otimizada, de algum outro jeito, que deixa ele mais leve.
+
+50. E, ai, o IntelliJ, eu comecei a usar o IntelliJ, e, ai, eu fui tomando gosto por ele, e, ai, estou, desde entao.
+
+51. Mas, nao eh algo que eu sei tanto quanto o Eclipse. No Eclipse, eu sei bem mais atalhos do que no IntelliJ. Entao, no IntelliJ, ainda estou sofrendo um pouquinho com os atalhos, nao eh? Eu sei que eh possivel configurar os atalhos do Eclipse no IntelliJ, mas eu nao quis fazer isso, nao. Falei, 'Ah, deixa eu aprender atalhos diferentes, aqui, do IntelliJ, porque, os do Eclipse, eu ja sei.'
+
+52. Entao, eu quero aprender, agora, do IntelliJ.
+
+53. Okay?
+
+54. Entao, eu vou fazer por ele, mas, fique a vontade, para usar a IDE que voce quiser.
+
+55. Entao, ele esta terminando, ainda, ele nao terminou, aqui, de baixar tudo o que precisava, ou esta terminando, ainda, de indexar, aqui, algumas coisas, mas, o projeto ja esta aqui, oh. A classe tambem ja esta aqui, a classe principal, la, do nosso projeto, que eh a BeerstoreApplication, que foi gerada pelo Spring Initializr. E, a medida que a gente for trabalhando ou mexendo, no curso, eu vou mostrando mais detalhes.
+
+56. Beleza? Entao, por enquanto, eh isso. Baixa, ai, o seu Projeto, importe ele dentro da IDE que voce quiser.
+
+57. Entao, aqui, eh do Eclipse ou do IntelliJ.
+
+58. Fim da     Aula 02.003. Importando o Projeto Gradle na IDE.
+
+
+-->

@@ -1,0 +1,371 @@
+<!-- 
+
+Aula 06.004. Publicando a Imagem Java no Docker Hub
+
+
+
+1. Bom, neste momento, eu ja espero que voce tenha criado a sua conta, aqui, no Docker Hub.
+
+
+
+2. Caso nao tenha criado, nao se esqueca de vir, aqui, voce vai em hub.docker.com, se voce nao tem a conta, cria a sua conta, e, depois, faca o login, aqui, okay, estou logado, aqui.
+
+
+
+3. Bom, aquele normandesjr eh o meu ID. Mas, eu tambem tenho uma organizacao, que eu criei, aqui, chamada hibicode.
+
+
+
+4. Entao, eu apaguei todas as imagens que eu tinha, aqui, do hibicode.
+
+
+
+5. Entao, nao tem nada, aqui, nao tem nenhuma imagem, aqui, nao tem no hibicode, nem no meu usuario.
+
+
+
+6. Apaguei tudo.
+
+
+
+7. Okay?
+
+
+
+8. Bom, imagino que, para a sua conta, deve estar nessa mesma forma.
+
+
+
+9. Talvez, voce nao precise criar a organizacao, voce pode deixar, ai, pode usar o seu usuario.
+
+
+
+10. O que a gente vai fazer?
+
+
+
+11. A gente vai fazer o push daquela imagem que a gente fez, la, para o hub.docker.com, nos vamos mandar para ca.
+
+
+
+12. Okay? Para o Docker Hub.
+
+
+
+13. Bom, para a gente mandar para la, primeira coisa que tem que fazer eh o login.
+
+
+
+14. Entao, docker login --username hibicodesidarta --password [password], e, ai, voce pode colocar a sua senha, aqui,
+
+
+
+> docker login --username hibicodesidarta --password [password]
+
+
+
+15. Bom, eu nao vou fazer assim, eu tenho um arquivo, aqui, oh, ls -l senha.txt, eu criei um arquivo com uma senha, aqui, agora, que esta com a minha senha, e, ai, eu posso fazer assim, oh, cat senha.txt | docker login --username hibicodesidarta --password-stdin, ou seja, pega a senha do que esta vindo, aqui, da entrada padrao. Okay?
+
+
+
+16. Entao, eu posso fazer, assim, voce vai ver que ele vai fazer o login, agora, deu login com sucesso.
+
+
+
+17. Agora, eu estou logado.
+
+
+
+18. Se eu estou logado, o meu docker esta logado, la, no meu Docker Hub, eu consigo fazer o Push da Imagem, okay?
+
+
+
+19. Entao, vamos so ver as imagens que eu tenho aqui,
+
+
+
+> docker image ls
+
+
+
+20. Eu vou apagar umas, aqui, oh, docker image rm, eu vou fazer o upload da versao 0.4, entao, eu vou apagar essa daqui, hibicodesidarta/beerstore, na tag 0.1, ou, melhor, eu posso passar o ID, 
+
+
+
+> docker image rm 003f6760cdf4
+
+Error response from daemon: conflict: unable to delete 003f6760cdf4 (must be forced) - image is being used by stopped container f2d38caa2384
+
+
+
+21. Tem Container usando, 
+
+
+
+> docker ps -a
+
+
+
+22. Entao, vamos apagar uns Containers, aqui.
+
+
+
+23. Entao, docker rm, oh, o Container que estiver usando essa versao, eu vou apagar, so para ficar um pouco mais limpo,
+
+
+
+> docker rm f2d38caa2384
+
+
+
+24. Agora, eu posso apagar a Imagem,
+
+
+
+25. 
+
+
+
+> docker image rm 003f6760cdf4
+
+
+
+> docker image ls
+
+
+
+26. Okay. Estou com a TAG 0.4. Estou apagando para ficar mais limpo, mas nao eh obrigatorio, nao.
+
+
+
+27. Eu vou fazer o push desssa Imagem, ou seja, hibocodesidarta/beerstore:0.4. Entao, 
+
+
+
+> docker push hibicodesidarta/beerstore:0.4
+
+
+
+, que eh esta tag que eu esto mandando.
+
+
+
+28. Okay?
+
+
+
+29. Ja que eu estou logado, ele vai deixar eu fazer esse push para la. Eu estou fazendo para o hibicode, a minha Organizacao hibicode. Voce vai colocar o Usuario que voce criar, ou seja, hibicodesidarta. Se voce criar uma Organizacao, tambem, como eu fiz, voce tambem pode fazer assim: docker push hibicode/beerstore:0.2
+
+
+
+30. Okay?
+
+
+
+31. Mas, voce vai colocar o seu Usuario. Se voce fizer no hibicode, ai, vai dar errado. Okay? Isso, aqui, nao vai funcionar.
+
+
+
+> docker push >>> hibicode <<</beerstore:0.2
+
+
+
+
+
+32. Aqui, sim, 
+
+
+
+> docker push hibicode/>>> beerstore <<< :0.2
+
+
+
+, aqui, voce pode dar o mesmo nome que eu.
+
+
+
+33. Mas, aqui, nao,
+
+
+
+> docker push >>> hibicode <<</beerstore:0.2
+
+
+
+34. Okay?
+
+
+
+35. Bom, esperar um pouquinho ele fazer esse push, ai, pela Internet.
+
+
+
+36. Okay, terminou de fazer o push. Vamos ver, em hub.docker.com.
+
+
+
+37. Vamos dar um refresh, aqui, em hub.docker.com, eu estou logado no meu usuario, em hub.docker.com.
+
+
+
+38. Olha la, beerstore esta aqui.
+
+
+
+39. Se a gente quiser ver mais detalhes, Guia Tags, eu tenho a versao 0.4, publicada, oh, alguns segundos atras.
+
+
+
+40. Okay?
+
+
+
+41. Bom, e agora?
+
+
+
+42. Se eu quiser iniciar esse Container?
+
+
+
+43. Vamos fazer o seguinte, oh, 
+
+
+
+> docker image ls
+
+
+
+44. Vamos apagar, esse, aqui, do meu local.
+
+
+
+45. 
+
+
+
+> docker image rm f0d4174a84bd
+
+
+
+46. Vamos apagar esse cara, aqui. Tem gente usando, nao eh? Entao, docker ps -a, docker rm, vamos remover esse,
+
+
+
+> docker ps -a
+
+
+
+> docker rm f08e95e6db0d
+
+
+
+47. Agora, eu posso apagar a Imagem,
+
+
+
+> docker image rm f0d4174a84bd
+
+
+
+48. Okay. Apagou,
+
+
+
+> docker ps
+
+
+
+49. Okay, so estou, aqui, com o beerdb.
+
+
+
+50. 
+
+
+
+> docker image ls
+
+
+
+51. Okay, nao tem nenhuma imagem que foi eu que fiz.
+
+
+
+52. Okay?
+
+
+
+53. Ou seja, aquela Imagem, hibicodesidarta/beerstore, so esta no Docker Hub, agora.
+
+
+
+54. Entao, se eu quiser baixar essa Imagem, quiser subir um Container dessa Imagem, eu posso.
+
+
+
+55. Entao, vamos pegar, aqui, o comando docker run, exatamente, o mesmo comando:
+
+
+
+> docker run -p 8080:8080 -d --network beer-net hibicodesidarta/beerstore:0.4
+
+
+
+56. O Repositorio, oh: hibicodesidarta/beerstore:0.4, ele vai falar: 'Nao encontrei esse repositorio aqui, vamos baixar ele da Internet'. Entao, vamos la, oh, nao conseguiu encontrar, vai comecar a baixar da Internet.
+
+
+
+57. Encontrou. Esta baixando. Vai subir a aplicacao.
+
+
+
+58. Okay? Entao, neste exato momento, se voce executasse esse comando, aqui, nao eh?, na sua maquina, ai, voce conseguiria baixar, tambem, nao eh?, nova Imagem.
+
+
+
+59. Agora, eu vou colocar aqui, oh, 
+
+
+
+> docker image ls
+
+
+
+60. Ela esta aqui, acabou de ser baixada da Internet.
+
+
+
+61. Mas, eu nao sei ate que dia que eu vou deixar isso, aqui, la no Repositorio, pode ser que eu faca alguma outra aula, alguma outra coisa, e apague.
+
+
+
+62. Mas, eu vou deixar, ainda, por enquanto.
+
+
+
+63. Voce, entao, consegue rodar isso,
+
+
+
+> docker run -p 8080:8080 -d --network beer-net hibicodesidarta/beerstore:0.4
+
+
+
+, entao, se voce fizer o seu push, voce pode apagar a sua Imagem, pode ir na maquina de um amigo seu e ele vai conseguir baixar essa Imagem e rodar o Container a partir dela, okay?
+
+
+
+64. Entao, esta funcionando, aqui, vamos ver, localhost:8080/beers, esta la.
+
+
+
+65. Beleza?
+
+
+
+66. Fim da Aula 06.004. Publicando a Imagem Java no Docker Hub.
+
+
+
+-->​

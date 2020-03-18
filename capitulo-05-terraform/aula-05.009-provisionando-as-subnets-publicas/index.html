@@ -1,0 +1,138 @@
+<!--
+    Aula 05.009. Provisionado as Subnets Publicas
+
+1. Vamos, agora, provisionar as Subnets Publicas.
+
+2. O que que sao Subnets Publicas?
+
+3. Elas vao atribuir IP's publicos, tambem, para as Instancias que a gente colocar la dentro.
+
+4. Entao, aqui, oh, nos podemos colocar, aqui, para ficar diferente, oh, todas estao comecando com 1, aqui, sao as Subnets Privadas. Vamos colocar 2, aqui, na frente, vai ser a 20, a 21 e a 22, vamos colocar assim, nao eh?, ou seja, 192.168.20.0/24, 192.168.21.0/24, 192.168.22.0/24.
+
+5. Entao, essas serao as Subnets Publicas.
+
+6. Entao, como eu estava dizendo, as Instancias que estiverem aqui, vao ter um IP Publico.
+
+7. Ou seja, a gente vai conseguir fazer SSH, a partir da nossa maquina, na Internet, nessas Instancias, okay?
+
+8. Bom, o que que isso significa?
+
+9. Significa que a gente,..., oh, vamos imaginar que, aqui, a gente tenha a Internet.
+
+10. Imaginar nao, nao eh?, Internet, esta aqui, de verdade, na Ferramenta draw.io, aqui, do lado de fora, okay?
+
+11. O nosso notebook, nao eh?, a nossa maquina esta aqui, conectada na Internet.
+
+12. Entao, esta aqui, o nosso Notebook esta conectado na Internet, e a gente vai, agora, conectar em uma Instancia que a gente tiver, aqui, dentro. Para a gente poder fazer isso, essa Instancia tem que ter um IP na Internet, um IP publico, para poder, entao, a gente conseguir acessar essa maquina, aqui, Okay? Essa eh a ideia.
+
+13. Eh a gente ter uma forma de chegar nessa maquina, a partir da Internet.
+
+14. Okay?
+
+15. Entao, a gente vai ter isso, assim, aqui, dentro, e outro, aqui, dentro, assim.
+
+16. Okay? Entao, essa eh a ideia, para a gente poder chegar.
+
+17. Mas, olha so. Repara no direcionamento da seta. Esta sendo da Internet, aqui, para dentro.
+
+18. Aqui, ainda existe uma camada de Seguranca, que eh o Security Group, que a gente vai precisar liberar, ainda, que eh, aqui, oh, vamos colocar um Security Group, aqui. Entao, a gente ainda vai precisar configurar o Security Group das Instancias Publicas, que estao aqui, dentro, okay? Eu nao costumo colocar ele, nesse desenho, para nao ficar tao poluido, fica com muita coisa aqui, dentro, mas existe, sim, o Security Group, que, ainda, vai permitir a Entrada desse Trafego, aqui.
+
+19. Porem, a saida, para essa Maquina, ou seja, Instancia, poder chegar na Internet, a gente ainda precisar configurar outras coisas que a gente vai fazer um pouco mais para a frente.
+
+20. Beleza?
+
+21. E, agora, eu vou esperar chegar o momento que sera necessario para a gente poder fazer.
+
+22. A gente vai precisar de um Internet Gateway para a Instancia poder sair de dentro dessa Subnet para chegar na Internet.
+
+23. Okay?
+
+24. Entao, essa eh a ideia. Vamos provisionar, entao, essas Subnets Publicas.
+
+25. Vamos la.
+
+26. A ideia vai ser bem parecida, aqui, com as Subnets Privadas, so vai mudar uma propriedade.
+
+27. Vamos editar, entao, o arquivo network.tf.
+
+28. Entao, copiar/colar o Recurso "private_subnet",
+
+29. Eu vou colocar, aqui, public, para public_subnet,
+
+resource "aws_subnet" "public_subnet" {
+
+    ...
+}
+
+30. Aqui, tambem nas tags {}, eh public,
+
+    ...
+
+    tags {
+        Name = "hibicode_public_subnet_${count.index}"
+    }
+
+31. Tambem vou criar 3 subnets, dentro da mesma VPC, 
+
+    ...
+
+    count 3
+
+    vpc_id = "${aws_vpc.main.id}"
+
+32. Aqui, nao esquece de alterar, nos vamos comecar no 20,
+
+    ...
+    cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, 8, count.index + 20)}"
+
+    ...
+
+33. Okay?
+
+34. As Zonas de Disponibilidade, as mesmas.
+
+35. Porem, agora, oh, vamos colocar, aqui, oh, 
+
+    map_public_ip_on_launch = 
+
+, ou seja, cria um IP publico quando estiver subindo a Maquina?
+
+36. Sim,
+
+    map_public_ip_on_launch = true
+
+37. Sim, coloca true, aqui.
+
+38. Okay?
+
+39. E, ai, repara so, nao eh?, eu vou mandar, aqui, dar o terraform apply,
+
+> terraform apply
+
+, vai observando, ele nao vai criar tudo, nao eh?, que ele tinha criado antes, ou seja, as Subnets Privadas. Ele vai criar apenas as Subnets Publicas. Por que?
+
+40. Porque o Terraform mantem o Estado. Ele sabe o que tem la, nao eh?, ele da uma olhada no que tem la e fala, 'Olha, eu so preciso criar, olha, ele so vai adicionar 3 coisas, 3 Subnets Publicas: public_subnet[0], [1], [2]'. Vamos ver, aqui, oh, se esta tudo certo: na 1a, 1b, e 1c. O IP 20, 21 e 22, ta okay. Vai ter um IP publico? Sim, sim, sim. Entao, esta tudo certo, podemos dar um 'yes', aqui, e, depois, conferir se essas 3 Subnets foram criadas la, na AWS, nao eh?
+
+41. Entao, vamos so esperar, aqui, alguns segundos. Esta criando.
+
+42. Criou. 
+
+43. Beleza. Vamos voltar, aqui, no Console da AWS, dar um Refresh, em VPC / Subnets., public, public, public, oh, as 3 Subnets, public, public, public, publicas, foram criadas, dentro da VPC hibicode, 20, 21, 22. Entao, esta tudo certo. Aqui, oh, Auto Assign Public IPv4 address Yes, Sim para as 3 Subnets Publicas.
+
+44. Okay?
+
+45. Entao, era isso, para esta aula.
+
+46. Nessas Subnets Publicas, a gente vai colocar as nossas Aplicacoes. Depois, voce vai entender mais o motivo, tambem de por que eu coloquei isso em uma Rede Publica. A principio, eh para a gente conseguir fazer SSH dentro delas, okay?
+
+47. Como a gente nao tem uma VPN criada, e, ai, eu posso, ate falar disso agora. Como a gente nao tem uma VPN, nem vamos criar uma VPN entre o nosso ambiente e a AWS, entao, a gente precisa de um IP publico para conseguir fazer SSH dentro dessas maquinas. Entao, por isso que eu deixei, aqui, essas Subnets como Publicas, para a gente poder chegar la via SSH.
+
+48. Porem, no Security Group, que era o que eu estava desenhando, aqui, com voce, a gente vai limitar a somente os IP's que eu quero. Entao, eu so vou deixar o meu IP Publico fazer SSH nessa Maquina. Okay? A gente vai colocar essa Regra la, eu vou te mostrar como eh que a gente faz isso no Security Group.
+
+49. Beleza?
+
+50. Fim da     Aula 05.009. Provisionado as Subnets Publicas.
+
+
+
+-->

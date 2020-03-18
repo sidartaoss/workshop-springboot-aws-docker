@@ -1,0 +1,398 @@
+<!--
+    Aula 05.012. Criando Security Group para Liberar Acesso
+
+1. Para a gente conseguir acessar a Instancia, a gente precisa configurar o que eh chamado de Security Group.
+
+2. Eh muito importante voce entender bem como eh que funciona o Security Group, porque, ai, voce usa o tempo inteiro, quando voce esta trabalhando na AWS.
+
+3. Beleza?
+
+4. Bom, Security Group fica aqui, oh, quando voce seleciona uma Instancia, no Console da AWS, no Servico de EC2, aparece o Label de Security groups, e voce consegue ver a qual Security Group essa Instancia esta.
+
+5. Ela pode estar em mais de Um Security Group, e eh bem comum ter varios Security Groups, okay?
+
+6. Entao, ele ja vem dentro de Um Security Group default, quando a gente nao cria, nao associa nenhum para ela, ela vem dentro de um Security Group default,
+
+Security groups             default. view inbound rules. view outbound rules
+
+7. Bom, o que que eh o Security Group?
+
+8. O Security Group, entao, eh uma especie de Firewall, sao Regras de Firewall, que voce configura para poder acessar a Instancia.
+
+9. Entao, regras como: 1. So podem acessar, aqui, na porta 22, por exemplo, que eh a porta do SSH, os IPs que pertencem a Rede x. 
+
+10. Ai, essa Rede, a gente vai definir em um bloco CIDR, que eh o CIDR, naquele formato que a gente ja viu.
+
+11. Okay? Entao, a gente pode falar esse tipo de coisas no Security Group.
+
+12. Entao, ele eh um cara que bloqueia tudo e voce vai liberando o que voce quer.
+
+13. Okay?
+
+14. Entao, eu vou liberar isso, eu vou liberar aquilo outro.
+
+15. E o Security Group, ele funciona de maneira Stateful. O que que significa isso?
+
+16. Se ele entrou, entao, vamos supor, eu tive uma Requisicao SSH na porta 22 e eu permiti.
+
+17. Entrou na porta 22.
+
+18. Vai conseguir sair em qualquer porta, porque, ai, na minha maquina, por eu usar uma porta grande, nao eh?, uma porta aleatoria, ele vai conseguir sair dentro dessa conexao.
+
+19. Okay? Entao, por isso que ele eh chamado de Stateful, porque ele consegue receber na Requisicao, na porta 22, e consegue voltar em qualquer porta dessa conexao, o que entrou, ela vai conseguir sair.
+
+20. Okay? E o Security Group tem duas Regras, oh,
+
+Security groups             default. view inbound rules. view outbound rules
+
+, as Regras de Entrada, e as Regras de Saida.
+
+21. Entao, as de Entrada, sao muito claras. Entao, eu vou liberar a porta 22 para poder fazer SSH nessa Maquina. Okay.
+
+22. E as de Saida?
+
+23. Quais sao essas Regras de Saida?
+
+24. Sao Regras para o que essa Maquina pode sair, sair mesmo. Por exemplo, eu quero conectar no Banco de Dados. Tem que ter uma Regra para permitir ela sair para conectar no Banco de Dados. Essa eh a ideia.
+
+25. Mas, lembre-se. Eh Stateful, tanto na Entrada, aqui, no Inbound, quanto no Outbound. Se ele saiu para conectar no Banco de Dados, vai conseguir voltar. Okay? Mesmo que nao tenha uma Regra Especifica de Volta, porque nao precisa, okay? Entao, tanto do Inbound, quanto do Outbound.
+
+26. Ele vem com um Security Group default. Se voce clicar para ver o que que eh esse Security Group default, aqui, tem Regras de Inbound e de Outbound. 
+
+27. Ou, entao, voce pode, aqui, na Instancia, clicar 'view inbound rules', que vai abrir, aqui, oh, um painelzinho, para mostrar quais sao essas regras.
+
+28. Entao, oh, Quais sao as Portas? Todas. De Qualquer Protocol, ou seja, Todos. Entao, voce limita nesse nivel, oh, Quais as Portas? De Qual Protocolo? TCP, UDP, por ai vai,... e Qual eh a Fonte? De onde pode acessar isso?
+
+29. No caso, o default, esta falando que pode acessar qualquer porta, de qualquer protocolo, quem tiver esse mesmo Security Group, sg-06e6b9... Entao, na verdade, sao duas formas que voce pode colocar, aqui, no Security Group. Uma Rede ou Um Outro Security Group, que eh uma Forma de Liberar tambem.
+
+30. Entao, quem estiver no mesmo Security Group que essa Maquina, pode acessa-la.
+
+31. No caso, aqui, todas essas Instancias estao no mesmo Security Group default.
+
+32. Entao, elas poderiam acessar entre si.
+
+33. Okay?
+
+34. Entao, a aplicacao, aqui, da forma como esta, aqui, no default.
+
+35. Okay? Se a gente arrancar isso, aqui,
+
+Security groups             >>> default <<<. view inbound rules. view outbound rules
+
+, pronto, ja vai sumir, que eh o que a gente vai fazer. A gente vai colocar, criar um Security Group, agora. E esse Security Group vai permitir acesso da porta 22 apenas do meu IP.
+
+36. Okay?
+
+37. E, ai, isso vai barrar esse outro Security Group default.
+
+38. O Outbound Rules, aqui, esta com Qualquer Porta, ou seja, Todas, para Qualquer Protoco, ou seja, Todos, na Fonte 0.0.0.0/0. Significa qualquer Fonte.
+
+39. Entao, no caso, aqui, do Outbound, ele Pode Sair para Qualquer Porta, para Qualquer Protocolo, em Qualquer Lugar. Okay?
+
+40. Qualquer Lugar, pode sair para onde ele quiser, o 0.0.0.0/0 significa que Libera Tudo.
+
+41. Entao, vamos voltar, aqui, no Terraform, vamos criar um arquivo, eu vou chamar de security.tf, okay? E vamos criar, aqui, o Security Group. resource "aws_security_group", vamos dar o nome, dele, aqui, oh, "allow_ssh", para ficar bem claro que a gente esta liberando o ssh.
+
+resource "aws_security_group" "allow_ssh" {
+
+}
+
+42. Bom, para criar um Security Group, eu tenho que falar que esse Security Group esta em alguma VPC.
+
+43. Entao, vpc_id referencia a sua VPC,
+
+resource "aws_security_group" "allow_ssh" {
+    vpc_id = "${aws_vpc.main.id}"
+}
+
+44. Vamos dar um nome, aqui, para ele, tambem. Mas, esse nome nao eh o mesmo nome da Tag, eh so o nome do Security Group, okay? Para ficar mais claro, quando voce vem, aqui, oh, no Console da AWS, view inbound rules, ele vai te mostrar o nome do Security Group aqui, na coluna ultima coluna, default, para ver de onde ele veio, porque voce pode ter varios, entao, ele vai falar: 'Essa Regra veio do Security Group default, por exemplo'.
+
+resource "aws_security_group" "allow_ssh" {
+    vpc_id = "${aws_vpc.main.id}"
+    name = "hibicode_allow_ssh"
+}
+
+45. Okay? Entao, vai vir, aqui, do Security Group hibicode_allow_ssh.
+
+46. Bom, para ser uma Regra de Entrada, ingress {},
+
+resource "aws_security_group" "allow_ssh" {
+    vpc_id = "${aws_vpc.main.id}"
+    name = "hibicode_allow_ssh"
+}
+
+ingress {
+    from_port = 0
+    protocol = ""
+    to_port = 0
+}
+
+, nao eh? Uma Regra de Entrada. De qual porta ate qual porta? from_port = 22, to_port = 22,
+
+ingress {
+    from_port = 22
+    protocol = ""
+    to_port = 22
+}
+
+47. Da porta 22 ate a porta 22, apenas.
+
+48. Okay?
+
+49. Qual o Protocolo?
+
+50. TCP,
+
+ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+}
+
+51. Oh, aqui, eu limitei somente a porta 22, iniciando e terminando na porta 22, eh so a porta 22, protocolo tcp.
+
+52. OKay? Qual eh o cidr_block que vai poder acessar na porta 22?
+
+53. Eu posso colocar, aqui, o cidr_block, ou um security_group,
+
+ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = []
+    security_groups = []
+}
+
+54. Entao, neste caso, aqui, nos vamos fazer com cidr_block,
+
+ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = []
+}
+
+55. Okay? Bom, mas eu quero liberar apenas para o meu IP, o meu IP Publico, aqui. Para mim chegar la, vai ser o meu IP Publico, nao eh o IP interno que voce da um ipconfig, ai, na sua Maquina, nao. Nao seria esse, nao.
+
+56. Okay? Vamos pegar, aqui, qual que eh o meu IP.
+
+57. Entao, olha so, o meu IP interno eh 172.26.75.129. Nao eh esse IP, aqui, que chega la na AWS. O que chega na AWS eh o seu IP Publico.
+
+58. Entao, voce pode, eu vou digitar, aqui, oh, no Google, what is my ip, o Google resolveu, o meu IP Publico eh 186.223.228.197.
+
+59. Ou, eu posso fazer, aqui, oh, um curl -s ipinfo.io/ip,
+
+> curl -s ipinfo.io/ip
+
+60. Ele vai pegar e vai mostrar o meu IP Publico, aqui.
+
+61. Por que que eu fiz dessa forma? Depois, a gente vai criar um shell script para facilitar essa troca, aqui, desse IP Publico, porque o seu IP Publico, eh bem provavel que ele seja dinamico, ou seja, ele pode trocar, na verdade, ele vai trocando, de tempos em tempos, ai.
+
+62. Okay?
+
+63. Entao, eu vou pegar esse IP, aqui, 186.223.228.197, vamos colocar fixo, depois, a gente faz esse Script, ai.
+
+64.
+
+ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["186.223.228.197"]
+}
+
+65. Mas, aqui, ele espera em um bloco CIDR. Ele nao espera em um IP, assim,
+
+ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [">>> 186.223.228.197 <<<"]
+}
+
+66. Se eu mandar assim, vai dar errado.
+
+67. Para ser um bloco CIDR, tem que ter barra, "/", e a quantidade de bits que estao fixos, que nao vao mudar. Neste caso, aqui, /32,
+
+ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["186.223.228.197/32"]
+}
+
+68. Quando eu coloco /32, o unico IP possivel seria este, ou seja, 186.223.228.197,
+
+69. Entao, eu estou liberando apenas para este meu IP Publico, aqui.
+
+70. Okay?
+
+71. Bom, criei o Security Group.
+
+72. Mas, agora, eu preciso associar esse Security Group la na minha Instancia.
+
+73. E, ai, como eh que eu vou fazer isso?
+
+74. A gente vai vir, aqui, oh, em instances.tf,
+
+resource "aws_instance" "instances" {
+
+  count = 3
+
+  ami = "ami-0de53d8956e8dcf80"
+  instance_type = "t2.micro"
+
+  subnet_id = "${element(aws_subnet.public_subnet.*.id, count.index)}"
+
+  key_name = "${aws_key_pair.keypair.key_name}"
+
+  tags {
+    Name = "hibicode_instances"
+  }
+}
+
+, tem a opcao, aqui, vpc_security_group_ids, onde eu posso passar varios security groups,
+
+resource "aws_instance" "instances" {
+
+  count = 3
+
+  ami = "ami-0de53d8956e8dcf80"
+  instance_type = "t2.micro"
+
+  subnet_id = "${element(aws_subnet.public_subnet.*.id, count.index)}"
+
+  key_name = "${aws_key_pair.keypair.key_name}"
+
+  vpc_security_group_ids = [""]
+
+  tags {
+    Name = "hibicode_instances"
+  }
+}
+
+75. Entao, o que eu vou passar vai ser um aws_security_group.allow_ssh.id, ele espera os IDs do Security Group,
+
+resource "aws_instance" "instances" {
+
+  count = 3
+
+  ami = "ami-0de53d8956e8dcf80"
+  instance_type = "t2.micro"
+
+  subnet_id = "${element(aws_subnet.public_subnet.*.id, count.index)}"
+
+  key_name = "${aws_key_pair.keypair.key_name}"
+
+  vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"]
+
+  tags {
+    Name = "hibicode_instances"
+  }
+}
+
+76. Okay?
+
+77. Aqui, eu acho que ele nao vai precisar destruir a instancia, nao.
+
+78. Vamos ver?
+
+> terraform apply
+
+79. E, ai, eh so esperar o Terraform fazer as perguntas, e, ai, a gente continuar, "us-east-1",...
+
+80. Aqui, se a gente colocar,..., vamos fazer esse teste, aqui, oh, em main.tf, 
+
+provider "aws" {
+  version = "~> 2.4"
+  shared_credentials_file = "%userprofile%\\.aws\\credentials"
+  profile = "terraform"
+  region = "us-east-1"
+}
+
+, ele nao vai ficar perguntando, ali, mais, qual eh a Regiao, eu imagino que eh assim.
+
+81. 
+
+An execution plan has been generated and is shown below. 
+Resource actions are indicated with the following symbols:
++ create  
+ ~ update in-place
+ 
+ Terraform will perform the following actions: 
+
+~ aws_instance.instances[0] 
+
+  vpc_security_group_ids.#:             "" => <computed> 
+
+~ aws_instance.instances[1] 
+
+  vpc_security_group_ids.#:             "" => <computed> 
+
+~ aws_instance.instances[2] 
+
+  vpc_security_group_ids.#:             "" => <computed> 
+
+
++ aws_security_group.allow_ssh  
+
+ id:                                   <computed>  
+ arn:                                  <computed>
+ description:                          "Managed by Terraform"
+ egress.#:                             <computed>
+ ingress.#:                            "1"
+ ingress.436225786.cidr_blocks.#:      "1"
+ ingress.436225786.cidr_blocks.0:      "186.223.228.197/32"
+ ingress.436225786.description:        "" 
+ ingress.436225786.from_port:          "22" 
+ ingress.436225786.ipv6_cidr_blocks.#: "0"
+ ingress.436225786.prefix_list_ids.#:  "0"
+ ingress.436225786.protocol:           "tcp"
+ ingress.436225786.security_groups.#:  "0"
+ ingress.436225786.self:               "false"
+ ingress.436225786.to_port:            "22"
+ name:                                 "hibicode_allow_ssh"
+ owner_id:                             <computed>
+ revoke_rules_on_delete:               "false"
+ vpc_id:                               "vpc-040e1f5b17c51dc7f"
+ 
+Plan: 1 to add, 3 to change, 0 to destroy. 
+
+Do you want to perform these actions?  
+Terraform will perform the actions described above. 
+Only 'yes' will be accepted to approve. 
+
+82. Bom, e, ai, ele vai criar esse Security Group, aqui, permitindo na Porta 22 para esse IP,
+
+ingress.436225786.from_port:          "22" 
+
+ingress.436225786.cidr_blocks.0:      "186.223.228.197/32"
+
+83. Vamos dar um yes, e aguardar ele terminar.
+
+84. Terminou, aqui, a criacao. Bom, quando ele acabou de criar, tem que esperar, aqui, um pouquinho, nao eh?, para ele poder acabar de subir a maquina, la, para a gente poder fazer o ssh.
+
+85. Mas, ja vamos iniciando, aqui, o comando, eh ssh -i key/beerstore_key ec2-user@, oh ec2-user, eh porque eu criei um Amazon Linux, se voce criar uma Maquina CentOS, o Usuario eh centos-user, se voce criar ubuntu, eh ubuntu-user.
+
+86. Bom, ja deu um tempinho, aqui, vamos tentar acessar, e a gente vai ver que a gente nao vai conseguir mais uma vez,
+
+> ssh -i key/beerstore_key ec2-user@54.85.145.56
+
+87. Por que?
+
+88. Lembra do Internet Gateway?
+
+89. Eu falei, entao, as nossas instancias, apesar de terem um IP Publico, elas nao conseguem chegar na Internet.
+
+90. Para elas chegarem na Internet, elas precisam de um Internet Gateway, okay? Entao, a gente esta entrando nela pela Internet, mas, como eh que ela sai?
+
+91. Nao eh?
+
+92. Ela precisa sair, ela precisa estar conectada na Internet. A unica forma de ela estar conectada na Internet eh atraves de um Internet Gateway.
+
+93. Entao, na proxima aula, a gente vai provisionar esse Internet Gateway, associar a Instancia, e, ai, sim, a gente vai conseguir fazer o SSH nas nossas Instancias. Beleza?
+
+94. Fim da     Aula 05.012. Criando Security Group para Liberar Acesso.
+
+
+-->

@@ -1,0 +1,189 @@
+<!--
+    Aula 02.004. Implementando o Primeiro Endpoint
+
+1. Vamos criar o nosso primeiro Endpoint, expondo o Recurso Cerveja, da nossa Aplicacao.
+
+2. O que que eh Recurso?
+
+3. Recurso eh um conceito do Negocio da sua Aplicacao.
+
+4. Entao, por exemplo, Cerveja.
+
+5. No nosso caso, eh um Recurso, em que a gente consegue Pesquisar Cervejas, Salvar uma Cerveja, Apagar, Editar, okay?
+
+6. E, ai, a gente tem uma tabela, por tras, no Banco de Dados.
+
+7. Mas, toma cuidado. Uma Tabela nao significa igual a um Recurso.
+
+8. Nao existe essa Relacao, ai, Um para Um, nao.
+
+9. Beleza? Por exemplo, voce tem Um Recurso Cliente, vamos supor que a gente tivesse Um Recurso Cliente, e o Cliente tem Endereco.
+
+10. Entao, Endereco nao seria um Recurso, eu nao quero Cadastrar o Endereco, Pesquisar Um Endereco, direto, eu posso querer fazer so em cima de Cliente.
+
+11. Entao, eu posso Cadastrar e Criar Um Cliente, e, nesse momento, eu passo Endereco.
+
+12. Nao eh? Mas eu nao quero cadastrar um Endereco solto, avulso. Beleza? Entao, neste caso, Cliente seria Um Recurso, nao eh?, mas Endereco nao.
+
+13. Combinado? Entao, vamos la. Vamos criar o nosso Recurso, no caso, aqui, Cerveja.
+
+14. Nao eh? Eu vou criar a Aplicacao com o Codigo todo em ingles. Por que que eu vou fazer todo em ingles, tambem?
+
+15. Porque eh o padrao que o pessoal tem feito, nas empresas, nas grandes empresas, eu tenho, todas elas tem usado em ingles. Okay?
+
+16. Entao, vamos la.
+
+17. Vamos criar, entao, uma nova classe, para representar esse EndPoint para a gente.
+
+18. Entao, botao direito em com.hibicode.beerstore, New / Java Class, ela vai ficar dentro do pacote resource, e o nome da Classe sera BeerResource,
+
+package com.hibicode.beerstore.resource;
+
+public class BeerResource {
+
+}
+
+19. Okay? Eh aqui que a gente vai comecar a configurar.
+
+20. Para essa classe ser, para a gente poder acessa-la, nao eh?, atraves de uma URL, a gente vai precisar adicionar a anotacao, aqui, oh, @RestController, okay?
+
+package com.hibicode.beerstore.resource;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class BeerResource {
+
+}
+
+21. Ela vai ser um Controlador, ou seja, a gente vai conseguir acessar atraves de uma URL, vai ser http://localhost:8080/ , ou seja, barra: o que? barra, /, RequestMapping("/"), barra beers, ou seja, "/beers",
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/beers")
+package com.hibicode.beerstore.resource;
+
+public class BeerResource {
+
+}
+
+22. E, ai, eu vou colocar o "beers", aqui, no Plural, entao, as "cervejas".
+
+23. O "s", por que que eu coloco o "s"?
+
+24. Eu prefiro que os Recursos seja expostos no plural.
+
+25. Se voce quiser colocar no singular, pode?
+
+26. Sim, pode. Nao eh errado, mas o pessoal prefere colocar mais no plural, e uma coisa importante: se voce comecou no plural, fique no plural ate o fim. Se voce colocou no singular, fique no singular ate o fim, nao fique misturando, nao.
+
+27. Okay? Entao, vamos la, essa primeira anotacao,
+
+@RestController
+
+, eh para a gente poder acessar essa classe atraves de uma URL.
+
+28. E, aqui, @RequestMapping, define qual que eh a URL que eu vou colocar, nao eh? localhost:8080/beers, eh o que eu vou acessar, aqui, dentro.
+
+29. Bom, mas eu nao acesso uma classe, nao eh? Eu preciso acessar o metodo de uma classe.
+
+30. Entao, eu vou colocar, aqui, para ele retornar uma Lista, importo, ai, do pacote java.util.List, em cima de String, vamos colocar, aqui, all(), para retornar todas as Cervejas,
+
+@RestController
+@RequestMapping("/beers")
+public class BeerResource {
+
+    public List<String> all() {
+
+    }
+}
+
+31. Okay?
+
+32. O que que eu vou retornar?
+
+33. retun Arrays.asList(), por enquanto, vamos retornar uma lista fixa, aqui, de Cervejas. Entao, eu vou colocar, aqui, Heineken, Colorado Indiga, Stella Artois,
+
+        public List<String> all() {
+            return Arrays.asList("Heineken, "Colorado Indiga", "Stella Artois");
+        }
+
+34. Okay?
+
+35. Esse metodo, aqui, all(), ja vai estar acessivel?
+
+36. Ainda nao.
+
+37. Eu preciso adicionar uma nova anotacao, aqui, que eu vou colocar @GetMapping,
+
+import org.springframework.web.bind.annotation.GetMapping;
+
+@RestController
+@RequestMapping
+public class BeerResource {
+
+    @GetMapping
+    public List<String> all() {
+        return Arrays.asList("Heineken");    
+    }
+}
+
+38. O que que eu fiz, aqui, agora?
+
+39. Quando eu acessar "/beers", la no Browser, via GET, ou seja, quando eu dou um <ENTER>, la no Browser, ele faz um GET. Se eu fizer um <ENTER>, la, ele vai chamar nesse GetMapping, e vai retornar essa Lista, fixa, aqui, para mim.
+
+40. Okay? Essas 3 cervejas vai mostrar, la, no Browser.
+
+41. So isso, Normandes?
+
+42. So isso. A gente ja tem o Endpoint.
+
+43. A gente vem, aqui, na Aplicacao, BeerstoreApplication, e, ai, deixa eu falar dessa classe, rapidamente, eh a classe que comeca tudo dentro do Spring Boot,
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class BeerstoreApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(BeersotoreApplication.class, arg);
+    }
+}
+
+44. Entao, essa classe tem a anotacao @SpringBootApplication, que ela traz algumas outras anotacoes, como, por exemplo, @EnableAutoConfiguration, ou seja, habilitar auto-configuracao. Estou falando que eh uma @SpringBootConfiguration, para procurar as classes, para mim poder escanear as classes, dentro do nosso projeto, e transformar em componentes, ou seja, @ComponentScan. 
+
+45. Enfim, ela ja faz um monte de coisas.
+
+46. Para a gente iniciar a aplicacao, eh so chamar o metodo main(), dessa classe, que ele vai passar o SpringApplication.run(), ou seja, vai chamar o run(), da classe SpringApplication, passando a nossa classe, BeerstoreApplication.
+
+47. Isso, daqui, vai iniciar um Tomcat, ja, dentro da Aplicacao, um Tomcat embedado, expondo, na porta 8080, e a gente vai conseguir acessar esse Recurso, aqui, ou seja, BeerResource, se a gente nao fez nada errado.
+
+48. Entao, clica com o botao direito, aqui, Run, so mandar executar, como voce faz aquelas aplicacoes HelloWorld, mesmo, bem simples, mesmo. 
+
+49. Mandou dar o Run, eh so esperar ele comecar a executar.
+
+50. Subiu, aqui, na porta 8080, gastou 7 segundos, para subir, vamos la? localhost:8080/beers, vamos ver se ele traz alguma coisa? Olha la, trouxe para a gente o que a gente colocou, aqui, no Recurso, 
+
+["Heineken","Colorado Indiga","Stella Artois"]
+
+51. Trouxe, para a gente, o que a gente colocou, aqui, no Recurso. Okay?
+
+52. E, aqui, oh, legal, comeca a ler os logs, tambem. 
+
+53. Repara so nessa linha, aqui, Ele esta falando, oh, que trouxe o /beers, ele mapeou o /beers, no metodo HTTP GET, para o metodo all(), dentro de BearResource.
+
+54. O metodo HTTP GET para o metodo all(), aqui, dentro de BeerResource. O metodo HTTP GET para o metodo all(), aqui, dentro da classe BeerResource, e ele retorna uma Lista de String.
+
+55. Legal, nao eh? Entao, leia esses logs, aqui, eles sao importantes para voce aprender a debugar, nao eh?, Ah, por que que nao esta expondo o Recurso? Sera que ele mapeou, sera que nao?
+
+56. Se ele nao estiver aqui, com certeza, nao vai funcionar.
+
+57. E, ai, vai te ajudar a identificar mais algum problema.
+
+58. Fim da     Aula 02.004. Implementando o Primeiro Endpoint.
+
+
+-->

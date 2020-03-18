@@ -1,0 +1,486 @@
+<!--
+    Aula 03.005. Implementando o Cadastro
+
+1. Vamos, agora, implementar o cadastro, de verdade.
+
+2. Para a gente implementar o cadastro, a gente vai criar a classe de modelo, aqui, no pacote model, e a classe vai se chamar Beer,
+
+package com.hibicode.beerstore.model;
+
+public class Beer {
+
+}
+
+3. Okay?
+
+4. Para ser uma Entidade do JPA, @Entity, precisa anotar, aqui. Certo? Vamos adicionar, aqui, os atributos, private Long id, essa Cerveja tambem vai ter um nome, private BeerType type, para ter o tipo, e, aqui, vai ser um enum, e um BigDecimal para falar o volume que a gente tem dessa cerveja, quantos ml's tem,
+
+@Entity
+publi class Beer {
+
+    private Long id;
+    private String nome;
+    private BeerType type;
+    private BigDecimal volume;
+
+}
+
+5. Entao, aqui, oh, ta dando erro, porque nao tem essa classe, BeerType, entao, a gente vai criar. Na verdade, vai ser um enum, e, ai, vamos cadastrar, aqui, LAGER, PILSEN, IPA,
+
+package com.hibicode.beerstore.model;
+
+public enum BeerType {
+
+
+    LAGER,
+    PILSEN,
+    IPA
+}
+
+6. Okay?
+
+7. Agora, aqui, na classe Beer, ja parou de dar erro.
+
+8. Bom, se a gente nao estivesse usando o Lombok, eu teria que comecar, aqui, eu nao vou escrever, aqui, tudo, poderia mandar gerar, a IDE ia gerar, tambem, nao eh?, mas ia ter essas coisas, aqui, 
+
+    public Long getId() {
+        return id;
+    }
+
+, mas a gente esta usando o Lombok. A gente ja configurou o Lombok, na Aplicacao.
+
+9. Entao, o que que eu vou adicionar, aqui?
+
+10. @Data, do Lombok,
+
+import lombok.Data;
+
+@Entity
+@Data
+public class Beer {
+
+    private Long id;
+    private String name;
+    private BeerType type;
+    private BigDecimal volume;
+
+    ...
+}
+
+11. Pronto. Ele vai gerar os Getters e os Setters, equals() e hashcode(), tudo isso, dai, dessa classe, para a gente.
+
+12. Entao, fica bem mais enxuto o nosso codigo, nao eh?
+
+13. So voce olhar, aqui, so tem esses atributos.
+
+14. Fica bem mais facil, nao eh?
+
+15. Entao, vamos la. A gente ja vai fazer algumas outras configuracoezinhas. Vamos avancando aos pouquinhos.
+
+16. Vamos colocar, aqui, oh, no id, o @Id, do JPA, para falar que esse eh o identificador do objeto. Vamos, ja que a gente esta usando o Postgres, vamos usar o SequenceGenerator, vamos criar uma Sequence, la, no Banco, de nome "beer_seq", eh a Sequence da Tabela Beer, sequenceName, ou seja, qual que eh o nome dela, vamos usar o mesmo, aqui, beer_seq, e a gente vai alocar de 1 em 1, ou seja, allocationSize = 1,
+
+@Entity
+@Data
+public class Beer {
+
+    @Id
+    @SequenceGenerator(name = "beer_seq", sequenceName = "beer_seq", allocationSize = 1)
+    private Long id;
+    private String name;
+    
+    ...
+}
+
+17. E, ai, vamos falar, GeneratedValue, strategy = , vai ser uma Sequence, ou seja strategy = GenerationType.SEQUENCE, e o generator tem que ser esse mesmo nome, aqui,
+
+@Id
+@SequenceGenerator(name = >>> "beer_seq" <<< , ....)
+
+, okay?,
+
+    @Id
+    @GeneratorSequence(name = "beer_seq", sequenceName = "beer_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beer_seq")
+    private Long id;
+
+    private String name;
+    private BeerType type;
+    private BigDecimal volume;
+
+18. Bom, beleza, aqui, name, type, volume, por enquanto, nao vamos colocar nada. E, ai, um detelhe, o equals() e o hashcode(), quando eu coloco, aqui, do lombo.Data,
+
+>>> @Data <<<
+@Entity
+public class Beer {
+
+    private Long id;
+    private String name;
+    private BeerType type;
+    private BigDecimal volume;
+
+    ...
+}
+
+, eh gerado a partir de todos esses atributos,
+
+@Data
+@Entity
+public class Beer {
+
+    >>> private Long id;
+    >>> private String name;
+    >>> private BeerType type;
+    >>> private BigDecimal volume;
+
+    ...
+}
+
+19. Mas, eu quero que o equals() e o hashcode() seja apenas do id. Tem jeito de a gente fazer isso so por anotacoes?
+
+20. Tem sim.
+
+21. A gente vai anotar, aqui, como @EqualsAndHashcode(), e a gente vai especificar assim, oh, onlyeExplicitlyIncluded = true, ou seja, so eh para fazer o equals() e o hashcode() daquilo que eu inclui, explicitamente,
+
+import lombok.EqualsAndHashCode;
+
+@Data
+@Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Beer {
+
+    @Id
+    @SequenceGenerator(name = "beer_seq", sequenceName = "beer_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beer_seq")
+    private Long id;
+
+    private String name;
+    private BeerType type;
+    private BigDecimal volume;
+}
+
+22. Entao, eu vou colocar, aqui, mais uma anotacao, @EqualsAndHashCode.Included,
+
+@Data
+@Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Beer {
+
+    @Id
+    @SequenceGenerator(name = "beer_seq", sequenceName = "beer_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beer_seq")
+    private Long id;
+
+    private String name;
+    private BeerType type;
+    private BigDecimal volume;
+
+}
+
+23. Entao, ele so vai gerar o equals() e o hashcode() dessa propriedade, aqui,
+
+    @Id
+    @SequenceGenerator(name = "beer_seq", sequenceName = "beer_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beer_seq")
+    >>> @EqualsAndHashCode.Include
+    private Long id;
+
+24. Simples? Acho que sim, nao eh? Muita anotacao, mas, depois que voce comeca a acostumar, fica simples, nao fica tao complicado, nao.
+
+25. Okay?
+
+26. Bom, a gente esta com a Entidade. Agora, a gente pode criar o Repositorio para chegar no Banco de Dados.
+
+27. Entao, vamos criar, aqui, uma nova classe, no pacote repository, chamada de Beers,
+
+package com.hibicode.beerstore.repository;
+
+public class Beers {
+
+}
+
+28. Vamos mudar, aqui, para interface,
+
+package com.hibicode.beerstore.repository;
+
+public interface Beers {
+
+
+}
+
+29. Eu gosto de colocar o nome dos repositorios no plural.
+
+30. extends JpaRepository, vamos colocar, aqui, que eh para Beer, e o tipo da chave primaria eh Long,
+
+package com.hibicode.beerstore.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface Beers extends JpaRepository<Beer, Long> {
+
+
+
+}
+
+31. O que que eh esse JpaRepository?
+
+32. Essa interface, JpaRepository, ela ja traz um monte de metodos prontos pra gente, oh, List<T> findAll();, para buscar todos, e essa primeira opcao, aqui, de configuracao da interface,
+
+    ... extends JpaRepository< >>> Beer, Long>
+
+, ele vai usar, aqui, oh,
+
+    List< >>> T> findAll();
+
+, para retornar, por exemplo, uma Lista de Cervejas.
+
+33. Entao, por isso que eu falo, aqui, qual eh o Tipo deo Repositorio que eu estou criando, para Beer, para ele ja me retornar pronto essas coisas.
+
+34. E o Tipo da Chave Primaria para, por exemplo, T getOne(ID id), por exemplo, getOne(), by ID, esse ID, aqui, eh o segundo parametro la,
+
+    ... extends JpaRepository<Beer, >>> Long>
+
+, okay? Entao, para a gente conseguir, quando a gente esta buscando, usando a Chave Primaria, ele ja esperar um Long, la nessa interface, para ficar tudo certinho, nao eh?, na hora em que eu estou programando.
+
+35. So isso, daqui, eu ja vou ter um monte de metodos prontos para a gente salvar, para a gente fazer tudo.
+
+36. Vamos testar?
+
+37. Vamos ver se esta funcionando?
+
+38. Para a gente testar, nesse caso, vamos, aqui, em BeerResource, e vamos fazer um POST, para salvar, a gente sempre usa POST, entao, eu vou fazer um POST em "/beers", ele vai cair nesse metodo que eu vou criar, aqui, que vai retornar uma Cerveja, para eu poder ver o ID gerado, vamos chamar, aqui, o metodo de create(), ele receber um Beer,
+
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframewrok.web.bind.annotation.GetMapping;
+
+import org.springframework.web.bind.annotation.PostMapping;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+@RestController
+@RequestMapping("/beers")
+public class BeerResource {
+
+    @Autowired
+    private Beers beers;
+
+    @GetMapping
+    public List<String> all() {
+        return Arrays.asList("Heineken", "", "", "");
+    }
+
+    @PostMapping
+    public Beer create(Beer beer) {
+        return this.beers.save(beer);
+    }
+
+}
+
+39. Para que ele converta o JSON, porque a gente vai mandar um Json, depois, eu falo, aqui, desse Programinha do Postman, a gente vai mandar um Json, com os dados da Cerveja que a gente quer salvar.
+
+40. Para ele converter esse Json aqui nesse objeto,
+
+    @PostMapping
+    public Beer create(>>> Beer beer) {
+
+        return null;
+    }
+
+, eh so a gente adicionar a anotacao @RequestBody,
+
+import org.springframework.web.bind.annotation.RequestBody;
+
+    @PostMapping
+    public Beer create(@RequestBody Beer beer) {
+
+        return null;
+    }
+
+41. Simples assim.
+
+42. Ai, ele ja vai converter para a gente.
+
+43. E, ai, eu preciso chegar la no Repositorio Beers, para salvar essa Cerveja.
+
+44. Para eu chegar la, eu vou usar essa anotacao @Autowired,
+
+    @Autowired
+    private Beers beers;
+
+, aqui, que faz o que?
+
+45. Ela injeta um objeto Beers, ja, para mim.
+
+46. Entao, o Spring ja faz isso tudo para mim. Ele cria esse objeto, a partir da interface Beers. Eu estou criando uma interface, Beers, o Spring ja vai criar a implementacao e injetar, deixar pronto, aqui, para eu poder, simplesmente, chamar, aqui, oh, this.beers.save();, passando uma Cerveja,
+
+    @PostMapping
+    public Beer create(@RequestBody Beer beer) {
+        return this.beers.save(beer);
+    }
+
+47. Simples, nao eh?
+
+48. Esse cara, aqui, o save(), ja retorna a Cerveja, depois de salva no Banco de Dados, ou seja, vai retornar com o ID.
+
+49. Entao, eu posso retornar, aqui, a gente vai ver o Json de volta, aqui, na resposta do Postman, com o ID.
+
+50. Okay?
+
+51. Bom, eu acho que eh isso.
+
+52. Vamos ver se eu nao esqueci nada, e deve funcionar.
+
+53. Eu vou parar e reinicar de novo a BeestoreApplication. As vezes, eu faco isso, tambem, quando eu mexo muita coisa, eu costumo parar e voltar.
+
+54. Ah, isso, daqui, eh um probleminha de versao do Lombok, que a gente tem, aqui. Ele fala, oh, Nao consegue traduzir a classe Boolean para o tipo Boolean, nesse onlyExplicitlyIncluded = true, entao, eu descobri que, isso dai, eh por conta da versao que o spring-boot traz, aqui, em build.gradle,
+
+    compileOnly 'org.projectlombok:lombok'
+
+55. Entao, a gente precisa atualizar essa versao. Entao, vamos colocar, aqui, ext[''], e vamos colocar ext['lombok.version'], para eu forcar qual versao que eu quero do Lombok, e eu quero usar a versao 1.18.0,
+
+group = 'com.ibicode'
+version = '0.0.1-SHAPSHOT'
+sourceCompability = '1.8'
+ext['lombok.version'] = '1.18.0'
+
+56. Okay?
+
+57. So esperar ele baixar essa versao, vamos dar um Build Project, aqui, no Projeto, esperar ele dar o Build, ele mostrou, aqui, para mim, vamos subir, novamente, aqui, o Projeto.
+
+58. Vamos la, esperar aqueles 10 segundinhos. Agora, imagino que vai subir, imagino que vai aparecer, aqui, a criacao da tabela tambem. 
+
+59. Entao, vamos ver, aqui, ja subiu, vamos abrir o Postman, aqui, 
+
+{
+	"name": "Heineken",
+	"type": "LAGER",
+	"volume": "355"
+}
+
+, vamos fazer essa Requisicao e dar uma olhada o que que vai acontecer la no Banco.
+
+60. Oh, submeti, se nao der erro nenhum, olha la, ele salvou de ID 1,
+
+{
+    "id": 1,
+    "name": "Heineken",
+    "type": "LAGER",
+    "volume": 355
+}
+
+61. ID 4, para o instrutor, porque ele ja tinha feito uns testes antes, aqui, para gravar esta aula, okay?, tinha implementado antes, salvou algumas para ver se estava tudo certo, por isso que ele ja veio para o 4.
+
+62. Okay? Entao, salvei uma Heineken. Se eu salvar uma Colorado Indiga, aqui, ela eh de 500 ml, se eu nao me engano,
+
+{
+	"name": "Colorado Indiga",
+	"type": "LAGER",
+	"volume": "500"
+}
+
+, vamos salvar, olha la, agora, veio a Colorado, LAGER, de 500 ml,
+
+{
+    "id": 2,
+    "name": "Colorado Indiga",
+    "type": "LAGER",
+    "volume": 500
+}
+
+63. Deixa eu abrir, aqui, o banco, oh, deixa eu executar, select * from beer;, vamos conectar de novo, em pgAdmin, 
+
+select * from beer;
+
+"1"	"Heineken"	            0	"355.00"
+"2"	"Colorado Indiga"	    0	"500.00"
+
+
+64. Foi o que a gente fez, aqui, agora.
+
+65. E, para ficar 100%, vamos, so, aqui, no BeerResource, no PostMapping, ao inves dele retornar um codigo HTTP 200 OK, a gente vai retornar o Status mais correto, que eh o ResponseStatus, a gente vai adicionar essa Anotacao, e, ai, eu vou conseguir colocar, aqui, oh, HttpStatus.CREATED,
+
+
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.http.HttpStatus;
+
+@RestController
+@RequestMapping("/beers")
+public class BeerResource {
+
+    ...
+
+    @Autowired
+    private Beers beers;
+
+    ...
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Beer create(@RequestBody Beer beer) {
+        return this.beers.save(beer);
+    }
+}
+
+66. Agora, sim.
+
+67. Esse, aqui, 
+
+    @PostMapping
+    @ResponseStatus( >>> HttpStatus.CREATED)
+    public Beer create(Beer beer) {
+        return this.beers.save(beer);
+    }
+
+, vai ser o status que eu quero que ele seja retornado, que eh o 201. Entao, a gente retornar o codigo de resposta HTTP correto eh uma boa ideia, eh uma boa pratica de se fazer isso.
+
+68. Vamos clicar em Build / Build Project.
+
+69. Vamos no Postman. Aqui, a gente ja tinha criado essa Colorado,
+
+{
+	"name": "Colorado Indiga",
+	"type": "LAGER",
+	"volume": "500"
+}
+
+, vamos, agora, criar uma Stella,
+
+{
+	"name": "Stella Artois",
+	"type": "PILSEN",
+	"volume": "300"
+}
+
+70. Vamos dar um Send, ou seja, vamos mandar salvar.
+
+71. Retornou,
+
+{
+    "id": 3,
+    "name": "Stella Artois",
+    "type": "PILSEN",
+    "volume": 300
+}
+
+72. Agora, sim, oh, em Status, ficou 201 Created, e a Cerveja foi salva, la no Banco de dados. Se formos olhar em pgAdmim, no registro de codigo 3,
+
+select * from beer;
+
+"1"	"Heineken"	        0	"355.00"
+"2"	"Colorado Indiga"	0	"500.00"
+"3"	"Stella Artois"	    1	"300.00"
+
+73. Para finalizar, deixa eu so falar, aqui, sobre o Postman, entao, que eh o que a gente usou.
+
+74. O Postman eh uma Ferramenta para a gente testar, entao, aquelas nossas nossas API's. Ele eh muito, muito usado, ai, por muita gente, acho que ele eh um dos mais famosos, que existem, e ele eh bem simples, nao eh?, voce viu, a gente escreve o Json, que a gente quer mandar, selecionei, aqui, clica, aqui, em Body, seleciona o raw, coloca o Json que eu quero enviar, e seleciono, aqui, como tipo JSON (application/json), para ele mandar isso como um Header, na Requisicao Http. 
+
+75. Aqui, voce pode selecionar o Tipo de Requisicao, nao eh?, o Metodo de Requisicao, entao, a Requisicao Http POST, poe a URL e eh so Enviar, em Send.
+
+76. Eu vou salvando, aqui, as Requisicoes, dentro de uma Colecao, para facilitar, nao eh?, a vida, para nao ter que ficar escrevendo, toda hora.
+
+77. Isso, daqui, eu vou salvando. Depois, voce pode exportar isso, daqui, inclusive, nao eh?, aqui, se voce clicar em Export, na verdade, voce consegue fazer o Download dessa Colecao e colocar dentro do seu Projeto, por exemplo.
+
+78. Fim da     Aula 03.005. Implementando o Cadastro.
+
+
+-->

@@ -1,0 +1,804 @@
+<!--
+
+Aula 07.011. Inicializando os Seguidores do Docker Swarm
+
+
+
+1. Vamos continuar, agora, na inicializacao do nosso Cluster Docker Swarm, fazendo a parte dos Followers.
+
+
+
+2. Que sao as outras Maquinas.
+
+
+
+3. Entao, em - name, vamos colocar, aqui, Join Swarm Cluster
+
+
+
+4. Para iniciar, as outras Maquinas, ou seja, essas outras duas, aqui,
+
+
+
+[manager-leader]
+
+34.201.40.124 private_ip=192.168.20.11
+
+
+
+[manager-follower]
+
+>>> 54.174.192.28
+
+>>> 54.208.81.76
+
+
+
+, entrarem no Cluster.
+
+
+
+5. Entao, da um Join, nao eh?, entrar no Cluster, ali,
+
+
+
+- name: Join Swarm Cluster
+
+
+
+6. Okay?
+
+
+
+7. Quais sao os hosts que a gente vai usar, agora?
+
+
+
+8. Serao os manager-follower's,
+
+
+
+- name: Join Swarm Cluster
+
+hosts: manager-follower
+
+
+
+9. Okay?
+
+
+
+10. Entao, essa, aqui, tambem eh uma forma de a gente dividir o nosso playbook.
+
+
+
+11. Entao, a gente tem uma parte, aqui, que eh executado para todos,
+
+
+
+- name: Ensure Docker is installed
+
+hosts: all
+
+
+
+...
+
+
+
+, que eh a instalacao do Docker, depois, uma parte que eh so para o lider,
+
+
+
+- name: Initialize Swarm Mode
+
+hosts: manager-leader
+
+
+
+...
+
+
+
+, e, agora, a gente vai fazer uma parte so do follower,
+
+
+
+- name: Join Swarm Cluster
+
+hosts: manager-follower
+
+
+
+12. Okay?
+
+
+
+13. Bom, as outras coisas continuam, remote_user, tambem vai ser ec2-user, gather_facts, false, nao precisamos inicializar nada la, e precisamos, become true, do sudo na frente. Okay?
+
+
+
+- name: Join Swarm Cluster
+
+hosts: manager-follower
+
+remote_user: ec2-user
+
+gather_facts: false
+
+become: true
+
+tasks:
+
+
+
+
+14. Entao, vamos la, quais sao as tasks que a gente vai executar, aqui, agora?
+
+
+
+15. Bom, nos vamos executar uma task, que eu vou chamar, aqui, oh, de Join swarm cluster as manager, entao, a gente esta entrando no Cluster como Manager tambem,
+
+
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+
+
+16. Qual eh o comando que a gente vai executar? docker swarm join --, e, ai, aqui, a gente tem que passar algumas coisas, nos temos que passar um token, que a gente ja vai buscar esse token agorinha, eu ja vou falar como eh que a gente vai operar esse token, e a gente tem que falar, nao eh?, qual eh o IP do master na Porta 2377. Lembra, la, em security.tf, porta 2377, oh, ja foi liberada, ta vendo? Entao, aqui, a gente tem que chegar la no master, no IP do master, na porta 2377, para entrar dentro do Cluster,
+
+
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ token }} {{ master }}:2377
+
+
+
+17. Okay?
+
+
+
+18. Aqui, nessas outras duas Maquinas, 
+
+
+
+- name: Join Swarm Cluster
+
+>>> hosts: manager-follower
+
+remote_user: ec2-user
+
+gather_facts: false
+
+become: true
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ token }} {{ master }}:2377
+
+
+
+19. Pensa que, cada hora, ele esta executando em Uma, entao, eu estou dentro dessa Maquina, 
+
+
+
+[manager-leader]
+
+34.201.40.124 private_ip=192.168.20.11
+
+
+
+[manager-follower]
+
+>>> 54.174.192.28
+
+54.208.81.76
+
+
+
+, ele precisa chegar no Lider, 
+
+
+
+>>> [manager-leader]
+
+34.201.40.124 private_ip=192.168.20.11
+
+
+
+[manager-follower]
+
+54.174.192.28
+
+54.208.81.76
+
+
+
+, atraves do IP Privado, aqui,
+
+
+
+[manager-leader]
+
+34.201.40.124 private_ip=>>> 192.168.20.11
+
+
+
+[manager-follower]
+
+54.174.192.28
+
+54.208.81.76
+
+
+
+, para poder entrar no Cluster,
+
+
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ token }} {{ >>> master }}:2377
+
+
+
+20. Okay?
+
+
+
+21. Entao, a gente precisa dessas 2 informacoes. Primeiro do token, 
+
+
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ >>> token }} {{ master }}:2377
+
+
+
+, e, depois, do IP,
+
+
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ token }} {{ >>> master }}:2377
+
+
+
+22. O, Normandes, como assim? Que token eh esse?
+
+
+
+23. Esse token eh inedito.
+
+
+
+24. Eh verdade, eu nao coloquei o token, aqui, para a gente ver esse token. 
+
+
+
+25. Entao, vamos la, vamos mostrar esse token, aqui, armazenar em uma variavel, aqui, no manager-leader, e a gente poder usar essa variavel aqui, embaixo, no manager-follower
+
+
+
+26. Toda vez que a gente inicializa, quando a gente esta no manager-leader, a gente consegue gerar um token para que os followers consigam entrar no Cluster, usando esse Token.
+
+
+
+27. Token eh uma especie de senha.
+
+
+
+28. Vamos colocar assim. Isso, aqui, eh uma especie de senha, para outras maquinas entrarem no cluster.
+
+
+
+29. Beleza?
+
+
+
+30. Entao, vamos la, nos precisamos gerar esse token, aqui, em cima, no manager-leader.
+
+
+
+31. Como que a gente vai fazer isso?
+
+
+
+32. Vamos la, - name: Master token, qual eh o comando que a gente vai executar, vai ser o docker swarm join-token manager, como manager, -q, esse -q, ele vai, simplesmente, mostrar o token no console, ai, a gente precisa armazenar isso em uma variavel,
+
+
+
+- name: Master token
+
+command: docker swarm join-token manager -q
+
+
+
+33. Entao, a gente vai registrar em uma variavel, chamada de master_token,
+
+
+
+- name: Master token
+
+command: docker swarm join-token manager -q
+
+register: master_token
+
+
+
+34. Okay?
+
+
+
+35. So que eu so quero que isso aqui seja executado, tambem, quando o Swarm mode estiver ativo,
+
+
+
+- name: Master token
+
+command: docker swarm join-token manager -q
+
+when: swarm_mode.stdout == "active"
+
+register: master_token
+
+
+
+36. Agora, eu so posso mostrar o token quando ele estiver ativo, se ele nao estiver ativo, eu nao posso mostrar.
+
+
+
+37. Ta certo?
+
+
+
+38. Entao, so quando ele estiver ativo, eu armazeno, aqui, no master_token. Okay?
+
+
+
+39. Bom, tem o token, aqui, registrado. Como que eu pego esse master_token, aqui,
+
+
+
+- name: Master token
+
+command: docker swarm join-token manager -q
+
+when: swarm_mode.stdout == "active"
+
+register: >>> master_token
+
+
+
+40. Da um trabalhinho, eh meio estranho, aqui, oh.
+
+
+
+41. Vamos la, aqui, em cima, antes das tasks, nos vamos criar uma nova sessao, chamada de vars, e vamos criar, aqui, oh, token. Entao, o nome dessa variavel token eh essa, aqui,
+
+
+
+- name: Join Swarm Cluster
+
+hosts: manager-follower
+
+remote_user: ec2-user
+
+gather_facts: false
+
+become: true
+
+vars:
+
+>>> token:
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ >>> token }} {{ master }}:2377
+
+
+
+42. Okay?
+
+
+
+43. E a variavel master_token chama aqui, em cima,
+
+
+
+- name: Master token
+
+command: docker swarm join-token manager -q
+
+when: swarm_mode.stdout == "active"
+
+register: >>> master_token
+
+
+
+44. Aqui, eu chamei so de token,
+
+
+
+- name: Join Swarm Cluster
+
+hosts: manager-follower
+
+remote_user: ec2-user
+
+gather_facts: false
+
+become: true
+
+vars:
+
+token:
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ >>> token <<< }} {{ master }}:2377
+
+
+
+, poderia ser master_token, tambem, mas eu quis colocar token para diferenciar, para voce ver que nao eh diretao, master_token vir para ca,
+
+
+
+- name: Join Swarm Cluster
+
+hosts: manager-follower
+
+remote_user: ec2-user
+
+gather_facts: false
+
+become: true
+
+vars:
+
+token:
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ >>> token <<< }} {{ master }}:2377
+
+
+
+, a gente tem que fazer essa magiquinha, aqui, oh,
+
+
+
+- name: Join Swarm Cluster
+
+hosts: manager-follower
+
+remote_user: ec2-user
+
+gather_facts: false
+
+become: true
+
+vars:
+
+>>> token: <<<
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ token }} {{ master }}:2377
+
+
+
+45. Entao, olha so, eu tenho que pegar um grupo de variaveis, olha so que confusao que eh fazer isso, daqui, oh, entao, eu tenho que abrir, aqui, e fechar, com duas chaves, hostvars, [groups], no manager-leader, [groups['manager-leader']], que eh, oh, dentro do manager-leader, entao, oh, eu quero pegar as variaveis do grupo do manager-leader, okay?, entao, ele retorna, para mim, um array, entao, como so tem Um, ali, eu vou retornar 0, okay?, peguei o primeiro, ou seja, a primeira Maguina. Qual a variavel que eu vou pegar la dentro? master_token
+
+
+
+vars:
+
+token: "{{ hostvars[groups['manager-leader'][0]]['master_token'] }}"
+
+
+
+, que eh essa, aqui, certo?
+
+
+
+- name: Master token
+
+command: docker swarm join-token manager -q
+
+when: swarm_mode.stdout == "active"
+
+register: >>> master_token
+
+
+
+46. Entao, eu vou pegar la dentro do master_token. E vou pegar a saida padrao, 'stdout',
+
+
+
+vars:
+
+token: "{{ hostvars[grous['manager-leader'][0]]['master_token']['stdout'] }}"
+
+
+
+47. Porque ele gera na saida padra.
+
+
+
+48. Okay?
+
+
+
+49. Bem complicadinho, nao eh?
+
+
+
+50. Eu concordo que eh bem complicadinho.
+
+
+
+51. Mas, eh assim, mesmo. Entao, eu estou pegando o stdout, que eh a saida padrao, aqui, dessa variavel "master_token",
+
+
+
+- name: Master token
+
+command: docker swarm join-token manager -q
+
+when: swarm_mode.stdout == "active"
+
+register: >>> master_token
+
+
+
+, entao, eh o stdout, oh, quando a gente quer ver um valor de uma variavel, da um stdout, eh o master_token do hostvariables, do grupo manager-leader. Eu so tenho Um, entao, por isso, eu pego o 0, aqui, ele retorna um array, entao, eu pego so o primeiro.
+
+
+
+52. Okay?
+
+
+
+53. Agora, eu tenho esse token, aqui,
+
+
+
+tasks: 
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ >>> token <<< }} {{ master }}:2377
+
+
+
+54. Beleza?
+
+
+
+55. E como que eu pego o IP do Master, aqui, o private_ip, esse cara, aqui?, eu preciso pegar esse private_ip, aqui,
+
+
+
+- name: Swarm init
+
+command: docker swarm init --advertise-addr {{ >>> private_ip <<< }}
+
+when: swarm_mode.stdout == "inactive"
+
+
+
+56. Tambem eh uma confusaozinha dessa, eu chamei de master, aqui, so para voce ver que nao eh direto, okay? Eh a mesminha ideia, hostvars[groups['manager-leader'][0]]['private_ip'], so tem Um manager-leader, pega no 0, e, aqui, eu vou pegar o private_ip, que ja esta registrado la, 
+
+
+
+- name: Join Swarm Cluster
+
+vars: 
+
+token: "{{ hostvars[groups['manager-leader'][0]]['master_token']['stdout'] }}"
+
+master: "{{ hostvars[groups['manager-leader'][0]]['private_ip'] }}"
+
+
+
+57. Okay? Entao, esse master vem, aqui, como private_ip,
+
+
+
+tasks:
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ token }} {{ >>> master }}:2377
+
+
+
+58. Beleza. Eh assim que a gente da o Join.
+
+
+
+59. So que eu so vou fazer isso se o Docker Swarm estiver ativo.
+
+
+
+tasks:
+
+- shell: "docker info | grep 'Swarm' | awk -F'Swarm: ' '{print $NF}'"
+
+register: swarm_mode
+
+
+
+60. Entao, eu preciso de algo nesse sentido, aqui, tambem, eu nao consigo reaproveitar as tasks, entre, ..., cuidado, ai, quando voce copia, entao, muito cuidado, ai, na identacao, okay? Entao, eu so vou executar esse cara quando o Swarm mode estiver inativo, que, aqui, ele ja inicializa o swarm, e entra dentro do cluster, 
+
+
+
+tasks:
+
+- shell: "docker info | grep 'Swarm' | awk -F'Swarm: ' '{print $NF}'"
+
+register: swarm_mode
+
+
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ token }} {{ master }}:2377
+
+when: swarm_mode.stdout == "inactive" 
+
+
+
+, okay? A gente so inicializa o Swarm, aqui, no manager-leader, aqui, no manager-follower, a gente ainda nao inicializou, entao, a gente esta inicializando agora, e ja entrando como manager, dentro do cluster, okay?
+
+
+
+command: docker swarm join --token {{ token }} {{ master }}:2377
+
+
+
+61. Aqui, a gente pode registrar uma variavel, aqui, como, sei la, como follower,
+
+
+
+tasks:
+
+- shell: "docker info | grep 'Swarm' | awk -F'Swarm: ' '{print $NF}'"
+
+register: swarm_mode
+
+
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ token }} {{ master }}:2377
+
+when: swarm_mode.stdout == "inactive" 
+
+register: follower
+
+
+
+
+
+, e, ai, vamos colocar assim, oh, - name: Show join cluster results, debug, vamos colocar um debug, aqui, oh, debug: var=follower.stdout,
+
+
+
+tasks:
+
+- shell: "docker info | grep 'Swarm' | awk -F'Swarm: ' '{print $NF}'"
+
+register: swarm_mode
+
+
+
+- name: Join swarm cluster as manager
+
+command: docker swarm join --token {{ token }} {{ master }}:2377
+
+when: swarm_mode.stdout == "inactive" 
+
+register: follower
+
+
+
+- name: Show join cluster results
+
+debug: var=follower.stdout
+
+
+
+- name: Show join cluster errors
+
+debug: var=follower.stderr
+
+
+
+62. Okay?
+
+
+
+63. Se deu algum erro, a gente vai ver aqui, tambem,
+
+
+
+- name: Show join cluster errors
+
+debug: var=follower.stderr 
+
+
+
+64. Se nao conseguiu entrar, por algum motivo, a gente vai ver nos erros. Se deu certo, a gente vai ver no Show join cluster results
+
+
+
+65. Entao, aqui, eu acho que eh so isso, para entrar no cluster, esta certinho, a gente nao precisa fazer mais nada. Vamos ver, aqui, esta tudo certo.
+
+
+
+66. Vamos finalizar, aqui, a gente faz na proxima aula a criacao da rede para as aplicacoes.
+
+
+
+67. Esta executando, esta entrando, agora, na parte de entrar no Cluster, e deu erro. Ficou errado, aqui, essa parte do template, nao eh? Eu devo ter escrito errado, aqui. Entao, vamos ver, aqui, o que que eu errei.
+
+
+
+68. Okay. Vamos executar novamente.
+
+
+
+69. Ta vendo por que que eh legal voce criar um Ansible com estado?
+
+
+
+70. Voce pode executar mais de uma vez sem ter medo, nao eh?
+
+
+
+71. Eu posso ficar executando sempre. Agora, sim. Entao, olha la, o 'Show join cluster results', ele entrou no Swarm como manager, "follower.stdout": "This node joined a swarm as a manager."
+
+
+
+72. E o outro tambem entrou como manager, nao teve nenhum error, aqui, para entrar no Cluster.
+
+
+
+73. Entao, esta tudo certo. O nosso Cluster Docker Swarm esta sendo inicializado, tudo, aqui, pelo Ansible.
+
+
+
+74. Na proxima aula, a gente cria uma rede para a nossa aplicacao ficar la dentro do Cluster. Beleza?
+
+
+
+75. Fim da Aula 07.011. Inicializando os Seguidores do Docker Swarm.
+
+
+
+-->​

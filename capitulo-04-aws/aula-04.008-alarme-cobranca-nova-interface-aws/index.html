@@ -1,0 +1,151 @@
+<!-- 
+
+Aula 04.008. Alarme Cobranca Nova Interface AWS
+
+
+
+1. Esta aula, aqui, eh uma atualizacao de como voce pode criar o Alarme para Cobranca na AWS, porque a telinha, la, deu uma mudada, na ultima vez que eu gravei, e isso eh totalmente normal, isso acontece, na AWS, com certa frequencia, entao, as vezes, eles atualizam a Tela e mudou, onde voce achava que era, nao esta mais, voce tem que dar uma fucada, ali.
+
+
+
+2. Eu tambem nem tinha visto, eu usei, agora, aqui, para aprender, e esta aula eh para atualizar.
+
+
+
+3. Okay?
+
+
+
+4. Entao, vamos la. Olha so, voce vai selecionar, entao, o CloudWatch, voce vai selecionar, ai, o Servico de CloudWatch, okay?, para a gente poder criar esse Alarme de Cobranca.
+
+
+
+5. Entao, a gente vem, aqui, no CloudWatch, eu ja tenho criado os meus Alarmes, aqui, mas eu vou criar um Novo, eu tenho Dois Alarmes, Um de 10 Dolares e outro de 30 Dolares, eu vou criar um Alarme, aqui, de 50 Dolares.
+
+
+
+6. Entao, a gente vem, aqui, em Alarms, e vamos selecionar em Create Alarm.
+
+
+
+7. Essa telinha, aqui, que deu uma mudada.
+
+
+
+8. Entao, a gente tem que selecionar qual que eh a metrica que a gente vai usar para disparar esse Alarme.
+
+
+
+9. A gente clica, aqui, em Select metric, okay? E, aqui, em Todas as metricas, voce vai procurar a parte de Billing. Voce pode digitar, aqui, tambem, para fazer o filtro, nao eh?, ele vai,..., a gente da um <enter>, aqui, Billing.
+
+
+
+10. Ele vai filtrar mais, ou, se voce nao digitar nada, voce pode selecionar o Billing.
+
+
+
+11. Se voce selecionar o Billing, aqui. Se voce selecionar o Billing, pesquisar Billing, vai ser essa aqui, oh, Total Estimated Charge, nao vai ser Por Servico.
+
+
+
+12. Mas, eu vou clicar, aqui, em Billing, e, ai, tem, oh, Total Estimated Charge, nao eh?, traduzindo, nao eh?, seria o Custo Estimado Total. Entao, eh em cima dessa metrica, aqui, que a gente vai criar o nosso alarme.
+
+
+
+13. Okay?
+
+
+
+14. Entao, clicamos, aqui, ele ja vai mostrar para a gente, oh, EstimatedCharges, que eh o nome da metrica que a gente vai usar em Dolar.
+
+
+
+15. Seleciona, aqui.
+
+
+
+16. Clicar em Select metric.
+
+
+
+17. Bom, ai, aqui, embaixo, oh, eu vou definir o alarme.
+
+
+
+18. Entao, eu estou criando um Alarme de Billing.
+
+
+
+19. Entao, eu vou colocar, aqui, oh, se eu chegar a 50 Dolares, eu vou mandar isso para uma lista de e-mails.
+
+
+
+20. Qual lista? Eu ja tenho criada, aqui, mas, voce pode clicar em New List, e criar, aqui, oh, type your email address. normandesjr@gmail.com, por exemplo. Ele vai mandar, para mim, nesse email.
+
+
+
+21. Bom, o que mais, aqui?
+
+
+
+22. Nao precisa mexer mais nada, aqui. Eh so criar esse Alarme, ou seja, clicar no botao Create Alarm.
+
+
+
+23. Entao, ele so esta mandando, aqui, uma mensagem de confirmacao no meu email, okay?, que eu preciso entrar la e clicar para confirmar. Deixa eu fazer isso, daqui. Beleza, ja fui la no meu email e ja confirmei. Entao, falou que esta confirmado, ja, nao eh?, cliquei la no email, recebi, fui para uma tela, assim, oh, de Subscription confirmado, beleza. Vamos la para o Alarme.
+
+
+
+24. Aqui, ele mostra que o Alarme esta Insuficiente, ainda, ainda nao conseguiu chegar nos dados, e tal, para ele falar se ja vai dar nesse Alarme ou nao, por isso que ele fica, aqui, no Insuficiente, mas os outros 2 alarmes, oh, esta no Estado OK.
+
+
+
+25. Daqui um tempo, esse cara, aqui, vai sair do 1 e vai vai vir, aqui, para o 2.
+
+
+
+26. Mas, nesse momento, olha la, eu tenho os 3 alarmes, okay? Eu poderia ter dado uma descricao, aqui, nao eh? Nao coloquei. Vamos editar, a gente pode vir, aqui, oh, Modify, no outro, aparecia para mim, nao eh?, de uma forma bem clara. Vamos ver, aqui, em Show advanced, aqui, eu nao consigo editar mais esse nome.
+
+
+
+27. Se eu fosse criar um Novo, vamos ver se eu conseguiria, Billing, Total Estimated Charge, aqui, selecionei, EstimatedCharges, seleciona, vamos supor que fosse a 80 dolares, vou mandar, aqui, para mim, show advanced, Ah, aqui, sim, oh, eu conseguiria dar o Nome do Alarme. Entao, oh, 'Ja cheguei em 80 dolares na AWS'. Okay?, Entao, se chegar a ficar >= a 80 Dolares, eu vou receber, ele vai falar, esta em Alarme, eh,..., faltou clicar em Advanced.
+
+
+
+28. Entao, a forma certa era essa.
+
+
+
+29. A gente consegue dar o nome, definir, aqui, mais detalhes, e a Acao.
+
+
+
+30. Quando o Alarme acontecer, ele vai mandar uma Notificacao para mim. Clicar em Create Alarm.
+
+
+
+31. Entao, vamos ver, aqui. E, agora, sim, agora, a gente tem o Alarme, aqui, com o nome, nao eh?
+
+
+
+32. Ele esta em INSUFFICENT_DATA, o BillingAlarm, que foi aquele que a gente criou primeiro, sem nome, esta aqui, eu vou ate apagar ele, deixa eu apaga-lo.
+
+
+
+33. Vamos deixar so esses aqui, de 10, de 30 e de 80 dolares, eu vou deixar, por enquanto, aqui, na minha conta.
+
+
+
+34. Okay?
+
+
+
+35. Entao, eh isso. Daqui a pouco, esse INSUFFICIENT_DATA, aqui, vai passar para o Estado OK, nao eh?, porque ele, ainda, tem que ficar consultando, como eu disse, igual aconteceu nos que a gente ja havia criado, e eh isso, eh assim que que voce vai criar o Alarme, agora, nessa Interface nova do CloudWatch.
+
+
+
+36. Fim da Aula 04.008. Alarme Cobranca Nova Interface AWS.
+
+
+
+-->​

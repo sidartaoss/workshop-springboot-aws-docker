@@ -1,0 +1,218 @@
+<!-- 
+
+Aula 07.009. Criando Security Group para Swarm
+
+
+
+1. Bom, agora, a gente vai precisar liberar a comunicacao do Swarm.
+
+
+
+2. Como assim, Normandes?
+
+
+
+3. Lembra dessa imagem, aqui?
+
+
+
+4. A gente tem os Managers. Os Managers conversam entre si, oh, ta vendo essa setinha, aqui, oh, interligando os Managers? Porque os Managers conversam entre si, para eles poderem manter o estado do Cluster.
+
+
+
+5. Entao, existe uma comunicacao ali.
+
+
+
+6. E, ai, a gente precisa que essas Instancias, que vao ser as nossas Instancias que tem os Managers, essas 3 Instancias, aqui, que conversam entre si, em Console da AWS / EC2 / Instances, precisam estar liberadas, no Security Group, as portas e protocolos corretos para o Manager funcionar.
+
+
+
+7. Okay?
+
+
+
+8. Entao, vamos la.
+
+
+
+9. Vamos la no IntelliJ, vamos voltar, aqui, na parte de Seguranca do Terraform, ou seja, security.tf, e vamos adicionar um resource, de Security Group, nos vamos chamar isso, aqui, de cluster_communication,
+
+
+
+resource "aws_security_group" "cluster_communication" {
+
+
+
+}
+
+
+
+10. Okay?
+
+
+
+11. Porque eh a comunicacao do Cluster.
+
+
+
+12. vpc_id, nao muda muita coisa, nao eh?, vamos la, name, "hibicode_cluster_communication", e, agora que vem as regras,
+
+
+
+resource "aws_security_group" "cluster_communication" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_cluster_communication"
+
+}
+
+
+
+13. Sao 4 regras de ingress, e uma regra de egress, okay? Entao, vamos la. Como que voce sabe isso, Normandes? Documentacao. Entao, essa, aqui, eh a Documentacao do Docker Swarm, okay?, entao, tem que ir la e ler e ele vai falar, 'Olha, ele usa a porta 2377, no protocolo tcp, e eu vou colocar, aqui, o self true, para que, quem tiver esse security_group, nao e?, entao, eu vou associar este security_group, cluster_communication, para as Instancias EC2. Entao, quem tiver esse Security Group, vai conseguir receber Requisicao na porta 2377'. Okay?
+
+
+
+resource "aws_security_group" "cluster_communication" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_cluster_communication"
+
+
+
+ingress {
+
+from_port = 2377
+
+to_port = 2377
+
+protocol = "tcp"
+
+self = true
+
+}
+
+
+
+
+
+}
+
+
+
+14. Entao, vamos la, tem mais, aqui, vamos colocar, deixa eu copiar, aqui, tem, tambem, da porta 7946, tambem eh tcp, e tambem tem, a 7946, so que, agora, via udp, okay?,
+
+
+
+ingress {
+
+from_port = 2377
+
+to_port = 2377
+
+protocol = "tcp"
+
+self = true
+
+}
+
+
+
+ingress {
+
+from_port = 7946
+
+to_port = 7946
+
+protocol = "tcp"
+
+self = true
+
+}
+
+
+
+ingress {
+
+from_port = 7946
+
+to_port = 7946
+
+protocol = "udp"
+
+self = true
+
+} 
+
+
+
+, e, via UDP, tambem, a 4789, via udp,
+
+
+
+ingress {
+
+from_port = 4789
+
+to_port = 4789
+
+protocol = "udp"
+
+self = true
+
+}
+
+
+
+15. Okay? E vamos colocar um egress, aqui, tambem, na verdade, a gente ja colocou um egress 0,0,0, aqui, nao eh?, para permitir outbound, ou seja, no security_group "allow_outbound", entao, nem precisaria dessa, daqui, eu vou tirar essa regra de egress, que nao vai precisar, sao so essas, aqui, mesmo. Entao, 2377 e 7946 no TCP, e, no UDP, 7946 e 4789. Okay?
+
+
+
+16. Quando faz, isso, nao pode esquecer de atualizar, em instances.tf, temos que vir, aqui, na propriedade vpc_security_group_ids, e adicionar o security_group, entao,
+
+
+
+vpc_security_group_ids = ["${aws_security_group.allow_sh.id}", "${aws_security_group.allow_outbound.id}", "${aws_security_group.cluster_communication.id}"]
+
+
+
+17. Okay?
+
+
+
+18. Entao, so mandar aplicar agora, entao, vamos voltar, la, na pastinha do terraform, a gente ja tem, aqui, nao eh?, o run-terraform.bat, para poder pegar o IP, e, ai, eh so mandar executar e ele vai criar esse security_group e vai associar as instancias, sem precisar reiniciar tambem, nao eh?
+
+
+
+19. E ele ja pergunta, oh, a fazer a alteracao das Instancias, entao, nao vai destruir, nao precisa destruir, ele vai criar esse Security Group.
+
+
+
+20. So dar um yes e aguardar ele aplicar, criar esse Security Group e aplicar as Instancias. Beleza?
+
+
+
+21. Entao, eh isso. Importantissimo para o Cluster funcionar. Okay? Entao, essa Liberacao eh para os Managers conversarem entre si. Okay?
+
+
+
+22. Entao, muito importante fazer isso. Pronto, acabou de aplicar, eh isso dai.
+
+
+
+
+
+23. Fim da Aula 07.009. Criando Security Group para Swarm​
+
+
+
+
+
+
+
+
+
+
+-->

@@ -1,0 +1,621 @@
+<!-- 
+
+Aula 06.003. Criando uma Rede Docker para Comunicacao dos Containers
+
+
+
+1. Se voce executou a aplicacao, e esperou terminar, voce recebeu um erro.
+
+
+
+2. Eu imagino que o seu erro va ser esse daqui.
+
+
+
+3. Connection refused, porque nao conseguiu conectar localhost:5432, nao conseguiu conectar no banco de dados, nao e?
+
+
+
+4. Entao, vamos la.
+
+
+
+5. Vamos identificar como eh que a gente resolve isso.
+
+
+
+6. Se a gente der um docker ps, aqui,
+
+
+
+> docker ps
+
+
+
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+
+
+
+... ubuntu/nginx "/bin/sh -c 'service...'" 24 hours ago Up to 24 hours 0.0.0.0:8000->80/tcp xenodochial_snyder
+
+
+
+
+
+7. Aqui, eu so estou com esse ubuntu/nginx levantado.
+
+
+
+8. Entao, vamos dar um docker stop xenodochial_snyder, nesse camarada, ai, voce vai falar, 'Ah, eh porque o banco esta parado, a gente nao subiu o Postgres, aqui, nao eh?'.,
+
+
+
+> docker stop xenodochial_snyder
+
+
+
+
+
+9. Vamos ver se, realmente, eh isso.
+
+
+
+10. Beleza. Parou. 
+
+
+
+11. 
+
+
+
+> docker ps
+
+
+
+12. Nao tem ninguem no ar.
+
+
+
+13. docker ps -a,
+
+
+
+> docker ps -a
+
+
+
+, eu mostro todos os Containers que eu ja subi, mas que estao parados, agora.
+
+
+
+14. Inclusive, eu posso remover alguns deles.
+
+
+
+15. Ah, depois a gente resolve, mas, o comando eh docker rm, e voce passa o Container ID,
+
+
+
+> docker rm [ID]
+
+
+
+16. Entao, docker ps -a, vamos procurar o banco, aqui. 
+
+
+
+17. Oh o banco, aqui, oh, beerdb.
+
+
+
+18. Ele esta parado.
+
+
+
+19. Entao, docker start beerdb
+
+
+
+> docker start beerdb
+
+
+
+20. Agora, o banco esta subindo.
+
+
+
+21. 
+
+
+
+> docker ps
+
+
+
+22. Agora, sim, oh, eu tenho o postgres, na versao 11.2, esta escutando, aqui, na porta 5432. Se voce der um telnet, localhost, na porta 5432,
+
+
+
+> telnet localhost 5432
+
+
+
+, ele vai fechar a conexao para mim.
+
+
+
+23. Certo? Entao, eu estou conectado.
+
+
+
+24. Bom, o banco subiu.
+
+
+
+25. Enta, vamos subir, de novo, a aplicacao.
+
+
+
+26. Vamos tentar subir ela, aqui.
+
+
+
+27. Aqui, uma dica, quando containers, assim, e eu nao tenho certeza se vai funcionar, ou nao, pode passar a opcao --rm, na hora que ele morrer, ele ja remove, e nao fica sujeira, ali, no docker ps, okay?,
+
+
+
+> docker run -p 8080:8080 --rm hibicodesidarta/beerstore:0.1
+
+
+
+28. Vamos la. Esta subindo, de novo, agora, o banco esta no ar, ele vai conseguir conectar localhost 5432.
+
+
+
+29. Sera?
+
+
+
+30. Nao foi, hein.
+
+
+
+31. Connection refused de novo.
+
+
+
+32. Nao conseguiu conectar em localhost:5432.
+
+
+
+33. Ah, Normandes, mas, voce acabou de me mostrar, docker ps, oh, esta ouvindo na porta 5432 localhost, ate telnet eu fiz.
+
+
+
+34. Sim, voce em razao.
+
+
+
+35. Acontece que esse 5432,
+
+
+
+> docker ps
+
+
+
+PORTS
+
+>>> 0.0.0.0:5432<<< ->5432/tcp
+
+
+
+, esta exposto, aqui, agora, para a minha maquina, aqui, usar. E nao para outro Container usar. Perceba bem a diferenca. Esta disponivel para a minha maquina, e nao para o Container.
+
+
+
+36. localhost eh esta minha maquina. localhost, dentro do Container, eh o Container, nao eh a minha maquina.
+
+
+
+37. Entao, isso nao vai dar certo.
+
+
+
+38. Entao, olha so, voce tem um Container, aqui, que eh de Aplicacao, a gente tem um outro Container, que eh o Banco de Dados.
+
+
+
+39. localhost, aqui, para APP, eh tudo que esta aqui dentro do Container. Para o DB, eh tudo que esta aqui dentro, do Container de DB.
+
+
+
+40. Entao, eu tenho que dar um jeito desses dois caras, Containers, se conhecerem. Desse Container APP conhecer o Container DB.
+
+
+
+41. E eh isso que a gente vai fazer quando a gente cria, aqui, oh, uma Rede, que eu vou chamar de beer-net, entao, esse Retangulo, aqui, por fora, eu vou chamar de beer-net. Quando eu fizer isso, (ligo uma flexa de APP para DB), esse Container, aqui, APP, vai passar a enxergar esse, DB, e vice-versa, esse Container, DB, passa a enxergar esse, aqui, APP, tambem, (ligo uma flexa de DB para APP).
+
+
+
+42. Entao, os dois vao ter, os dois conseguem se enxergar atraves do nome do Container.
+
+
+
+43. Okay?
+
+
+
+44. A gente vai conseguir fazer isso, daqui, se a gente criar uma rede para eles conversarem.
+
+
+
+45. Criar uma rede? Eh, uma rede, aqui, no Docker.
+
+
+
+46. docker network create, eu vou chamar essa rede de beer-net, okay?
+
+
+
+> docker network create beer-net
+
+
+
+47. Criei a Rede.
+
+
+
+48. docker network ls,
+
+
+
+> docker network ls
+
+
+
+49. Oh, o Docker ja vem, inclusive, com algumas outras redes, mas eu quis criar uma nossa, beer-net.
+
+
+
+50. Okay?
+
+
+
+51. Bom, agora que eu criei essa Rede, eu tenho o Postgres, aqui, ja rodando,
+
+
+
+> docker ps
+
+
+
+CONTAINER ID IMAGE
+
+... postgres:11.2-alpine
+
+
+
+52. Ah, mas eu quero que ele entre dentro dessa rede.
+
+
+
+53. Okay.
+
+
+
+54. docker network connect beer-net, quem que eu quero que conecte la?
+
+
+
+55. beerdb, entao, o nome do meu Container. 
+
+
+
+56. Aqui, oh, beerdb,
+
+
+
+> docker ps
+
+
+
+CONTAINER ID IMAGE ... NAMES
+
+... postgres:11.2-alpine beerdb
+
+
+
+57. Eu quero que o Container beerdb se conecte nessa rede beer-net, assim mesmo,
+
+
+
+> docker network connect beer-net beerdb
+
+
+
+
+
+58. Okay?
+
+
+
+59. Posso dar um <enter>, aqui, ele conectou nessa Rede.
+
+
+
+60. Agora, quando eu for subir a aplicacao, essa Aplicacao, eu tenho que subir e falar, 'Olha, quando voce estiver subindo, eu quero que voce use a rede beer-net', okay? Eu quero que voce faca isso,
+
+
+
+> docker run -p 8080:8080 --rm --network beer-net hibicodesidarta/beerstore:0.1
+
+
+
+
+
+61. Bom, eu vou subir, mas, ainda nao vai funcionar.
+
+
+
+62. O motivo, ainda, bem claro para a gente. Vai tentar se conecta em localhost, vamos ver, oh, tentou se conecta em localhost, aqui, 
+
+
+
+
+
+org.postresql.util.PSQLException: Connection to localhost:5432 refused. 
+
+
+
+
+
+63. Eu ja falei, localhost, quem que eh? Dentro do Container, eh o Proprio Container.
+
+
+
+64. Entao, eu tenho que passar, para a Aplicacao, agora, a Aplicacao, aqui, oh, no application.properties, eu tenho que passar o outro endereco, aqui, spring.datasource.url. Eu nao posso passar a mesma. Eu tenho que passar, agora, nao eh localhost.
+
+
+
+65. Esses Containers, eles se conhecem, agora, pelo nome.
+
+
+
+66. Entao, se esse Container, ou seja, DB, aqui, se chama beerdb, se essa Aplicacao, APP, quer acessar, se alguma coisa, aqui, quer acessar esse cara, ou seja, beerdb, tem que usar o nome beerdb. Entao, eu nao vou alterar aqui, nao, em application.properties,
+
+
+
+spring.datasource.url=jdbc:postgresql:// >>> localhost <<< :5432/beerstore
+
+
+
+67. Por que que eu nao vou alterar aqui?
+
+
+
+68. Porque, quando eu estou desenvolvendo, eu quero que fique localhost, nao eh? Enquanto eu estou..., so quando eu subir no Container, que eu quero que fique, aqui, beerdb,
+
+
+
+spring.datasource.url=jdbc:postgresql:// >>> beerdb <<< :5432/beerstore
+
+
+
+69. Okay?
+
+
+
+70. Entao, eu vou deixar localhost, aqui,
+
+
+
+
+
+spring.datasource.url=jdbc:postgresql:// >>> localhost <<< :5432/beerstore
+
+
+
+
+
+71. Mas o Spring, os caras pensam em tudo. Eu consigo passar essa propriedade, spring.datasource.url, aqui, na hora de subir a Aplicacao.
+
+
+
+72. Entao, eu posso passar, aqui, na frente, no Dockerfile, em CMD java -jar /app/app.jar, opcoes para,..., eu poderia passar algo, aqui, assim, oh, 'spring.datasource.url=...', e colocar. Mas, para nao ter que colocar tudo isso, daqui, se eu precisar de novas opcoes, o que eu vou fazer, aqui, oh, eu vou colocar $APP_OPTIONS, okay?,
+
+
+
+
+
+...
+
+
+
+CMD java -jar /app/app.jar $APP_OPTIONS
+
+
+
+
+
+73. Sao opcoes que eu posso passar aqui, na frente.
+
+
+
+74. Importantissimo, eu vejo muita gente errando. Alterei o Dockerfile, nao se esqueca. Tem que fazer o build de novo.
+
+
+
+75. docker build, eu vou colocar, aqui, oh, inclusive, a versao 2, okay? A gente alterou, entao, vamos para uma vesao 0.2,
+
+
+
+> docker build -t hibicodesidarta/beerstore:0.2 .
+
+
+
+73. Okay.
+
+
+
+74. Oh, ele fez o build, agora, eu tenho que subir na versao 0.2. Eu estou colocando versao diferente, ja, para voce ir se acostumando, nao eh?, com isso.
+
+
+
+75. Mas, nao necessariamente, alterar so isso, daqui, em Dockerfile,
+
+
+
+
+
+CMD java -jar /app/app.jar $APP_OPTIONS
+
+
+
+, eu ja vou alterar a versao da Aplicacao. Nao, nao eh? Alias, se voce nem quiser colocar essa versao, aqui,
+
+
+
+> docker build -t hibicodesidarta/beerstore: >>> 0.2 .
+
+
+
+
+
+, nao tem problema, ele vai buildar como latest.
+
+
+
+
+
+76. Okay?
+
+
+
+77. Bom, fizemos o deploy da versao 0.2, fizemos o build da versao 0.2.
+
+
+
+78. Agora, quando eu for subir, aqui, eu tenho a opcao de passar aquela APP_OPTIONS.
+
+
+
+79. Okay?
+
+
+
+80. Entao, aqui, um pouquinho antes do nome, eu posso colocar, aqui, simplesmente, APP_OPTIONS, que ele esta la esperando, abro, entre aspas, spring.datasource.url=, vamos colocar jdbc:postgresql://beerdb:5432/beerstore, nao vamos correr o risco de digitar errado, usuario e senha sao os mesmos, entao, eu so vou passar essa opcao,
+
+
+
+> docker run -p 8080:8080 --rm --network beer-net APP_OPTIONS='--spring.datasource.url=jdbc:postgresql://beerdb:5432/beerstore' hibicodesidarta/beerstore:0.2
+
+
+
+81. Muito legal isso do Spring, nao eh?
+
+
+
+82. Ficou faltando, aqui, um -e para passar parametros, aqui. Para a aplicacao, eu tenho que passar um -e, se colocar APP_OPTIONS, aqui, ele nao sabe o que que eh isso,
+
+
+
+> docker run -p 8080:8080 --rm --network beer-net -e APP_OPTIONS='--spring.datasource.url=jdbc:postgresql://beerdb:5432/beerstore' hibicodesidarta/beerstore:0.2
+
+
+
+83. Agora, sim, nao esquece do -e. Vamos executar, agora, esse Container tem que conseguir enxergar o banco de dados.
+
+
+
+84. Ele subiu sem nenhum erro.
+
+
+
+85. Que bom, nao eh?
+
+
+
+86. Mas, se voce tentar, aqui, oh, se voce tentar acessar a aplicacao na porta 8080, vai, deixa eu ver se vai dar certo.
+
+
+
+87. Se a gente acessar localhost:8080/beers, a gente tem as cervejas que a gente ja cadastrou naquele banco, so que, agora, a diferenca, oh, a gente esta executando dentro de um Container.
+
+
+
+88. Okay?
+
+
+
+89. Quando voce faz o CTRL + C, voce sai e matou. Isso, porque, eu estou colocando a opcao --rm.
+
+
+
+90. Entao, se voce nao quiser que ele morra, coloque a opcao -d, e ele vai ficar executando em background.
+
+
+
+91. Normalmente, aplicacao, assim, eu costumo colocar --rm, porque, quando eu estou desenvolvendo, normalmente, eu subo, aqui, na IDE.
+
+
+
+92. Mas, se voce quiser subir para testar, eh so colcoar o -d, que vai subir em background, ele demora alguns segundos, nao eh?, para a aplicacao subir, 
+
+
+
+> docker run -p 8080:8080 -d --network beer-net -e APP_OPTIONS='--spring.datasource.url=jdbc:postgresql://beerdb:5432/beerstore' hibicodesidarta/beerstore:0.2
+
+
+
+93. Se voce quiser ver os logs, 
+
+
+
+> docker ps
+
+
+
+, da um docker ps, e docker logs -f e coloca o nome do Container,
+
+
+
+> docker logs -f [nome_do_container]
+
+
+
+94. Bom, por enquanto, eh isso.
+
+
+
+95. Depois, nao esquece de parar,
+
+
+
+> docker stop [nome_do_container]
+
+
+
+, porque, se voce tentar subir na IDE, vai dar problema de porta, vai falar que ja existe a porta 8080 sendo usada.
+
+
+
+96. Okay?
+
+
+
+97. Bom, entao, eh isso dai, sobre rede do Docker, agora, os Containers conseguem conversar pelo nome. Beleza?
+
+
+
+98. Fim da Aula 06.003. Criando uma Rede Docker para Comunicacao dos Containers.
+
+
+
+
+
+
+
+-->
+
+

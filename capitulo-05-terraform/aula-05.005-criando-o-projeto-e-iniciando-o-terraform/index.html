@@ -1,0 +1,295 @@
+<!-- 
+
+Aula 05.005. Criando o Projeto e Iniciando o Terraform
+
+
+
+1. Vamos criar e inicializar o Projeto do Terraform.
+
+
+
+2. Bom, o Projeto do Terraform, na verdade, eh uma Pasta, onde voce vai jogar os arquivos do Terraform la dentro.
+
+
+
+3. Como o Terraform eh para esse Projeto do Beerstore, eu vou criar uma pasta aqui, dentro, mesmo.
+
+
+
+4. Ah, Normandes, eu quero criar fora.
+
+
+
+5. Nao em problema. Pode criar fora. Eu so vou criar, aqui, para poder usar o IntelliJ como editor tambem.
+
+
+
+6. Nao quero usar o IntelliJ, Normandes, eu nao estou usando ele. Qual que eu posso usar?
+
+
+
+7. Qualquer editor.
+
+
+
+8. Qualquer editor de texto funciona.
+
+
+
+9. Okay? Ele nao tem nada, assim, que voce precise, de especial.
+
+
+
+10. Eu gosto, aqui, do IntelliJ, que ja fica tudo junto, o IntelliJ tem um plugin que deixa coloridinho, pra mim, os arquivos do Terraform.
+
+
+
+11. Se voce quiser usar o Visual Studio Code, da Microsoft, ele tambem eh muito bom para trabalhar com Terraform, tambem tem Plugin para deixar colorido para voce.
+
+
+
+12. Okay?
+
+
+
+13. Entao, o que que eu vou fazer?
+
+
+
+14. Eu vou criar, aqui, uma pasta, eu vou criar, aqui, um diretorio, que eu vou chamar de terraform. Ou seja, na raiz do projeto / New / Directory / terraform
+
+
+
+15. Nada mais obvio, nao eh?
+
+
+
+16. E, aqui dentro, eu vou criar um arquivo, e vou chamar esse arquivo de main.tf, ou seja, botao direito em terraform / New / File / main.tf
+
+
+
+17. E, ai, nesse momento, eu vou criar como um Arquivo de Texto, mesmo, Ok, e, ai, o IntelliJ ja fala que existe plugin para suportar essa extensao, entao, eu vou instalar esse plugin, aqui, Install plugins, so para voce ver, HashiCorp Terraform, eh esse cara mesmo / OK, ele ja vai instalar, ja posso Reiniciar, aqui, o IntelliJ.
+
+
+
+18. Ele esta reiniciando, okay.
+
+
+
+19. Bom, o que que eh esse arquivo main.tf?
+
+
+
+20. Eh o arquivo inicial do Terraform.
+
+
+
+21. Eh onde a gente vai falar, 'Qual eh o provider principal que a gente esta usando'. O que que eh o Provider?
+
+
+
+22. Lembra, la, quando a gente estava no Terraform? Vamos pegar, aqui, oh, https://www.terraform.io, quando a gente estava, aqui, no Terraform, na documentacao, tem varios Providers, https://www.terraform.io/docs/providers/index.html, eu posso fazer deploy em varias Clouds.
+
+
+
+23. Entao, eu vou falar, 'Qual que eh o Provider que eu quero usar'. No caso, vai ser a AWS. Qual que eh a versao desse Provider. Okay?
+
+
+
+24. Entao, tudo isso a gente vai fazer aqui, agora.
+
+
+
+25. Okay? Entao, vamos descobrir qual que eh a versao do Provider.
+
+
+
+26. Entao, procurar, no Google, "aws provider terraform", vamos descobrir, aqui, em terraform-providers/terraform-providers-aws - GitHub, https://github.com/terraform-providers/terraform-provider-aws.
+
+
+
+27. Eh, aqui, que eu queria achar. Isso mesmo, a gente pega, aqui, no codigo-fonte, do Terraform-Provider, vamos ver, aqui, qual que eh a versao que esta, em Branch: master / Tags / v2.4.0, ou seja, a Tag mais atual.
+
+
+
+28. Entao, o AWS Provider esta na Versao 2.4.0, eh a ultima versao que a gente tem desse Provider, okay?
+
+
+
+29. Entao, vamos utilizar essa versao.
+
+
+
+30. Vamos voltar la no main.tf, e vamos comecar a escrever o nosso arquivo Terraform.
+
+
+
+31. Entao, nos vamos escrever provider, entre Strings, "aws", que eh o Provider que eu quero usar, qual eh a versao, entao, version = "", vamos colocar um til, ~, aqui, entao, eu quero usar a versao 2.4.0, dele. Okay,
+
+
+
+provider "aws" {
+
+version = "~> 2.4"
+
+}
+
+
+
+32. Eu vou colocar, aqui, oh, shared_credentials_file, oh, esse plugin, no IntelliJ, ajuda com auto-complete, tambem.
+
+
+
+provider "aws" {
+
+version = "~> 2.4"
+
+shared_credentials_file = ""
+
+}
+
+
+
+33. Okay? Entao, ele esta onde?
+
+
+
+34. Til, ~/., ponto, home, o meu usuario, nao eh?, .aws, barra, /, credentials, shared_credentials_file = "~/.aws/credentials"
+
+
+
+
+
+
+
+provider "aws" {
+
+version = "~> 2.4"
+
+shared_credentials_file = "%userprofile%\\.aws\\credentials"
+
+}
+
+
+
+, cuidado para nao escrever errado, okay?
+
+
+
+35. Okay? /credentials. Entao, eh aonde ele vai buscar as credenciais.
+
+
+
+36. De qual profile?
+
+
+
+37. Do profile que a gente chamou de terraform,
+
+
+
+provider "aws" {
+
+version = "~> 2.4"
+
+shared_credentials_file = "%userprofile%\\.aws\\credentials"
+
+profile = "terraform"
+
+}
+
+
+
+38. Nao eh o Usuario, eh o nome do profile que a gente colocou.
+
+
+
+39. Okay? Se voce tivesse colocado, naquele profile, sei la, "teste", ou, "ambiente_de_teste", "usuario_qa", "usuario_prod", era esse profile que a gente ia colocar aqui.
+
+
+
+40. Okay?
+
+
+
+41. Entao, oh, simplezinho, eh assim que a gente comeca: 1. Seleciona a versao do Provider; 2. Aonde estao as credenciais; 3. E qual o Profile default que a gente quer utilizar.
+
+
+
+42. Okay?
+
+
+
+43. Bom, se a gente voltar, aqui, dentro de beerstore, agora, tem a pasta terraform. Olha, agora, o que que eu vou fazer, pelo Prompt de Comando, ir ate a pasta terraform que acabamos de criar,
+
+
+
+> %userprofile%\terraform init
+
+
+
+, para fazer a inicializacao do Terraform.
+
+
+
+44. Ele vai fazer o Download, oh, aqui, a gente colocou aquele til tracinho, ~>, entao, ele vai baixar a ultima versao, 2.4, e a ultima que tiver, aqui,
+
+
+
+provider "aws" {
+
+version = ">>> ~> 2.4 <<<"
+
+shared_credentials_file = "%userprofile%\\.aws\\credentials"
+
+profile = "terraform"
+
+}
+
+
+
+45. Entao, 2.4, a ultima versao, entao, aqui, depois de 2.4, eh a 2.4.0.
+
+
+
+46. Pronto.
+
+
+
+47. O Terraform foi inicializado pra gente.
+
+
+
+48. Vamos dar um,
+
+
+
+> ls -lha
+
+
+
+, aqui, vai ver que ele criou uma pasta oculta, chamada .terraform, onde ele vai gravar algumas coisas, ai, do Terraform.
+
+
+
+49. Okay?
+
+
+
+50. Entao, eh isso, comece assim, faca a inicializacao do Terraform. Depois, a gente comeca a provisionar. Ele nao provisionou nada, ainda, na AWS, so inicializou, baixou, nao eh?, fez o Download do Provider, aqui, da AWS, que ele vai precisar para usar, enfim, so fez a inicializacao. 
+
+
+
+51. Nas proximas aulas, a gente comeca a Provisionar.
+
+
+
+52. Fim da Aula 05.005. Criando o Projeto e Iniciando o Terraform.
+
+
+
+
+
+
+
+-->​

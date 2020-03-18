@@ -1,0 +1,916 @@
+<!-- 
+
+Aula 03.015. Comecando os Testes com TDD
+
+
+
+1. Os nossos testes, eles ficam dentro da pasta src/test/java.
+
+
+
+2. Entao, muita atencao com isso, dai, okay?
+
+
+
+3. Quando a gente ja criou o Projeto, o Spring Initializr, ele ja cria, para a gente, essa classe de Teste, aqui, BeerstoreApplicationTests.java,
+
+
+
+package com.hibicode.beerstore;
+
+
+
+import org.junit.Test;
+
+
+
+import org.junit.runner.RunWith;
+
+
+
+import org.springframework.test.context.junit4.SpringRunner;
+
+import org.springframework.boot.test.context.SpringBootTest;
+
+
+
+@RunWith(SpringRunner.class)
+
+@SpringBootTest
+
+public class BeerstoreApplicationTests {
+
+
+
+@Test
+
+public void contextLoads() {
+
+
+
+}
+
+
+
+}
+
+
+
+, que a gente nao vai usar essa classe. Entao, eu vou, ate, apaga-la, nao eh?, aqui, okay?, porque a gente nao vai utiliza-la.
+
+
+
+4. Bom, nos vamos criar uma nova classe de teste, que vai ficar dentro do pacote service, e vai se chamar BeerServiceTest,
+
+
+
+package com.beerstore.service;
+
+
+
+public class BeerServiceTest {
+
+
+
+}
+
+
+
+5. Okay?, para a gente testar a classe BeerService. Ah, Normandes, mas nem existe essa classe.
+
+
+
+6. Sim, eu sei, nao existe mesmo. Mas, nao tem problema. Daqui a pouco, a gente cria ela.
+
+
+
+7. Okay? Porque as regras de negocio, a gente vai criar na Classe de Servico.
+
+
+
+8. Entao, eu so quero te mostrar, aqui, oh, que o teste vai ficar dentro de src/test, e o nosso codigo de Producao, o codigo oficial, fica dentro de src/main.
+
+
+
+9. Okay? Entao, cuidado, atencao, ai, aonde voce vai colocar.
+
+
+
+10. Bom, a gente vai testar a classe BeerServiceTest.
+
+
+
+11. Eh aquilo que eu falei sobre os Passos de Bebe, nao eh?, os Baby Steps, a gente pode comecar muito, muito devagar, mesmo, do tipo, eu vou criar um metodo de teste, e, aqui, nao vai nem compilar.
+
+
+
+12. Entao, eu posso criar, sei la, vamos supor que eu fosse injetar, criar o objeto aqui, oh, 
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+}
+
+
+
+13. Bom, este teste ja esta falhando, esta vermelho, ele nem compila. Entao, vamos criar essa classe, nao eh?, a gente pode fazer isso, ja vamos criar a classe, nao precisamos ser tao devagar, assim, tambem, BeerService, dentro do pacote service, dentro de src/main/java,
+
+
+
+package com.hibicode.beerstore.service;
+
+
+
+public class BeerService {
+
+
+
+}
+
+
+
+14. Entao, fica la, dentro do pacote service. Para essa classe funcionar no contexto do Spring, a gente vai ter que adicionar uma anotacao, aqui, para ela se transformar em um componente.
+
+
+
+package com.hibicode.beerstore.service;
+
+
+
+public class BeerService {
+
+
+
+
+
+}
+
+
+
+15. Mas, a gente esta fazendo Teste Unitario. Teste Unitario, eu nao preciso do contexto do Spring. Okay? Eu so preciso testar essa Unidade, aqui,
+
+
+
+package com.hibicode.beerstore.service;
+
+
+
+public class BeerServiceTest {
+
+
+
+private >>> BeerService <<< beerService;
+
+}
+
+
+
+, como o nome diz, nao eh?, Unitario. Entao, eu estou testando apenas uma coisa.
+
+
+
+16. No caso do Unitario, eh Um Metodo, nao eh nem a classe, entao, eu quero testar Um Metodo dessa classe BeerService, em cada metodo de teste, aqui, em BeerServiceTest.
+
+
+
+17. Okay? Entao, vamos la. Vamos criar o primeiro metodo, aqui. Eu vou criar, eu vou dar o nome, aqui, para esse Teste e nao se assuste nao. 
+
+
+
+18. Olha so.
+
+
+
+19. public void, olha o nome, should_deny_creation_of_beer_that_exists(),
+
+
+
+package com.hibcode.beerstore.service;
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+public void should_deny_creation_of_beer_that_exists() {
+
+
+}
+
+}
+
+
+
+20. Oh, Normandes, voce esta doidao. Voce colocou underline no nome do metodo, no Java.
+
+
+
+21. Bom, se esse, aqui,
+
+
+
+package com.hibcode.beerstore.service;
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+public void >>> should_deny_creation_of_beer_that_exists() <<< {
+
+
+}
+
+}
+
+
+
+, fosse um codigo de Producao, um Codigo Principal, eu acho que voce estaria certo, nao eh?, esse, aqui, nao eh o recomendavel, de forma alguma, a gente usar.
+
+
+
+22. Mas, em metodos de Teste, ta okay, nao tem problema voce colocar esse underscore, aqui, nao.
+
+
+
+23. Porque, normalmente, o nome do metodo de Teste fica grande, nao eh?, e, ai, esse nome grande, assim, fica melhor voce ler se voce separar por underscore. Entao, para o teste, eh legal, eh okay fazer dessa forma.
+
+
+
+24. Okay?
+
+
+
+25. Entao, o que que esse Teste, aqui, precisa fazer?, nao eh?
+
+
+
+package com.hibcode.beerstore.service;
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+public void >>> should_deny_creation_of_beer_that_exists() <<< {
+
+
+}
+
+}
+
+
+
+26. Ele deve negar a criacao de uma Cerveja que ja existe.
+
+
+
+27. Okay?
+
+
+
+28. Eh isso que ele tem que fazer. 
+
+
+
+29. Entao, se eu tentar salvar uma Cerveja que ja existe, deve ser negado.
+
+
+
+30. Para isso ser um Teste, eu preciso anotar com @Test, do JUnit, ou seja, pacote org.junit,
+
+
+
+import org.junit;
+
+
+
+@Test
+
+public void shoul_deny_createion_of_beer_that_exists() {
+
+
+
+}
+
+
+
+31. Pronto, esse, aqui,
+
+
+
+import org.junit;
+
+
+
+@Test
+
+public void shoul_deny_createion_of_beer_that_exists() {
+
+
+
+}
+
+
+
+, eh um metodo de Teste do JUnit, agora.
+
+
+
+32. Okay?
+
+
+
+33. Bom, para esse teste, aqui, passar, nao eh?, negar a criacao de uma Cerveja que ja existe, eu preciso esperar uma Excecao. Essa negacao sera atraves de uma Excecao.
+
+
+
+34. Entao, eu vou colocar, aqui, oh, @Test(expected = ), ou seja, eu espero que seja lancada uma Excecao BeerAlreadyExistException.class, @Test(expected = BeerAlreadyExistException.class),
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+
+}
+
+}
+
+
+
+35. Okay? Essa classe nao existe, vamos cria-la, aqui, dentro de service, mesmo, nao eh?, porque, como eh uma Excecao de Negocio, a gente pode criar essa classe aqui dentro.
+
+
+
+36. Entao, New Class /, eu vou criar dentro do pacote exception, e ela vai estender RuntimeException,
+
+
+
+package com.hibicode.beerstore.service.exception
+
+
+
+public class BeerAlreadyExistException extends RuntimeException {
+
+
+
+}
+
+
+
+37. Okay? Voltamos, aqui, em BeerServiceTest. Eu so preciso importar, CTRL+SPACE, igual ao Elipse.
+
+
+
+38. Bom, se eu executar esse Test, aqui, vamos executa-lo?
+
+
+
+39. Botao direito, aqui, Run should_deny_creation_of_beer_that_exists(), nao eh?, ele vai executar esse cara como um Teste e ele vai ficar vermelho, precisa ficar vermelho, ele nao vai passar.
+
+
+
+40. Deu um erro de Assercao, esta esperando a Excecao, mas nao foi lancada,
+
+
+
+java.lang.AssertionError: Expected exception: com.hibicode.beerstore.service.exception.BeerAlreadyExistException
+
+
+
+41. Entao, como eh que eu faco esse teste passar?
+
+
+
+42. Primeiro, eu nem chamei o metodo, aqui, de BeerService, nao eh?,
+
+
+
+package com.hibcode.beerstore.service;
+
+
+
+public class BeerServiceTest {
+
+
+
+private >>> BeerService beerService;
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+
+}
+
+}
+
+
+
+43. Entao, vamos criar, aqui, no BeerService, o metodo public void save(), que recebe uma Cerveja,
+
+
+
+public class BeerService {
+
+
+
+public void save(Beer beer) {
+
+
+
+}
+
+}
+
+
+
+44. E esse metodo, aqui, nao eh?, deve salvar uma Cerveja no Banco.
+
+
+
+45. Calma, ai, nos vamos chegar la.
+
+
+
+46. Mas, eu primeiro, eu estou testando se ele vai lancar essa excecao,
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+@Test(expected = >>> BeerAlreadyExistException.class <<<)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+
+
+}
+
+
+
+}
+
+
+
+47. Entao, eu posso vir, aqui, oh, beerService.save(), esta esperando eu passar uma Cerveja, aqui, entao, vamos criar essa Cerveja, Beer beer = new Beer(), vamos setar, aqui, newBeer.setName("Heineken"), a Heineken ja existiria, nao eh?, newBeer.setType(BeerType.LAGER), newBeer.setVolume(new BigDecimal("355")), por exemplo,
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken")
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355");
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+48. Esse teste ainda esta falhando. Agora, eu posso clicar, aqui, nessa setinha verde, no canto superior no IntelliJ.
+
+
+
+49. Vamos ver. Ele tem que continuar falhando, a gente nao deu a implementacao. Aqui, deu NullPointerExcetpion,
+
+
+
+java.lang.NullPointerException: Unexpected exception, expected<com.hibicode.beerstore.service.exception.BeerAlreadyExistException
+
+
+
+Caused by: java.lang.NullPointerException
+
+at com.hibicode.beerstore.service.BeerServiceTest.should_deny_creation_of_beer_that_exists(BeerServiceTest.java:20)
+
+
+
+50. Por que que deu NullPointerException?
+
+
+
+51. Porque eu chamei, aqui, direto, nao eh?
+
+
+
+private BeerService >>> beerSeervice;
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken")
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355");
+
+>>> this.beerService.save(newBeer);
+
+}
+
+
+
+52. Entao, eu tenho que instanciar o objeto, obviamente.
+
+
+
+53. Se eu estou fazendo Teste Unitario, esse objeto nao vai ser injetado.
+
+
+
+54. Nem se voce colocar, aqui, Autowired. Isso, aqui, nao vai funcionar, porque nao esta dentro do contexto do Spring,
+
+
+
+>>> @Autowired
+
+private BeerService beerSeervice;
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken")
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355");
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+55. Okay?
+
+
+
+56. Entao, eu preciso vir, aqui, oh, beerService = new BeerService(), okay? Vamos fazer o seguinte, eu vou colocar aqui, dentro do metodo de teste, porque, depois, a gente vai usar outros recursos do JUnit para a gente melhorar esse codigo, aqui,
+
+
+
+// private BeerService beerService;
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+>>>BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken")
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355");
+
+
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+57. Okay? Vamos la, oh, a gente esta preparando, o Teste esta executando, e esta esperando a Excecao ser lancada.
+
+
+
+58. Okay? Agora, vamos la ver, vamos executar de novo. Ainda tem que falhar.
+
+
+
+59. Retornou,
+
+
+
+java.lang.AssertionError: Expected exception: com.hibicode.beerstore.service.exception.BeerAlreadyExistException
+
+
+
+60. Oh, AssertionError. Okay, o Teste esta vermelho.
+
+
+
+61. Vamos fazer esse Teste passar?
+
+
+
+62. Qual que eh a implementacao mais simples que eu possa dar, aqui, para esse Teste Passar?
+
+
+
+63. Me ajuda a pensar.
+
+
+
+64. A implementacao mais simples para fazer esse Teste passar,
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+>>>BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken")
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355");
+
+
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+65. Veja bem, eu nao estou querendo dar a implementacao final, em BeerService, para o metodo save(),
+
+
+
+public void save(Beer beer) {
+
+
+
+}
+
+
+
+66. Eu quero que esse Teste, na classe BeerServiceTest,
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+>>>BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken")
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355");
+
+
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+, passe.
+
+
+
+67. Para que esse teste passe, em BeerService.save(),
+
+
+
+public void save(Beer beer) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+68. Concorda comigo?
+
+
+
+69. Eh a implementacao mais simples possivel para esse Teste, aqui, 
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken")
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355");
+
+
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+, passar.
+
+
+
+70. Vamos ver? Vamos executar novamente.
+
+
+
+71. Se o Teste Passou, a gente Finalizou.
+
+
+
+72. Retornou: Tests passed: 1,
+
+
+
+Process finished with exit code 0
+
+
+
+73. O Teste Passou. A gente pode refatorar.
+
+
+
+74. Tem alguma coisa para a gente refatorar, aqui?,
+
+
+
+public void save(Beer beer) {
+
+>>> throw new BeerAlreadExistException();
+
+}
+
+
+
+75. Nao eh? Pensando no ciclo. 
+
+
+
+76. Era Vermelho, ficou Verde. O Teste foi para o Verde. Agora, a gente Refatora.
+
+
+
+77. O que que tem para refatorar, aqui?
+
+
+
+public void save(Beer beer) {
+
+>>> throw new BeerAlreadExistException();
+
+}
+
+
+
+78. Tem alguma coisa para refatorar aqui?
+
+
+
+public void save(Beer beer) {
+
+>>> throw new BeerAlreadExistException();
+
+}
+
+
+
+79. Aqui, nao, nao eh? O codigo nao tem nada para eu fazer aqui. Entao, se nao tem nada para eu fazer, eu nao consigo melhorar nada aqui, vamos para o proximo teste.
+
+
+
+80. Ai, no proximo teste, a gente faz ele falhar. Ai, a gente poderia fazer o seguinte, tenta salvar uma Cerveja, tem que salvar uma Cerveja, ele vai falhar, porque ele so esta lancando excecao. E, ai, a gente vai dando a implementacao guiada pelos testes. 
+
+
+
+81. Os testes que falam o que que a gente precisa.
+
+
+
+82. Se a gente tivesse so esse teste, aqui, falando assim, oh, a Regra de Negocio, ela, realmente, eh coberta por apenas esse teste,
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken")
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355");
+
+
+
+this.beerService.save(newBeer);
+
+}
+
+
+
+, eu so quero que,..., esse teste que eu implementei ja me atende.
+
+
+
+83. Entao, beleza, a sua implementacao esta pronta. Mas, nao eh o caso, nao eh?, a gente tem que comecar pensando em outros Testes, aqui, a gente tem que salvar Uma Cerveja, temos que Editar, e por ai vai.
+
+
+
+84. Entao, seria nesse sentido. Agora, a gente comecaria a criar novos testes.
+
+
+
+85. A gente vai fazer isso, mas, para esta introducao, eu vou terminar aqui, na proxima aula, a gente implementa mais um Teste.
+
+
+
+86. Fim da Aula 03.015. Comecando os Testes com TDD.
+
+
+
+
+
+-->​

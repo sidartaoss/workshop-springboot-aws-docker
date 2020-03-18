@@ -1,0 +1,538 @@
+<!-- 
+    Aula 06.001. Criando sua Primeira Imagem
+
+1. Vamos falar, agora, neste capitulo, sobre docker.
+
+2. Vamos criar uma imagem base, vamos aprender como eh que a gente cria a nossa propria imagem, depois, a gente vai criar a nossa imagem numa outra imagem com a nossa aplicacao java, public no Hub do Docker, okay? Entao, nos vamos mexer com Docker, mais, agora, neste capitulo, para a proxima aula a gente trabalhar com cluster do docker, okay?
+
+3. Por enquanto, vamos so entender como que o Docker funciona, um pouco mais a fundo.
+
+4. Beleza?
+
+5. Bom, para isso, eu vou usar, agora, o Visual Studio Code, para cria uma Imagem de Exemplo. Entao, abre qualquer editor de texto que voce goste de usar, eu vou usar, aqui, o Visual Studio Code, em uma pasta qualquer, ai, para a gente criar o arquivo necessario para a gente criar uma imagem Docker.
+
+6. Okay?
+
+7. Quando a gente fala, entao, sobre Imagem Docker, a gente tem que falar no arquivo chamado Dockerfile. Esse arquivo, aqui, oh, Dockerfile.
+
+8. Eh esse arquivo que vai descrever o que que a nossa Imagem tera, quando a gente criar a Imagem.
+
+9. Entao, o Dockerfile vai descrever, mais uma vez, descrever o que que a nossa Imagem vai ter.
+
+10. Mas, quando a gente esta criando uma Imagem, a gente tem que partir de uma Imagem base. Entao, normalmente, voce vai ver, na primeira linha de um Dockerfile, qual eh a Imagem base.
+
+11. Existem varias que voce pode usar.
+
+12. Eu vou usar a ubuntu, na versao 18.04,
+
+
+FROM ubuntu:18.04
+
+
+13. Ah, Normandes, mas eu quero que a minha Imagem-base seja o CentOS, eu quero que seja qualquer Linux, ai, que voce goste de usar.
+
+14. Da para usar.
+
+15. Eh so voce buscar a Imagem-base.
+
+16. Como voce descobre?
+
+17. Vai la no hub.docker.com, a gente, inclusive, vai publicar a nossa Imagem aqui, e digita ai, oh, ubuntu.
+
+18. Oh, tem o ubuntu official. Pesquisar por centos, tem o centos official, pesquisar por alpine, tem o alpine official, tambem, ou seja, vao ter varias imagens base para voce poder usar.
+
+19. Okay?
+
+20. Entao, eu vou criar ubuntu a partir do ubuntu 18.04.
+
+21. Por que?
+
+22. Eu vou criar, aqui, um Container, uma Imagem, na verdade, com o nginx.
+
+23. O nginx, se voce nao sabe, eh um Servidor Web, para servir arquivos HTML, CSS, JavaScript. Entao, eu vou criar uma Imagem, com nginx la dentro. Quando eu rodar essa imagem, criando um Container, eu vou ter o nginx rodando.
+
+24. Okay?
+
+25. E, ai, depois, eu vou ate colocar ate um arquivo HTML la, para ser a nossa Aplicacao, nao eh?, a nossa Pagina Web, dentro desse Container.
+
+26. Okay?
+
+27. Entao, por que que eu vou colocar, entao, o Ubuntu?
+
+28. Porque o nginx ja tem, la, no repositorio do apt-get, la, quando a gente da um apt-get install, ja vai ter o nginx, entao, ja tem os comandos prontos, ali, para poder usar. Por isso que eu vou para o ubuntu, okay?
+
+29. Bom, quando eu criar essa Imagem, a primeira coisa que eu quero fazer: rodar comandos la dentro. Entao, RUN, qual eh o comando que eu quero rodar? apt-get update. Atualiza, ai, para mim, nao eh?, o ubuntu. Entao, apt-get update,
+
+
+FROM ubunt:18.04
+
+RUN apt-get update
+
+
+30. Depois: RUN apt-get install -y nginx, esse -y, aqui, eh uma dica muito importante.
+
+31. Porque, quando voce manda instalar alguma coisa, voce tem que, se voce esta no Linux, tem que, la, 'Voce tem certeza que quer instalar isso?', tem que digitar sim ou nao, yes ou no. Quando voce poe um -y, voce ja esta dando yes, automaticamente.
+
+32. Entao, sim, eu quero instalar o nginx. Lembre-se, quando voce estiver criando, ai, a Imagem, estiver dando o Build, aqui, na Imagem, nao tem como voce dar o yes. Entao, esse yes tem que ser automatico,
+
+
+RUN apt-get install -y nginx
+
+
+33. Okay?
+
+34. Pronto. So isso.
+
+35. A gente ainda vai evoluir um pouquinho mais, mas, para a gente comecar, eh so isso.
+
+36. Vamos, a partir de uma Imagem base,
+
+FROM ubuntu:18.04
+
+, atualizar,
+
+
+RUN apt-get update
+
+
+, e instalar o nginx,
+
+
+RUN apt-get install -y nginx
+
+
+37. Pronto. Ja da para eu criar uma Imagem, aqui.
+
+38. Vamos la?
+
+39. Oh, entao, vai no diretorio que voce criou o Dockerfile, no Prompt de Comando, ta ele, aqui, o Dockerfile, que eu acabei de criar, e vamos criar essa imagem: docker build, ou seja, vamos dar o build, vamos criar essa imagem, com qual nome?
+
+40. -t ubuntu-nginx, 
+
+> docker build -t ubuntu-nginx
+
+, agora, aqui, muito importante, eu ja varias pessoas esquecendo, eu tenho que informar, aqui o local onde esta o Dockerfile. Se eu estou no diretorio onde esta o Dockerfile, eu so tenho que colocar o ponto (.). Okay?
+
+41. Nao esqueca desse ponto.
+
+42. Se voce esquecer, nao vai funcionar,
+
+
+
+> docker build -t ubuntu-nginx .
+
+
+
+43. Vou dar <enter>, aqui.
+
+44. Ele vai comecar a dar o build para criar a nossa imagem.
+
+45. Como ele nao tem o ubuntu 18.04, aqui, na minha maquina, ele vai comecar a fazer o Download.
+
+46. Pode ser que, aqui, demore um pouquinho, ele tem que baixar tudo isso da Internet.
+
+47. Okay?
+
+48. Baixou. Comecou a criacao da Imagem.
+
+49. Esta rodando, agora, o apt-get update, olha so, neste momento, oh, o passo 2/3, aqui, eh,..., primeiro, era baixar o ubuntu, entao, agora, da o apt-get update, esta atualizando o ubuntu, e o ultimo passo eh instalar o nginx.
+
+50. Eh o que ele esta fazendo, agora, neste momento.
+
+51. Nao vai demorar muito, nao, para a gente esperar, aqui.
+
+52. Pronto. Conseguiu buildar a minha Imagem. E olha so. Ela foi taggeada, nao eh?, com esse nome: ubuntu-nginx:latest, 
+
+
+Successfully tagged ubuntu-nginx:latest  
+
+
+53. Ou seja, esse latest significa a ultima versao.
+
+54. Eu quer saber: docker image ls, vamos ver se essa imagem foi criada, realmente?
+
+
+> docker image ls
+
+
+55. 
+
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE 
+
+ubuntu-nginx        latest              b9bfeff026ed        4 minutes ago       173MB  
+
+ubuntu              18.04               94e814e2efa8        4 weeks ago         88.9MB  
+
+ubuntu              latest              94e814e2efa8        4 weeks ago         88.9MB 
+
+postgres            11.2-alpine         9ca7fdaec623        4 weeks ago         70.8MB 
+
+nginx               latest              881bd08c0b08        5 weeks ago         109MB 
+
+hello-world         latest              fce289e99eb9        3 months ago        1.84kB 
+
+
+
+56. Aqui, oh, ubuntu-nginx, na Tag latest, nao eh? O Repositorio, o nome do Repositorio, ou seja, ubuntu-nginx, na Tag latest.
+
+57. O ID da imagem, foi criado, oh, 4 minutos atras, tem 173 MB, principalmente, por causa do ubuntu...
+
+58. Bom, se eu tenho a imagem, eu consigo rodar.
+
+59. Eu consigo criar um Container a partir dela.
+
+60. Vamos la?
+
+61. docker run, eh que a gente roda o Container. -d para rodar em Background. -p para a gente expor a porta. Qual eh a porta que eu quero expor, do lado de fora, aqui, na minha imagem? Eu quero 8080, vamos colocar outra, nao eh?, na verdade eu nao sei se..., vamos colocar 8000. 8000 eh a que eu quero usar, aqui, na minha maquina. E a de dentro do Container? O nginx sobe na porta 80, okay?,
+
+
+> docker run -d -p 8000:80
+
+
+62. Qual eh o nome do repositorio? ubuntu-nginx, eh o nome que a gente deu. Eh, exatamente, esse nome, aqui,
+
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE 
+
+ubuntu-nginx        latest              b9bfeff026ed        4 minutes ago       173MB  
+
+
+63. Okay?
+
+64. E, se eu, simplesmente, rodar isso, daqui, assim, nao vai ter muito sentido,
+
+
+> docker run -d -p 8000:80 ubuntu-nginx
+
+d22a5e1141024790fe93918d79686fb7d22479e36121a91e177ce4e4dbc48fa3   
+
+
+
+65. 
+
+
+> docker ps
+
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS         PORTS       NAMES 
+
+
+
+66. Olha la, nem ficou, aqui, rodando.
+
+67. Se ele tivesse, aqui, um Container, criado, iria aparecer aqui.
+
+68. Por que que nao faz sentido eu colocar assim?:
+
+
+> docker run -d -p 8000:80 ubuntu-nginx
+
+
+69. Porque essa Imagem nao tem nenhum comando a ser executado.
+
+70. Qual eh o comando para startar o nginx?
+
+71. Nao eh?
+
+72. Entao, eu nao passei esse comando para startar o nginx, dentro da imagem.
+
+73. Entao, eu vou te ensinar a fazer isso de duas formas.
+
+74. Eu vou te ensinar a passar esse comando agora e, depois, a passar la dentro do Dockerfile.
+
+75. Entao, se a minha imagem nao tem, aqui, o comando,
+
+FROM ubuntu:18.04
+
+RUN apt-get update
+
+RUN apt-get install -y nginx
+
+
+, o Dockerfile nao tem o comando a ser executado, por exemplo, startar o nginx, por exemplo, na hora em que a gente criar a nossa aplicacao Java, aqui, como uma Imagem, como que eu inicio uma aplicacao java, eu tenho que passar esse comando, aqui, na frente da imagem,
+
+
+> docker run -d -p 8000:80 ubuntu-nginx >>> <<<
+
+
+76. Entao, para a gente startar o nginx, isso, aqui, eh do nginx, okay?, /usr/sbin/nginx -g "daemon off;", esse daemon off, aqui, do nginx, eh para ele ficar executando em primeiro plano, que eh uma boa pratica nos Containers, tambem, a gente deixar, porque, um Container deve executar apenas Uma Aplicacao. Entao, eu colocando o nginx em Primeiro Plano, eu meio que estou falando, "Olha, eu quero que a Aplicacao que esteja rodando seja o nginx.". Okay? Nao tenha outra Aplicacao rodando, aqui, pelo menos em Primeiro Plano.
+
+
+> docker run -d -p 8000:80 ubuntu-nginx /usr/sbin/nginx -g "daemon off;"
+
+
+77. Entao, eh isso aqui para startar o nginx, esse eh o comando.
+
+78. Bom, vou mandar executar, agora, se eu der um docker ps,
+
+
+> docker ps
+
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS 
+a23cf8c3a050        ubuntu-nginx        "/usr/sbin/nginx -g …"   6 seconds ago       Up 4 seconds        0.0.0.0:8000->80/tcp   upbeat_almeida
+
+
+, olha so, agora, sim, eu tenho um Container rodando, aqui. Se eu abrir o Browser e digitar, localhost:, eu usei a porta 8000, nao foi?, 
+
+
+Welcome to nginx!
+
+If you see this page, the nginx web server is successfully installed...
+
+
+79. Deu certo, a gente conseguiu instalar o nginx a partir da nossa Imagem, la, a gente criou ele.
+
+80. Vamos melhorar, aqui, um pouquinho.
+
+81. Eu vou parar esse Container, aqui, docker stop, eu posso parar, aqui, pelo nome, ou seja, docker stop upbeat_almeida
+
+
+> docker stop upbeat_almeida
+upbeat_almeida
+
+
+82. Okay?
+
+83. E vamos editar, aqui, o nosso Dockerfile, a forma como a gente esta criando uma Imagem.
+
+84. Vamos criar um index.html. E vou criar um html muito simples, aqui, sei la, vamos escrever, aqui, Bem-vindo ao mundo Docker! Okay?
+
+<html>
+    <body>
+        Bem-vindo ao mundo Docker!
+    </body>
+</html>
+
+85. Um html super-simples.
+
+86. Eu quero que esse html seja exibido aqui, dentro, nao eh?, eu quero, ja, colocar ele, dentro do nosso Container.
+
+87. Muito, muito simples.
+
+88. 
+
+ADD index.html
+
+
+, porque o Dockerfile esta no mesmo nivel, aqui, do index.html, entao, eu vou adicionar ele onde?
+
+89. Dentro de /var/www.html, eh onde o nginx coloca os arquivos,
+
+
+ADD index.html /var/www/html/index.html
+
+
+, okay?
+
+90. Entao, /var/www.html, voce tem que saber, por ser o nginx.
+
+91. Okay? Pronto.
+
+92. So isso?
+
+93. Uma coisa muito importante.
+
+94. Se eu, simplesmente, rodar, aqui, nao vai dar certo,
+
+
+> docker run -d -p 8000:80 ubuntu-nginx /usr/sbin/nginx -g "daemon off;"
+
+
+95. O que que eu preciso fazer?
+
+96. Dar o build, novamente, da minha imagem.
+
+97. Tambem nao pode esquecer isso. Eu ja vi varias pessoas esquecendo isso.
+
+98. Okay?
+
+99. Oh, agora, foi bem mais rapido, nao eh?
+
+
+> docker build -t ubuntu-nginx .
+
+
+100. Ele ja tem o ubuntu baixado, podemos rodar a aplicacao mais uma vez.
+
+101. Vamos la?
+
+
+> docker run -d -p 8000:80 ubuntu-nginx /usr/sbin/nginx -g "daemon off;"
+
+7168339ccd7d2223602a883b6a24709dc21d02e6e406bf8be6dd46127f8a2fd2   
+
+
+
+102. Okay. Rodando.
+
+103. Ja deve ter subido. Se eu vier, aqui, atualizar,
+
+http://localhost:8000
+
+
+Bem-vindo ao mundo Docker!
+
+
+104. Okay?
+
+105. Entao, tudo que voce adicionar, aqui, voce pode adicionar, aqui,
+
+
+ADD index.html /var/www/html/index.html
+
+
+, quantos arquivos voce quiser, pode adicionar os diretorios, pode adicionar o que voce quiser, dentro da sua Imagem, e muito mais coisas.
+
+106. Okay?
+
+107. E, agora, para eu nao ter que ficar dando, 
+
+> docker ps
+
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS     PORTS    NAMES
+
+7168339ccd7d        ubuntu-nginx        "/usr/sbin/nginx -g …"   4 minutes ago       Up 4 minutes        0.0.0.0:8000->80/tcp   lucid_wu
+
+
+> docker stop lucid_wu
+lucid_wu
+
+
+, parar, aqui.
+
+108. Para a gente nao ter que ficar passando esse comando grande, aqui, que eh chato, nao eh?
+
+
+> docker run -d -p 8000:80 ubuntu-nginx /usr/sbin/nginx -g "daemon off;"
+
+
+, vamos colocar isso dentro da imagem, para a gente so dar o docker run, nao eh?, saber o que que tem que criar.
+
+109. Okay? Entao, vamos la. Eu quero colocar essa parte, aqui: /usr/sbin/nginx -g "daemon off;"
+
+110. Eu quero que isso, daqui, /usr/sbin/nginx -g "daemon off;", seja executado automaticamente, quando eu criar o Container.
+
+111. Qual a forma de eu fazer isso?
+
+112. Quando eu estou executando no nginx, eu vou rodar, aqui, o RUN, eu preciso colocar esse "daemon off;", aqui, dentro de um arquivo, okay?, la dentro do nginx.
+
+113. Entao, eu vou fazer assim, eu vou dar um "echo" nesse camarada, aqui, oh, vou dar um echo, aqui dentro, para /etc/nginx/nginx.conf. Pronto. Assim, eu ja vou conseguir rodar o nginx em primeiro plano sempre,
+
+
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+
+
+114. E, ai, eu vou dar o comando, oh, CMD, qual eh o comando que eu quero que seja executado para startar o nginx?
+
+
+CMD service nginx start
+
+
+115. Okay?
+
+116. Eh a forma de eu startar o nginx, aqui, tambem.
+
+117. Okay? Vamos dar o build novamente, nao podemos esquecer.
+
+
+> docker build -t ubuntu-nginx .
+
+
+118. Fizemos o build.
+
+119. E, ai, uma coisa importante, oh,
+
+
+> docker image ls
+
+
+REPOSITORY          TAG                 IMAGE ID            CREATED              SIZE
+ubuntu-nginx        latest              eab6e5a8e365        About a minute ago   173MB  
+
+
+120. A sua imagem, foi criada a cerca de um minuto atras, entao, ele esta sempre atualizando essa TAG latest, aqui.
+
+121. Okay?
+
+122. Entao, vamos la. Estamos, aqui, com a imagem, docker run, agora, eu nao preciso passar, mais, esse comando: /usr/sbin/nginx -g "daemon off;". Eu so tenho que falar qual eh a porta que eu quero expor, do lado de fora, ou seja, a 8000, falar que eu vou rodar em background, ou seja, -d, e o nome, aqui, da imagem,
+
+
+> docker run -d -p 8000:80 ubuntu-nginx
+
+d035d063436d6f1f66906fc94ff2c9bb880e4afc3ae66ed49e08ff7b0d0394b7 
+
+
+123. Pronto. 
+
+
+> docker ps
+
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS     PORTS   NAMES
+
+d035d063436d        ubuntu-nginx        "/bin/sh -c 'service…"   33 seconds ago      Up 30 seconds       0.0.0.0:8000->80/tcp   xenodochial_snyder
+
+
+124. A gente ja viu que ele subiu.
+
+125. Posso, simplesmente, vir aqui, http://localhost:8000, e dar um Refresh, continua funcionando.
+
+126. Okay?
+
+127. Entao, Dockerfile. Eh so isso, aqui, que tem de Dockerfile?
+
+FROM ubuntu:18.04
+
+RUN apt-get update
+
+RUN apt-get install -y nginx
+
+ADD index.html /var/www/html/index.html
+
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+
+CMD service nginx start
+
+
+128. Nao. Dockerfile tem muita coisa.
+
+129. Se voce digitar dockerfile documentation, no Google, a gente vai cair la na Pagina do docker, https://docs.docker.com/engine/reference/builder/, eh essa, aqui, mesmo, Dockerfile reference.
+
+130. Aqui, eh uma documentacao bem legal, principalmente, aqui, oh, dos comandos que voce tem, aqui, no Dockerfile, que voce pode usar, ali, no Dockerfile.
+
+131. Entao, oh, vamos chegar, aqui, WORKDIR, https://docs.docker.com/engine/reference/builder/#workdir
+
+132. Eh uma opcao que voce consegue colocar, la, eh um Diretorio padrao nao eh, para o RUN, para o CMD, se voce quer mudar para algum diretorio para rodar esses comandos, voce pode usar o WORKDIR.
+
+133. HEALTHCHECK, https://docs.docker.com/engine/reference/builder/#healthcheck, para fazer healthcheck, para saber se a sua aplicacao, la dentro, esta certa.
+
+134. COPY, copiar, ADD, adicionar, ENV, variaveis de ambiente, e por ai vai.
+
+135. Tem muita, muita coisa, que da para voce colocar.
+
+136. Como ja deu para perceber, nao da para a gente ver tudo, nem faz parte do escopo deste curso a gente entender 100% desse Dockerfile.
+
+137. Mas, aqui, 
+
+FROM ubuntu:18.04
+
+RUN apt-get update
+
+RUN apt-get install -y nginx
+
+ADD index.html /var/www/html/index.html
+
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+
+CMD service nginx start
+
+, eu quis te dar uma introducao de como voce cria uma Imagem, como voce builda uma Imagem, como voce roda uma imagem sua, nao eh?, voce da o build na sua imagem e roda essa sua imagem, ela esta local, aqui. A gente ainda vai aprender a pegar uma imagem que voce criou e colocar no Repositorio. Voce colocando ela la no Repositorio, por exemplo, no Docker Hub, qualquer pessoa vai poder executar, nao eh?, a sua Imagem, criar um Container a partir da sua Imagem.
+
+138. Fim da     Aula 06.001. Criando sua Primeira Imagem.
+
+
+
+
+-->
+<html>
+    <body>
+        Bem-vindo ao mundo Docker!
+    </body>
+</html> 

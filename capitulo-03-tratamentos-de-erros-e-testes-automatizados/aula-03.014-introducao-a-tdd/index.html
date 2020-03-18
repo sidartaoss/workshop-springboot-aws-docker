@@ -1,0 +1,157 @@
+<!-- 
+
+Aula 03.014. Introducao a TDD
+
+
+
+1. Vamos, agora, criar uma Regra de Negocio para a nossa Aplicacao, para que a gente possa brincar com Testes, aprender mais sobre Testes Unitarios.
+
+
+
+2. Beleza?
+
+
+
+3. A Regra eh a seguinte, a Regra eh simples, mas, oh: Nao podemos salvar no Banco de Dados, duas Cervejas com o mesmo Nome e Tipo. Falando de outra forma, se eu ja tiver uma Cerveja cadastrada, por exemplo, uma Heineken LAGGER, eu nao posso salvar outra Heineken LAGGER no Banco de Dados.
+
+
+
+4. Okay?
+
+
+
+5. Essa eh a Regra.
+
+
+
+6. Bom, como que a gente vai fazer para implementar essa Regra?
+
+
+
+7. Nos vamos usar o TDD, (Test Driven Development (Desenvolvimento Orientado a Testes))
+
+
+
+>------1.-TEST FAILS (vermelho)-- ->|
+
+^ v
+
+TDD Cycle | |
+
+| v
+
+REFACTOR (azul)<-----------------<--TEST PASSES (verde)
+
+
+
+8. E, no TDD, que significa Test Driven Development, ou seja, o Desenvolvimento Orientado, Guiado por Testes, ele tem essa Imagem muito, muito famosa, que eh o Circulo Vermelho - Verde - Refatora.
+
+
+
+9. Como eh que ele funciona?
+
+
+
+10. A gente comeca, aqui, na parte Vermelha.
+
+
+
+11. Voce vai escrever um Teste, eh um Desenvolvimento Guiado por Testes, entao, os Testes tem que ser criados Primeiro.
+
+
+
+12. Isso mesmo. Os Testes vao ser criados primeiro, por isso que a gente comeca na parte vermelha.
+
+
+
+13. Quando voce cria o Teste primeiro, antes de escrever o codigo, o que que vai acontecer?
+
+
+
+14. Vai falhar.
+
+
+
+15. Nao eh? O Teste nao funciona.
+
+
+
+16. Ai, o que voce faz?
+
+
+
+17. Voce faz o Teste passar. O passo seguinte eh fazer o Teste Passar.
+
+
+
+18. Como que voce faz esse Teste Passar?
+
+
+
+19. Ai, a gente pode ser, bem devagarzinho, o quanto a gente queira, nao eh?, a velocidade que a gente quer avancar, a gente que vai determinar.
+
+
+
+20. Ou seja, eu posso ir muito devagar, ou eu posso acelerar um pouquinho mais. 
+
+
+
+21. Depende do tipo de Regra que a gente esta criando.
+
+
+
+22. Entao, olha so. Eu escrevi o Teste e falhou.
+
+
+
+23. Em seguida, no Passo Seguinte, eu faco o Teste Passar.
+
+
+
+24. Tem um conceito que eles chamam de Baby Steps, que a gente vai fazer esse Teste Passar da maneira mais simples possivel.
+
+
+
+25. Okay?
+
+
+
+26. Depois que a gente fez esse Teste Passar, a gente, no Passo Seguinte, Refatora o Codigo.
+
+
+
+27. E, ai, a gente vai: 1. Implementar mais testes, implementa mais coisas para os testes falharem, nao eh?, a gente vai implementar mais testes, e os testes falham. 2. A gente faz o Teste Passar. 3. E a gente Refatora o Codigo.
+
+
+
+28. 1. Implementa mais testes, ele vai falhar. 2. Faz ele Passar. 3. Refatora.
+
+
+
+29. E vai fazendo isso ate acabar, ate nao ter mais testes a serem criados.
+
+
+
+30. Okay?
+
+
+
+31. E, ai, isso que eu disse, aqui, sobre os Passos, eh muito importante voce encontrar o caminho para cada Regra que voce esta implementando.
+
+
+
+32. Eu costumo fazer assim: Se for Uma Regra que eh muito simples, que eu ja sei bem o que que eu tenho que fazer, eu dou um Passo maior, ou seja, eu dou uma implementacao um pouco maior. Se alguma Regra eh mais complexa, eu vou um pouco mais devagar, para que eu tenha certeza e seguranca que eu estou implementando da melhor forma possivel.
+
+
+
+33. Okay? Entao, aqui, so uma pequena introducao ao TDD, nas proximas aulas, a gente vai comecar a implementar essa Regra.
+
+
+
+34. Fim da Aula 03.014. Introducao a TDD.
+
+
+
+-->​
+
+

@@ -1,0 +1,248 @@
+<!--
+    Aula 05.013. Criando Internet Gateway para Acessar Instancias Pela Internet
+
+1. O Internet Gateway, para a gente conseguir chegar na subnet Publica, vamos criar dentro da parte de network, ou seja, o arquivo network.tf, ou seja, faz parte da network, nao eh?, porque a gente vai associar eles a subnet.
+
+2. Okay?
+
+3. Entao, vamos la, vamos colocar, aqui, embaixo, entao, vamos criar o Recurso de aws_internet_gateway, vamos chamar, aqui, de igw (Internet Gateway), okay? Qual eh a VPC? Entao, definimos o vpc_id, porque eh a unica que a gente tem,
+
+resource "aws_internet_gateway" "igw" {
+    vpc_id = "${aws_vpc.main.id}"
+}
+
+4. Okay?
+
+5. Bom, depois de ter criado o Internet Gateway,..., so isso, bem simples, mesmo.
+
+6. Agora, a gente precisa de alguns outros Recursos, como um route_table, a gente precisa criar uma Tabela de Rota, entao, vamos colocar, aqui, o Route do Internet Gateway, para esta VPC, e vamos criar uma Rota,
+
+resource "aws_route_table" "route_igw" {
+    vpc_id = "${aws_vpc.main.id}"
+
+    route {
+
+    }
+}
+
+7. Uma Rota eh para falar o seguinte, oh, 'Sempre que eu for para um endereco desconhecido, ou seja, 0.0.0.0/0, eu quero que voce use o gateway_id, aws_internet_gateway.igw.id',
+
+resource "aws_route_table" "route_igw" {
+    vpc_id = "${aws_vpc.main.id}"
+
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = "${aws_internet_gateway.igw.id}"
+    }
+}
+
+, ou seja, essa vai ser a Rota,
+
+resource "aws_route_table" "route_igw" {
+    vpc_id = "${aws_vpc.main.id}"
+
+    >>> route {
+    >>>    cidr_block = "0.0.0.0/0"
+    >>>    gateway_id = "${aws_internet_gateway.igw.id}"
+    >>>}
+}
+
+8. Para qualquer endereco que nao seja o endereco mais especifico da rede local, ali, 
+
+resource "aws_route_table" "route_igw" {
+    vpc_id = "${aws_vpc.main.id}"
+
+    route {
+        cidr_block = >>> "0.0.0.0/0"
+        gateway_id = "${aws_internet_gateway.igw.id}"
+    }
+}
+
+, entre as Zonas..., o endereco local mesmo, sem ser o endereco Publico, ele vai usar, quando for endereco Publico, ele usa o Internet Gateway,
+
+resource "aws_route_table" "route_igw" {
+    vpc_id = "${aws_vpc.main.id}"
+
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = >>> "${aws_internet_gateway.igw.id}"
+    }
+}
+
+9. Quando nao, ele vai usar a Rota Normal, padrao, que ja tem la dentro.
+
+10. E a gente precisa fazer essa associacao. Entao, resource "aws_route_table_association", para a gente associar, agora, com as nossas subredes publicas,
+
+resource "aws_route_table_association" "route_table_association" {
+    route_table_id = ""
+    subnet_id = ""
+}
+
+11. route_table_id, qual que eh o route_table que a gente quer usar?
+
+12. Eh o "aws_route_table.route_igw.id",
+
+resource "aws_route_table_association" "route_table_association" {
+    route_table_id = "aws_route_table.rout_igw.id"
+    subnet_id = ""
+}
+
+13. Okay? Qual eh a subnet_id? Para qual subnet que eu vou criar?
+
+14. Bem, eu tenho 3 subnets Publicas. Eu preciso colocar o Internet Gateway nessas 3 subnets.
+
+15. Entao, nada mais claro do que a gente colocar um contador ali,
+
+resource "aws_route_table_association" "route_table_association" {
+    count 3
+    route_table_id = "aws_route_table.rout_igw.id"
+    subnet_id = ""
+}
+
+16. Entao, eu vou colocar, aqui, no subnet_id, vamos pegar, da mesma forma que a gente ja fez para pegar os elementos, na hora de mostrar, a gente fez, aqui, no instances.tf, para pegar o subnet_id, aqui, oh, a mesma forma, eu vou, ate, copiar, aqui, oh, para a gente pegar todos os subnets_ids,
+
+resource "aws_route_table_association" "route_table_association" {
+    count 3
+    route_table_id = "aws_route_table.rout_igw.id"
+    subnet_id = "${element(aws_subnet.public_subnet.*.id, cont.index)}"
+}
+
+17. Bom, eu acho que eh isso.
+
+18. Podemos dar um terraform apply, mais uma vez,
+
+> terraform apply
+
+, vamos ver se ele nao vai pedir a Regiao, nao eh?, tinha acabado de colocar, la, a Regiao, para a gente ver se funciona. Eh, realmente, era aquilo la, ai, eu nao preciso ficar colocando a Regiao toda vez.
+
+19. Aqui, o que que ele falou que ele vai precisar fazer, oh, ele vai precisar mudar para colocar o Internet Gateway, essas coisas, entao, ele vai precisar criar as rotas, aqui, para as nossas sub-redes, okay?
+
+20. Pronto, terminou de criar as rotas, vamos la,
+
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols: 
+  + create    
+
+Terraform will perform the following actions:    
+
+ + aws_internet_gateway.igw                             
+  id:                                          <computed> 
+  owner_id:                                    <computed>               
+  vpc_id:                                      "vpc-040e1f5b17c51dc7f" 
+
+ + aws_route_table.route_igw          
+ id:                                          <computed> 
+ owner_id:                                    <computed>
+ propagating_vgws.#:                          <computed> 
+ route.#:                                     "1"
+ route.~3624129189.cidr_block:                "0.0.0.0/0"
+ route.~3624129189.egress_only_gateway_id:    ""
+ route.~3624129189.gateway_id:                "${aws_internet_gateway.igw.id}"
+ route.~3624129189.instance_id:               ""
+ route.~3624129189.ipv6_cidr_block:           ""
+ route.~3624129189.nat_gateway_id:            ""
+ route.~3624129189.network_interface_id:      ""
+ route.~3624129189.transit_gateway_id:        ""
+ route.~3624129189.vpc_peering_connection_id: "" 
+ vpc_id:                                      "vpc-040e1f5b17c51dc7f"
+
+  + aws_route_table_association.route_table_association[0]
+   id:                                          <computed>   
+   route_table_id:                              "${aws_route_table.route_igw.id}" 
+   subnet_id:                                   "subnet-03e1b5bf1bb386976"   
+
+  + aws_route_table_association.route_table_association[1]
+  id:                                          <computed>  
+  route_table_id:                              "${aws_route_table.route_igw.id}"
+  subnet_id:                                   "subnet-0b3dfdf641bb3feee"
+
+  + aws_route_table_association.route_table_association[2]  
+  id:                                          <computed>  
+  route_table_id:                              "${aws_route_table.route_igw.id}" 
+  subnet_id:                                   "subnet-0add24335587f8243" 
+
+  Plan: 5 to add, 0 to change, 0 to destroy.  
+
+Do you want to perform these actions?  
+Terraform will perform the actions described above. 
+Only 'yes' will be accepted to approve.
+
+ Enter a value: yes       
+
+21. 
+
+> ssh -i key/beerstore_key ec2-user@54.85.145.56
+
+22. Agora, sim, confirmo, yes, conseguimos logar na maquina,
+
+The authenticity of host '54.85.145.56 (54.85.145.56)' can't be established.
+ECDSA key fingerprint is SHA256:tJtAr3FwRsB+9HIcUj/giGq2yx7+zBRjqoaFGxYzMtY.
+Are you sure you want to continue connecting (yes/no)? yes 
+Warning: Permanently added '54.85.145.56' (ECDSA) to the list of known hosts. 
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux 2 AMI         
+      ___|\___|___| 
+
+https://aws.amazon.com/amazon-linux-2/ 
+[ec2-user@ip-192-168-20-151 ~]$ 
+
+23. 192-168-20-151 eh o IP Privado.
+
+24. Entao, olha so, estamos, aqui, na Maquina, na EC2, funcionando, belezinha, nao eh?, se voce der um ls, aqui, voce esta la dentro, dessa maquina. Vamos para o /, la,
+
+[ec2-user@ip-192-168-20-151 ~]$ cd /
+[ec2-user@ip-192-168-20-151 ~]$ ls
+bin  boot  dev  etc  home  lib  lib64  local  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var 
+
+25. Voce esta na Amazon Linux, na Internet.
+
+26. Para sair,
+
+[ec2-user@ip-192-168-20-151 ~]$ exit
+
+27.
+
+> terraform output
+
+28. Vamos tentar fazer login em todas as maquinas, so para a gente ver se esta tudo certo.
+
+29. So para pegar os outros IPs,
+
+public_ips = 54.85.145.56, 18.207.184.195, 54.175.186.176   
+
+30.
+
+> ssh -i key/beerstore_key ec2-user@18.207.184.195
+
+31. Okay, conectou. Vamos sair,
+
+[ec2-user@ip-192-168-21-244 ~]$ exit 
+
+logout
+Connection to 18.207.184.195 closed. 
+
+32. E, por ultimo, 
+
+> ssh -i key/beerstore_key ec2-user@54.175.186.176
+
+33.
+
+[ec2-user@ip-192-168-22-19 ~]$ exit  
+
+34. Pronto, conseguimos conectar em todas as maquinas.
+
+35. Okay?
+
+36. Se der algum erro, ai, para voce, na hora de fazer o SSH na chave, da uma olhada na permissao dela, aqui. Pode ser que ele fale que esta muito publico essa Permissao. Voce pode dar um chmod 400 beerstore_key.
+
+37. Ta okay? Para deixar somente com permissao de leitura, aqui, o arquivo beerstore_key, na sua chave privada.
+
+38. Se ele reclamar alguma coisa disso, faca isso, que deve resolver.
+
+39. Beleza?
+
+40. Fim da     Aula 05.013. Criando Internet Gateway para Acessar Instancias Pela Internet.
+
+
+-->

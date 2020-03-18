@@ -1,0 +1,667 @@
+<!-- 
+
+Aula 03.017. Adicionando o Repositorio no Servico
+
+
+
+1. Entao, para esse teste passar, aqui, agora, nesta aula, vamos alterar a implementacao de BeerService.
+
+
+
+2. A gente ja tem um Teste que nega a criacao de uma Cerveja existente, e a gente esta tentando salvar uma nova Cerveja.
+
+
+
+3. Entao, quando a gente terminar essa implementacao, esses dois testes tem que estar funcionando.
+
+
+
+4.Beleza?
+
+
+
+5. Entao, vamos la, a gente vai te que mexer muito mais, aqui, nao eh?, nao daria para ficar so esse metodo, assim,
+
+
+
+public class BeerService {
+
+
+
+public Beer save(Beer beer) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+}
+
+
+
+6. Bom, para eu poder verificar se uma Cerveja ja existe, eu tenho que buscar no banco de dados essa Cerveja.
+
+
+
+7. Entao, eu preciso, aqui, do Repositorio Beers, que eh o cara que vai no Banco de Dados pra gente.
+
+
+
+8. Certo?
+
+
+
+9. Eu vou adicionar, aqui, a anotacao @Autowired, porque sera injetado, aqui, nao eh?, pelo Spring. Esta classe precisa estar anotada com @Service, do pacote org.springframework.stereotype, para ela ser um componente do Spring,
+
+
+
+import org.springframewor.beans.factory.annotation.Autowired;
+
+
+
+import org.springframework.stereotype.Service;
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+@Autowired
+
+private Beers beers;
+
+
+
+public Beer save(Beer beer) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+}
+
+
+
+10. Okay? Service, se voce for olhar no codigo-fonte, aqui, ela eh um Componente, tambem.
+
+
+
+11. Entao, ela tem essa anotacao Service como uma forma mais Semantica de dizer: "Esta classe, BeerService, eh um Servico, contem Regras de Negocio", mas eh um Componente do Spring, tambem.
+
+
+
+12. Por isso que eu consigo injetar Beers, aqui.
+
+
+
+13. Okay? Vou conseguir fazer isso.
+
+
+
+14. Bom, entao, para eu verificar se uma Cerveja ja existe, eu tenho que buscar. E a Regra que eu criei foi: Se a Cerveja deve existir pelo Nome e pelo Tipo, nao eh? Nao pode ter Duas Cervejas com o mesmo Nome e Tipo no Banco de Dados.
+
+
+
+15. Entao, esse Cara, aqui,
+
+
+
+...
+
+
+
+@Autowired
+
+private >>> Beers beers;
+
+
+
+, precisa me retornar isso,
+
+
+
+public interface Beers extends JpaRepository<Beer, Long> {
+
+
+
+}
+
+
+
+16. E, aqui, a gente vai usar o Query Methods do Spring Data JPA. O que que esse cara faz?
+
+
+
+17. A gente vai escrever um metodo, aqui, na interface, lembre-se, na interface, a gente nao vai dar implementacao, e, ai, ele, o Spring Data JPA, vai gerar a Query para a gente.
+
+
+
+18. So pelo nome do metodo.
+
+
+
+19. Por exemplo, olha nesse trecho de codigo, aqui, na documentacao, 
+
+
+
+public interface UserRepository extends Repository<User, Long> {
+
+
+List<User> findByEmailAddressAndLastname(String emailAddress, String lastname); 
+
+}
+
+
+
+20. findByEmailAddressAndLastname(), e ele recebe, aqui, o emailAddress, e o lastname, como parametro, duas Strings. Isso, daqui,
+
+
+
+List<User> findByEmailAddressAndLastname(String emailAddress, String lastname); 
+
+
+
+, vai gerar uma Consulta no banco de dados. So isso. Quando ele colocou, aqui, oh, findBy, ai, ele fala, "Ah, beleza, ele quer fazer uma consulta, por email e, tem um And, lastname".
+
+
+
+21. E, ai, nessa parte da documentacao do Spring Data JPA, https://docs.spring.io/spring-data/jpa/docs/2.1.0.RELEASE/reference/html/#jpa.query-methods.query-creation, voce consegue ver, oh, todas as opcoes que voce tem para fazer consultas. Oh, findByName tem com And, tem com Or, tem Equals, Is, Between, Menor que, Maior Igual a que, e por ai vai.
+
+
+
+22. Da para voce fazer varios tipos de consultas, so com o nome do metodo.
+
+
+
+23. Okay?
+
+
+
+24. Mas, cuidado. Voce pode ir colocando, aqui, muitas coisas, criar um nome de metodo gigantesco, que faz uma consulta. Eu acho meio estranho, quando fica muito grande.
+
+
+
+25. Okay? Entao, utilize para coisas mais simples, okay?
+
+
+
+26. Entao, vamos la, oh.
+
+
+
+27. Ah, eu vou criar, aqui, a Consulta para me retornar um Optional, porque eu nao sei se tem ou nao, de uma Cerveja, fica findBy, entao, tem que comecar assim, okay?, findByNameAndType(), e, aqui, eu vou passar o Nome da Cerveja e o BeerType, o type da Cerveja.
+
+
+
+28. Pronto, isso, daqui,
+
+
+
+import java.util.Optional;
+
+
+
+public interface Beers extends JpaRepository<Beer, Long> {
+
+
+
+Optional<Beer> findByNameAndType(String name, BeerType type);
+
+
+}
+
+
+
+29. Pronto. Isso, daqui, ja me retorna uma Cerveja pelo nome e pelo tipo, caso tenha, por isso que eu coloquei o java.util.Optional.
+
+
+
+30. Aqui,
+
+
+
+>>> Optional<<< <Beer> findByNameAndType(String name, BeerType type);
+
+
+
+, eh muito bom voce fazer isso, okay?, colocar a opcao. Porque isso, aqui, deixa claro, na anotacao desse metodo, para mim, que isso eh opcional, ou seja, pode ser que tenha e pode ser que nao, eh bem claro na anotacao, nao eh?
+
+
+
+31. Entao, vamos voltar, aqui. Entao, eu vou fazer uma busca. Entao, Optional, de Cerveja, vamos colocar, aqui, beerByNameAndType, caso ela exista, exista alguma coisa assim, = beers.findByNameAndType(), passando beer.getName(), beer.getType(),
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+@Autowired
+
+private Beers beers;
+
+
+
+public Beer save(Beer beer) {
+
+Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+throw new BeerAlreadyExistException();
+
+}
+
+}
+
+
+
+32. Okay?
+
+
+
+33. O que que vai acontecer?
+
+
+
+34. Se beerByNameAndType.isPresent(), ou seja, se essa Cerveja ja existir, a gente lanca a excecao,
+
+
+
+Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName, beer.getType());
+
+
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+35. Caso ela nao exista, beers.save(), a gente passa o beer, aqui, e a gente pode retornar isto,
+
+
+
+return this.beers.save(beer);
+
+
+
+36. Assim, dessa forma.
+
+
+
+37. Beleza? 
+
+
+
+38. Por enquanto. Ainda vai ter mais coisas para mexer nessa regra, aqui.
+
+
+
+39. Okay? Mas, vai ser assim o inicio.
+
+
+
+40. Bem simples, nao eh?
+
+
+
+41. Se ja existir, lanca a excecao.
+
+
+
+42. Se nao existir, a gente salva.
+
+
+
+43. Por enquanto, eh isso.
+
+
+
+44. Vamos ver aqui nos nossos metodos de teste, se a gente executar, o que que vai acontecer?
+
+
+
+45. Da para deduzir, nao da?
+
+
+
+46. Da para a gente deduzir, oh, o que que pode acontecer, aqui.
+
+
+
+47. Em BeerService, quem que esta injetando isso, daqui, para mim?,
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+@Autowired
+
+>>> private Beers beers;
+
+
+
+...
+
+
+
+}
+
+
+
+, eu estou executando um Teste Unitario, em BeerServiceTest,
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+
+
+...
+
+}
+
+
+
+48. Entao, isso, daqui, ou seja, BeerServiceTest.should_create_new_beer(), vai lancar um belo de um NullPointerException, oh, vamos mandar executar, e vai lancar um NullPointerException, porque ninguem colocou aquela instancia de Beers, 
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+@Autowired
+
+>>> private Beers beers;
+
+
+
+...
+
+
+
+}
+
+
+
+java.lang.NullPointerException
+
+at com.hibicode.beerstore.service.BeerService.save(BeerService.java:23)
+
+at com.hibicode.beerstore.service.BeerServiceTest.should_create_new_beer(BeerServiceTest.java:45)
+
+
+
+, aqui, para mim, ou seja, para a minha classe BeerService, i.e., se a gente nao subiu o Servidor ainda, como o Spring vai injetar?
+
+
+
+49. E como que a gente vai fazer isso?
+
+
+
+50. Eu nao quero ir no Banco de Dados de verdade, agora, eu nao quero ir la e salvar uma Cerveja no Banco de dados, eu estou fazendo um Teste Unitario. Entao, eu estou simulando: Caso tenha Uma Cerveja la, eu quero que lance a excecao, mas eu nao preciso ir la e testar isso agora, neste momento, eu quero testar apenas, oh, eu estou fazendo Teste Unitario, eu quero testar apenas o conteudo desse metodo, aqui, em BeerService,
+
+
+
+public Beer save(final Beer beer) {
+
+
+
+Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+} 
+
+
+
+return this.beers.save(beer);
+
+
+
+}
+
+
+
+51. Tudo que for externo, a gente vai tirar, a gente vai simular, a gente vai mocar.
+
+
+
+52. E, ai que entra o conceito de Mock.
+
+
+
+53. Entao, eu vou adicionar, aqui, o Mockito, copiar a dependencia, aqui, dele, para build.gradle, vamos adicionar, aqui, a dependencia do Mockito, que eh essa aqui,
+
+
+
+dependencies {
+
+
+
+...
+
+
+
+testCompile: 'org.mockito:mockito-core:2.+'
+
+}
+
+
+
+54. Oh, o Mockito, a gente esta usando a versao 2 para frente, dele.
+
+
+
+55. O Mockito vai criar, entao, objetos falsos, objetos mocados, pra gente.
+
+
+
+56. E o que que a gente consegue fazer com esses objetos mocados?
+
+
+
+57. Dar o comportamento que a gente quer.
+
+
+
+58. Entao, olhando aqui, em BeerService,
+
+
+
+public Beer save(final Beer beer) {
+
+
+
+Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+} 
+
+
+
+return this.beers.save(beer);
+
+
+
+}
+
+
+
+, Beers nao faz parte de BeerService. Entao, eu vou mocar Beers, para eu poder testar isso,
+
+
+
+Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+} 
+
+
+
+return this.beers.save(beer);
+
+
+
+, e eu vou dar o comportamento que eu quero para os metodos findByNameAndType(), e para o metodo save(), okay?
+
+
+
+59. Eh isso que eu quero fazer.
+
+
+
+60. Eh isso que eu quero adicionar com o mock. Eh dar um comportamento de algo externo, controlado pelo meu Teste.
+
+
+
+61. Entao, o meu Teste, aqui, esse Teste,
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+>>> Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+Beer beerSaved = this.beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.getName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER)); <<<
+
+}
+
+
+
+, e esse Teste,
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+>>> Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+this.beerService.save(newBeer); <<<
+
+}
+
+
+
+, eles vao controlar o comportamento de Beers.
+
+
+
+62. Okay?
+
+
+
+63. Porque eu nao vou, mais uma vez, eu nao quero ir no Banco de Dados, nos estamos testando a Unidade.
+
+
+
+64. Se a gente estivesse fazendo um Teste de Integracao, e, ai, eh um Teste que precisa ir no Banco de Dados, eh outra historia, ai, eh um Teste de Integracao, a gente teria que subir a Aplicacao inteira, subir o Spring, ai, tem que subir um Banco de Dados, tem que fazer mais coisas para esse teste funcionar. Ai, tudo bem, nao seria mocado Beers. 
+
+
+
+
+
+65. Mas, no caso, eu quero testar apenas esse metodo, em BeerService,
+
+
+
+public Beer save(final Beer beer) {
+
+
+
+>>> Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+} 
+
+
+
+return this.beers.save(beer); <<<
+
+
+
+}
+
+
+
+, eu quero testar apenas essa Regra de Negocio, se ela esta funcionando, que eh: Nao Podem Existir Duas Cervejas com o Mesmo Nome e Tipo No Banco de Dados, eu vou mocar isso. 
+
+
+
+66. Nos vamos fazer isso na proxima aula.
+
+
+
+67. Fim da Aula 03.017. Adicionando o Repositorio no Servico.
+
+
+
+-->​
+
+

@@ -1,0 +1,103 @@
+<!--
+    Aula 07.007. Autorizando Outbound Via Security Group
+
+1. Antes da gente mandar o Ansible executar la nas nossas instancias, vamos pensar uma coisa.
+
+2. Quando ele for instalar o docker, via yum, ele vai precisar sair pela Internet para fazer isso.
+
+3. E, se nao tiver liberado no security_group, para a Instancia sair para a Internet, ela nao vai conseguir.
+
+4. Entao, antes de a gente ir la e ver esse erro acontecer, ja vamos liberar.
+
+5. Vamos vir, aqui, em security.tf, e vamos criar um novo resource, aws_security_group, e o nome, aqui, que eu vou colocar, sera "allow_outbound".
+
+6. Vamos permitir todo mundo sair, sempre, para a Internet, nao vai ter nenhum problema, aqui, para a gente, a saida, nao eh?, da Instancia, entao, eh o outbound,
+
+resource "aws_security_group" "allow_outbound" {
+
+}
+
+7. A gente vai permitir, entao, quando a gente colocar aqui, a gente vai estar configurando o egress {}
+
+resource "aws_security_group" "allow_outbound" {
+    egress {
+        from_port = 
+        to_port = 
+        protocol = ""
+    }
+}
+
+8. Okay?
+
+9. Bom, se voce estivesse dentro de uma Corporacao Grande, poderia sair como para a Internet?
+
+10. Tem duas opcoes, ou voce sai via Proxy, ou teria alguma outra Rede para fazer a Saida para a Internet para voce tambem, seria uma das opcoes.
+
+11. Normalmente, eu acho que a mais comum seria via Proxy, mesmo, que eles conseguem ter mais controle. Entao, voce precisaria configurar o Proxy dentro da sua maquina. So que a gente nao vai ter Proxy instalado, aqui, vamos configurar o egress from_port, to_port = 0, ou seja, qualquer porta, de 0 a zero, -1 qualquer protocolo, e qual o bloco cidr que vai sair para fora. Para a gente permitir todo mundo, vamos colocar ["0.0.0.0/0"]
+
+resource "aws_security_group" "allow_outbound" {
+
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = -1
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+}
+
+12. Okay?
+
+13. So vamos, temos que configurar mais algumas coisas, aqui, obrigatorias, o vpc_id, a gente esta colocando dentro da nossa VPC, vamos dar um nome, aqui, que a gente vai chamar de hibicode_allow_outbound, para a gente ter a distincao clara, la. Eh isso.
+
+resource "aws_security_group" "allow_outbound" {
+
+    vpc_id = "${aws_vpc.main.id}"
+    name = "hibicode_allow_outbound"
+
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = -1
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+}
+
+
+14. Agora, a gente precisa, nas nossas instancias, vamos la em instances.tf, ja tem vpc_security_group_id, aqui, agora, vamos adicionar o aws_security_group.allow_outbound.id,
+
+vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}", "${aws_security_group.allow_outbound.id}"]
+
+15. Okay? Vamos dar um <enter>, aqui, para melhorar a leitura, nao tem problema nenhum nao,
+
+   vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"
+            , "${aws_security_group.allow_outbound.id}"] 
+
+
+16. Beleza? Entao, eh isso, vamos mandar executar, aqui, o terraform, agora, ele vai. simplesmente, criar esse Security Group e atachar as nossas Instancias,
+
+terraform> run-terraform.bat
+
+17. Vamos so esperar ele executar, aqui.
+
+18. Pronto, agora, aqui, ele vai atualizar as Instancias, e vai criar um Security Group.
+
+19. yes, e, agora, eh so esperar terminar.
+
+20. Okay, ja executou.
+
+21. Entao, foi criado um novo Security Group, e esse Security Group foi atachado, a gente confirmar, aqui, olha la, no Security Groups, se a gente olhar no outbound rules, agora, a gente tem um 0.0.0.0/0, vindo, aqui, do hibicode_allow_outbound, okay?
+
+Security Groups assiciated with i-04d2...
+
+Ports       Protocol        Source      hibicode_allow_ssh          hibicode_allow_outbound
+ All         All            0.0.0.0/0                                V
+
+
+
+22. Bom, entao, eh isso. Valeu.
+
+23. Fim da     Aula 07.007. Autorizando Outbound Via Security Group.
+
+-->

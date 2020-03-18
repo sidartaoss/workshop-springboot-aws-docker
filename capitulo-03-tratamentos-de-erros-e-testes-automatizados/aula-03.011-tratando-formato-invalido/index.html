@@ -1,0 +1,273 @@
+<!--
+    Aula 03.011. Tratando Formato Invalido
+
+1. E se a gente passar um valor invalido, aqui, na hora de salvar, por exemplo, uma Cerveja, ao inves de eu passar PILSEN, aqui, eu passar um formato que nao existe,
+
+{
+	"name": "Stella Artois",
+	"type": "PILSEN",
+	"volume": "300"
+}
+
+2. Entao, por exemplo, BeerType, a gente esta passando, a gente tem LAGER, PILSEN, e IPA. Vamos imaginar que eu tento salvar uma cerveja do tipo APA, uma Colorado, alguma coisa assim, eu sei que tem uma Colorado APA, nao lembro exatamente qual eh que eh,
+
+{
+	"name": "Colorado",
+	"type": "APA",
+	"volume": "600"
+}
+
+3. Entao, vamos la, se eu tentar salvar uma Cerveja assim, passando esse APA, o que que vai acontecer?
+
+4. Uma excecao, nao muito bonita, nao eh?
+
+5. Aqui. Olha la a mensagem que ele deu. Entao, vamos tratar esse tipo de mensagem, a gente nao capturou esse tipo de excecao.
+
+6. Entao, como eh que a gente vai fazer?
+
+7. A gente pode vir, aqui, no Run, dar uma olhada na mensagem de Log, 
+
+2019-03-24 17:15:34.262  WARN 1968 --- [nio-8080-exec-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `com.hibicode.beerstore.model.BeerType` from String "APA": value not one of declared Enum instance names: [PILSEN, IPA, LAGER]; nested exception is com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `com.hibicode.beerstore.model.BeerType` from String "APA": value not one of declared Enum instance names: [PILSEN, IPA, LAGER]
+ at [Source: (PushbackInputStream); line: 3, column: 10] (through reference chain: com.hibicode.beerstore.model.Beer["type"])]
+
+, e ver, aqui, oh, o que que ele esta fazendo, oh, ele da uns Warnings, aqui, e fala, aqui, para a gente, aqui, oh, HttpMessageNotReadableException. Entao, vamos la, oh, ele nao conseguiu desserializar o BeerType, InvalidFormatException, oh, veja bem, nao eh? Entao, ele da essa mensagem, aqui, como InvalidFormatException, nao eh?, para a gente poder capturar aqui. E vamos dar uma mensagem, um valor, um tratamento melhor, nao eh?
+
+8. Entao, a gente vem aqui, em ApiExceptionHandler, a gente ja tem para esse MethodArgumentNotValidException, vamos criar um novo, @ExceptionHandler(), agora, a gente vai colocar InvalidFormatException, okay? E vamos criar o metodo para capturar ela, a gente vai receber o InvalidFormatException, e tambem o Locale, caso voce queira traduzir,
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+
+    }
+
+9. Bom, eu vou fazer esse cara, aqui, um pouco diferente.
+
+10. Por que? 
+
+11. Voce vai entender la no final.
+
+12. Mas, eu nao vou colocar, o codigo de erro que eu vou colocar, aqui, em api_errors.properties, vai ser um codigo mais generico. Entao, eu vou chamar ele de generic-1, e vou colocar assim, oh, Value is invalid,
+
+generic-1=Value is invalid
+
+13. O valor esta invalido que foi passado. Depois, a gente vai substituir esse Value, aqui, pelo valor errado que esta passando, nao eh?, para falar "APA is invalid", okay?, entao, voce vai aprender a fazer isso. Depois, voce pode aproveitar e fazer em outras propriedades, aqui, tambem, em api_errors.properties, okay?, nos outros tratamentos.
+
+14. Entao, bora la. Entao, qual que eh o codigo do erro? final String errorCode = , vou chamar, aqui, de 'generic-1', nao eh? Entao, o que trata formatos invalidos eh o generic-1,
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+        final String errorCode = "generic-1";
+    }
+
+15. Qual que eh o status? Eh o BAD_REQUEST, tambem,
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+        final String errorCode = "generic-1";
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+    }
+
+16. Vamos criar o ErrorResponse, 
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+        final String errorCode = "generic-1";
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+        final ErrorResponse errorResponse = 
+    }
+
+, a gente poderia ter criado as variaveis locais no metodo handleNotValidException(), tambem. final eh sempre uma..., por que que final eh uma boa ideia, se voce nao sabe?
+
+17. Porque fica mais facil voce ler o codigo. Porque, se esse cara, aqui, 
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+        final String >>> errorCode <<< = "generic-1";
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+        final ErrorResponse errorResponse = 
+    }
+
+, for atribuido, aqui, e ele eh final, voce tem certeza que nunca mais esse cara vai trocar de valor.
+
+18. Entao, fica mais facil voce ler o codigo.
+
+19. Por isso que eh uma boa pratica voce colocar final sempre que possivel.
+
+20. Por exemplo, aqui, 
+
+    private ApiError toApiError(String code, Locale locale) {
+        >>> String message;
+        try {
+            message = this.apiErrorMessageSource.getMessage(code, null, locale);
+        }catch (NoSuchMessageException e) {
+            LOG.error("Could not find any message for {} code and {} locale", code, locale);
+            message = NO_MESSAGE_AVAILABLE;
+        }
+        return new ApiError(code, message);
+    }
+
+, nao tem como eu colocar final, nao eh? Eh um ou outro. Se eu colocar final, aqui, vai dar erro de compilacao, ele nao vai aceitar.
+
+21. Mas, aqui, em handleInvalidFormatException(), ja eh uma boa ideia a gente colocar.
+
+22. Entao, vamos la, final ErrorResponse errorResponse =, vamos criar, aqui, o objeto ErrorResponse, ErrorResponse.of(), a gente passa o status, e vamos passar o metodo toApiError(), passando o errorCode, e o locale,
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+        final String errorCode = "generic-1";
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+        final ErrorResponse errorResponse = ErrorResponse.of(status, toApiError(errorCode, locale));
+
+    }
+
+23. Nao eh?, a gente esta criando para um, apenas, a gente esta falando, 'Esse valor, aqui, esta invalido'
+
+24. Okay, agora, a gente pode retornar, return ResponseEntity.status(), passando o status, ou posso colocar, ja, direto, um badRequest(), sao as duas formas que voce tem, ou eu passo, aqui, o badRequest(), ele ja cria, ou, se eu quiser passar o status(), eu passo o status, tambem daria certo, mas, ja vamos colocar como badRequest().body(), passando errorResponse,
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+        final String errorCode = "generic-1";
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+        final ErrorResponse errorResponse = ErrorResponse.of(status, toApiError(errorCode, locale));
+        return ResponsEntity.badRequest().body(errorResponse);
+    }
+
+25. Okay?
+
+26. Vamos parar e subir, porque eh bem provavel que o DevTools nao vai funcionar nessa hora.
+
+27. Vamos ver, aqui, se tudo vai dar certo. Okay, vamos tentar mais uma vez,
+
+{
+	"name": "Colorado",
+	"type": "APA",
+	"volume": "600"
+}
+
+28. Enviamos. Agora, sim, oh, 
+
+{
+    "statusCode": 400,
+    "errors": [
+        {
+            "code": "generic-1",
+            "message": "Value is invalid."
+        }
+    ]
+}
+
+29. "code": "generic-1", "message": "Value is invalid". Bom, mas, value, aqui, nao esta legal, nao eh?
+
+30. Por que nao esta legal?
+
+31. Por que que a gente ja nao coloca, aqui, o APA, nao eh?
+
+32. Entao, vamos la, vamos melhorar, ainda mais, esse codigo.
+
+33. Da para sempre ir melhorando alguma coisa.
+
+34. Aqui, eu estou tratando apenas Um Erro, ou seja, um erro de InvalidFormatException,
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+        >>> final String errorCode = "generic-1";
+        >>> final HttpStatus status = HttpStatus.BAD_REQUEST;
+        >>> final ErrorResponse errorResponse = ErrorResponse.of(status, toApiError(errorCode, locale));
+        >>> return ResponsEntity.badRequest().body(errorResponse);
+    }
+
+35. Entao, voce pode melhorar, para ele tratar mais de um, tambem.
+
+36. Entao, vamos la, para eu fazer isso, nos vamos, aqui, no api_errors.properties, ao inves de Value,
+
+generic-1=>>> Value <<<  is invalid
+
+, eu vou colocar {0},
+
+generic-1={0} is invalid
+
+37. Ou seja, com wildcard, aqui, para ele poder ser substituido.
+
+38. Substituido como?
+
+39. A gente, agora, neste momento, na hora de criar o ApiError, aqui,
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+        final String errorCode = "generic-1";
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+        final ErrorResponse errorResponse = ErrorResponse.of(status, >>> toApiError(errorCode, locale));
+        return ResponsEntity.badRequest().body(errorResponse);
+    }
+
+, eu tambem vou receber um valor. O valor que vem da Exception. Entao, eu posso vir, aqui, oh, exception, dentro dessa exception, exception.getValue(), esse valor, em getValue(), eh o valor invalido que foi passado na Requisicao, eh esse 'APA'. Entao, eu tenho que dar um jeito desse value, em exception.getValue(), esse valor entrar na mensagem, eu vou pegar esse value, aqui,..., eu posso mandar direto, eu estava pensando, aqui, em colocar num objeto separado, mas eu acho que nao vai ser necessario, nao,
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+        final String errorCode = "generic-1";
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+        final ErrorResponse errorResponse = ErrorResponse.of(status, toApiError(errorCode, locale));
+        return ResponsEntity.badRequest().body(errorResponse);
+    }
+
+40. Entao, eh so, aqui, no toApiError(), eu recebo o Locale e tambem recebo o Object value,
+
+private ApiError toApiError(String code, Locale locale, Object value) {
+...
+}
+
+, okay?
+
+41. E esse value, aqui, agora, vai vir, aqui, agora, nos argumentos, no metodo toApiError(),
+
+    String message;
+    try {
+        message = apiErrorMessageSource.getMessage(code, value, locale);
+    }
+
+, e, no metodo handleInvalidFormatException(), eu posso passar, entao, exception.getValue(),
+
+    final ErrorResponse errorResponse = ErrorResponse.of(status, toApiError(code, locale, exception.getValue()));
+
+42. Ah, aqui, em toApiError(),
+
+    String message;
+    try {
+        message = apiErrorMessageSource.getMessage(code, >>> value, locale);
+    }
+
+    ...
+
+, ele esta esperando um array, entao, eu mudo a assinatura do metodo toApiError, porque eu posso mandar mais de um, entao, vamos colocar o varargs, aqui, para ser um array,
+
+private ApiError toApiError(String code, Locale locale, Object... value) {
+    String message;
+    try {
+        message = this.apiErrorMessageSource.getMessage(code, value, locale);
+    } catch(NoSuchMessageException e) {
+        ...
+    }
+    ...
+
+}
+
+43. Okay? Acho que, agora, eu mexi pouca coisa, imagino que va funcionar o DevTools.
+
+44. Vamos la, ja subiu, vamos dar um Send, novamente, no Postman,
+
+{
+    "statusCode": 400,
+    "errors": [
+        {
+            "code": "generic-1",
+            "message": "APA is invalid."
+        }
+    ]
+}
+
+45. 'APA is invalid.'
+
+46. Fim da     Aula 03.011. Tratando Formato Invalido.
+
+
+
+-->

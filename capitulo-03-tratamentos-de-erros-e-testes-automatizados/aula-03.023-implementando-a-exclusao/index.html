@@ -1,0 +1,191 @@
+<!-- 
+
+Aula 03.023. Implementando a Exclusao
+
+
+
+1. Esse eh mais um desafio do que uma aula!
+
+
+
+2. Voce ja aprendeu muita coisa, e a exclusao nao tem muitos segredos, sera que consegue implementar?
+
+
+
+3. Seguem algumas dicas:
+
+
+
+- A anotacao no resource/controller eh @DeleteMapping("/{id}"), o ID eh recebido na URL, pois estamos apagando um recurso especifico.
+
+
+
+package com.hibicode.beerstore.resource;
+
+
+
+...
+
+
+
+import org.springframework.web.bind.annotation.*;
+
+
+
+@RestController
+
+@RequestMapping("/beers")
+
+public class BeerResource {
+
+
+
+@Autowired
+
+private Beers beers;
+
+
+
+@Autowired
+
+private BeerService beerService;
+
+
+
+@DeleteMapping("/{id}")
+
+@ResponseStatus(HttpStatus.NO_CONTENT)
+
+public void delete(@PathVariable Long id) {
+
+this.beerService.delete(id);
+
+}
+
+
+
+}
+
+
+
+
+
+package com.hibicode.beerstore.service;
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+...
+
+
+
+public void delete(Long id) {
+
+final Optional<Beer> beerById = this.beers.findById(id);
+
+if (!beerById.isPresent()) {
+
+throw new EntityNotFoundException();
+
+}
+
+this.beers.delete(beerById.get());
+
+}
+
+
+
+}
+
+
+
+
+
+api_errors.properties
+
+
+
+generic-2=Beer not found.
+
+
+
+
+
+package com.hibicode.beerstore.error;
+
+
+
+@Order(Ordered.HIGHEST_PRECEDENCE)
+
+@RestControllerAdvice
+
+@RequiredArgsConstructor
+
+public class ApiExceptionHandler {
+
+
+
+@ExceptionHandler(EntityNotFoundException.class)
+
+public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException exception, Locale locale) {
+
+final String errorCode = "generic-2";
+
+final HttpStatus status = HttpStatus.NOT_FOUND;
+
+final ErrorResponse errorResponse = ErrorResponse.of(status, this.toApiError(errorCode, locale));
+
+return ResponseEntity.status(status).body(errorResponose); 
+
+}
+
+
+
+}
+
+
+
+4. Ao testar no Postman, funcionou,
+
+
+
+DELETE http://localhost:8080/beers/6
+
+
+
+
+
+
+
+Status: 204 No Content
+
+
+
+
+
+5. Fim da Aula 03.023. Implementando a Exclusao.
+
+
+
+
+
+-->​
+
+

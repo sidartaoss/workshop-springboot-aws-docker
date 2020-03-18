@@ -1,0 +1,273 @@
+<!-- 
+
+Aula 05.002. Instalacao do Terraform
+
+
+
+1. Bom, a primeira coisa que a gente precisa fazer eh baixar o Terraform, e instalar ele, aqui.
+
+
+
+2. Na verdade, eu ja tenho uma versao instalada aqui, mas eu vi que ela esta desatualizada.
+
+
+
+3. Entao, olha so, voce vai ver que a instalacao, pode ver, eh so descompactar.
+
+
+
+4. Entao, oh, eu estou com o arquivo que eu acabei de baixar, aqui, entao, vamos fazer um unzip, aqui, do terraform, ls -l, pronto, eh esse, aqui, o arquivo de instalacao, terraform.exe.
+
+
+
+5. Eu vou, ate, remover esse .zip, aqui.
+
+
+
+6. Entao, eu estou com o Terraform, aqui, em /Downloads. Se eu fizer,
+
+
+
+> ./terraform --version
+
+
+
+, ou, no Windows, estando na pasta C:\Users\SEMPR> , e terraform na pasta /SEMPR,
+
+
+
+> terraform --version
+
+Terraform v0.11.13
+
+
+
+, entao, eh a versao 0.11.13, a versao mais nova.
+
+
+
+7. Como que eu faco a instalacao dele?
+
+
+
+8. Eu tenho uma pastinha, aqui, que eu chamo de programs, onde eu coloco alguns programas, entre eles, o terraform.
+
+
+
+9. Okay? Entao, eu estou com essa versao, aqui, do Terraform.
+
+
+
+10. Essa versao, aqui, oh, 
+
+
+
+> ./terraform --version
+
+
+
+, eh uma versao anterior. Ele ate me fala, oh, 'Essa versao nao eh a ultima, tem uma versao nova, que eh a versao 0.11.13', que eu acabei de baixar.
+
+
+
+11. Entao, o que que eu vou fazer?
+
+
+
+12. Eu vou remover essa versao, aqui, dentro da pasta /programs, que eh onde eu costumo colocar, estand na pasta /programs,
+
+
+
+> rm terraform
+
+
+
+, e vou mover a versao que esta dentro da pasta Downloads, para ca, para a pasta /programs,
+
+
+
+> mv ~/Downloads/terraform .
+
+
+
+13. Beleza?
+
+
+
+14. E, ai, o que eu fiz? Eu coloquei um link simbolico, fica dentro de /usr/local/bin, oh,
+
+
+
+> ls -l /usr/local/bin/terraform
+
+
+
+, voce vai ver que eh um link simbolico para o terraform que esta dentro de programs.
+
+
+
+15. Isso significa que, em qualque lugar que eu estiver, se eu estiver dentro do /home, 
+
+
+
+> terraform --version
+
+
+
+, ou, no Windows, se eu estiver na pasta programs,
+
+
+
+> %userprofile%\terraform --version
+
+
+
+, eu ja vou estar com a versao atualizada.
+
+
+
+16. Okay? Em qualquer lugar vai funcionar. Eh so criar um link simbolico, dentro de /usr/local/bin/, por exemplo, ou C:\Users\SEMPR, no Windows, por exemplo.
+
+
+
+17. Isso tanto no Linux quanto no Mac.
+
+
+
+18. No Windows, eu acho que voce precisa editar as variaveis de ambiente para exportar isso la, adicionar algum programinha la, algo assim, okay?
+
+
+
+19. Tenta ai, se voce nao conseguir, me fala, que a gente descobre junto.
+
+
+
+20. Combinado?
+
+
+
+21. Bom, para criar um Link simbolico, so deixa eu falar, se voce nunca fez, no Mac,
+
+
+
+> ln -s 
+
+
+
+, ai, voce vai colocar o caminho completo de onde esta o seu programa. No caso, esta em /Users/normandes/programs/terraform, e onde voce quer que seja criado o link simbolico, /usr/local/bin, ai, voce vai escrever terraform, por exemplo, okay?,
+
+
+
+> ln -s /Users/normandes/programs/terraform /usr/local/bin/terraform
+
+
+
+, ou, no Windows, estando na pasta /Downloads,
+
+
+
+> mklink /h %userprofile%\terraform.exe "%programfiles%\terraform\bin\terraform.exe"
+
+
+
+, ou,
+
+
+
+> mklink /h ..\terraform.exe "%programfiles%\terraform\bin\terraform.exe"
+
+
+
+Vínculo real criado para ..\terraform.exe <<===>> c:\Programs Files\terraform\bin\terraform.exe 
+
+
+
+22. Eu vou criar um outro, aqui, so para voce ver, oh, para o Mac,
+
+
+
+> ln -s /Users/normandes/programs/terraform/ /usr/local/bin/terraform-novo 
+
+
+
+23. Okay? Tem que estar com o usuario, tem que dar um sudo, aqui,
+
+
+
+> sudo ln -s /Users/normandes/programs/terraform/ /usr/local/bin/terraform-novo 
+
+
+
+24. Vamos la, ele criou esse terraform-novo, agora.
+
+
+
+> ln -l /usr/local/bin/terraform*
+
+
+
+, *, aqui, para a gente ver os dois, oh, entao, tem o /terraform e o /terraform-novo, ambos apontando para /Users/normandes/programs/terraform, ou seja, o mesmo lugar.
+
+
+
+25. Estou dentro do /home do meu usuario, oh,
+
+
+
+> ~
+
+
+
+26. Entao, se eu fizer, aqui, 
+
+
+
+> ~ terraform-novo --version, eu estou com ele, aqui, ou seja, aparece a versao do Terraform.
+
+
+
+27. Mas, eu vou apagar, eu nao quero ficar com duas versoes, aqui,
+
+
+
+> ~ rm /usr/local/bin/terraform-novo
+
+
+
+28. Pronto, agora, so tem o terraform.
+
+
+
+> ~ terraform --version
+
+
+
+, aparece a versao atual do Terraform.
+
+
+
+29. Beleza?
+
+
+
+30. Entao, eh assim que voce vai fazer a instalacao dele. Ah, Normandes, eu nao quero instalar, eu so quero ficar com o arquivo do Terraform, so com o binario.
+
+
+
+31. Okay, voce tem que ficar colocando o caminho completo sempre.
+
+
+
+32. Beleza?
+
+
+
+33. Existem outras opcoes, como exportar, colocar isso dentro da variavel PATH, enfim, da para fazer de varias formas, utilize da forma que voce acha melhor, ai, nao tem problema nenhum.
+
+
+
+34. Fim da Aula 05.002. Instalacao do Terraform.
+
+
+
+-->

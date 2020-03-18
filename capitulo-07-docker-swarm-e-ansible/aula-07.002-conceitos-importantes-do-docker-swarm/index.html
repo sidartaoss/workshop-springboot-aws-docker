@@ -1,0 +1,559 @@
+<!-- 
+
+Aula 07.002. Conceitos Importantes do Docker Swarm
+
+
+
+1. Nesta aula, eu vou te falar de alguns conceitos importantes do Docker Swarm, para voce ter a teoria, na hora em que a gente chegar na pratica.
+
+
+
+2. Beleza?
+
+
+
+3. Entao, vamos la.
+
+
+
+4. A primeira coisa que a gente precisa entender, sao alguns conceitos, ai, Node, Service e Task.
+
+
+
+5. Vamos la.
+
+
+
+6. O que que eh um Node?
+
+
+
+7. Node vai ser, entao, uma Instancia do Docker, que vai participar do Cluster.
+
+
+
+8. Entao, uma Instancia do Docker, eu penso num Servidor.
+
+
+
+
+
+Node Instancia Docker que participa do Cluster. O ideal eh Um Servidor ser apenas Um Node.
+
+
+
+
+
+Service
+
+
+
+
+
+Task
+
+
+
+
+
+
+
+9. Entao, o ideal eh que a gente tenha Um Servidor, Uma Maquina Virtual, Uma Instancia EC2, la, como sendo Um Node do Docker. Okay?
+
+
+
+10. Ah, Normandes, tem como eu instalar mais de um? Pegar uma maquina e instalar mais de um?
+
+
+
+11. Voce consegue, eu acho, eu nunca fiz, mas, eu imagino que voce consegue instalar, la, voce consegue separar e criar mais de uma instalacao. Mas nao eh recomendado, principalmente, para Producao. Okay?
+
+
+
+12. Entao, ja que a gente esta trabalhando com Maquinas, e a gente esta criando Maquinas Virtuais, a gente esta criando um Cluster de Docker, instala apenas Um. Assim, eh o recomendado pela documentacao do Docker, inclusive.
+
+
+
+13. Okay?
+
+
+
+14. Bom, o que que eh um Service?
+
+
+
+15. O Service eh Uma Definicao do que eh para ser executado,
+
+
+
+Node Instancia Docker que participa do Cluster. O ideal eh Um Servidor ser apenas Um Node.
+
+
+
+
+
+Service Definição do que eh para ser executado.
+
+
+
+
+
+Task
+
+
+
+16. Como assim? O que eh uma Definicao?
+
+
+
+17. Definicao, voce fala assim, olha, 'Eu quero que seja executado uma Aplicacao Java que tenha 5 Replicas'. A gente ainda vai ve essas Replicas.
+
+
+
+18. Mas, seria algo do tipo, 'Eu quero que voce espalhe 5 Copias rodando, 5 Copias dessa Aplicacao rodando no meu Cluster'. Seria algo assim. 
+
+
+
+19. Entao, Service eh essa Definicao.
+
+
+
+20. Okay? Nao eh a Execucao ainda. 
+
+
+
+21. A execucao, quem esta executando as coisas, na verdade, eh uma Task,
+
+
+
+Node Instancia Docker que participa do Cluster. O ideal eh Um Servidor ser apenas Um Node.
+
+
+
+
+
+Service Definicao do que eh para ser executado.
+
+
+
+
+
+Task Contem o Container sendo executado.
+
+
+
+22. O Container fica dentro de uma Task.
+
+
+
+23. Okay?
+
+
+
+24. Entao, quando a gente fala, 'Eu tenho o nginx rodando, 3 Replicas, por exemplo, eu tenho a Definicao, que fala exatamente isso, que eh um Service. Eu tenho as Tasks que contem os Containers sendo executados'.
+
+
+
+25. Olha essa Imagem, aqui, la da propria documentacao do Docker Swarm.
+
+
+
+26. O que que eu tenho, aqui, oh?
+
+
+
+27. Eu tenho o Service, que eu falei, 'Eu quero Replicas de nginx', ou seja, eu quero 3 nginx espalhados, ai, no meu Cluster.
+
+
+
+28. Beleza?
+
+
+
+29. Ai, ele vai, oh, nun Node, ou seja, tem um Node, la, disponivel, para ele ser executado. Esse Swarm Manager, aqui, eu vou falar daqui a pouquinho o que que eh.
+
+
+
+30. Mas, eu tenho um Node, la, disponivel, o Swarm vai criar uma Task, para a gente, la, oh, dar o nome para essa Task, nginx.1, nginx.2, nginx.3, okay? E vai criar o Container do nginx dentro dessa Task.
+
+
+
+31. Beleza?
+
+
+
+32. Entao, o Service eh a Definicao, a Task contem o Container em execucao.
+
+
+
+33. Eh importante voce saber essas nomenclaturas, porque, na hora em que voce estiver escrevendo, estiver debugando alguma coisa dentro do Swarm, aparecem esses nomes: Task, Service, okay?
+
+
+
+34. Entao, eh importante voce analisar com calma, esses nomes, ai. Beleza?
+
+
+
+35. Entao, sao Node, Service, e Task.
+
+
+
+36. Eh esse entendimento, aqui, que voce precisa ter.
+
+
+
+37. Vamos la para mais dois, aqui, agora.
+
+
+
+38. Manager e Worker,
+
+
+
+Node Instancia Docker que participa do Cluster. O ideal eh Um Servidor ser apenas Um Node.
+
+
+
+
+
+Service Definicao do que eh para ser executado.
+
+
+
+
+
+Task Contem o Container sendo executado.
+
+
+
+
+
+Manager
+
+
+
+
+
+Worker
+
+
+
+
+
+39. O que que eh o Manager? O que que eh um Worker?
+
+
+
+40. O Manager eh um conceito, vai ser um No, dentro do nosso Cluster, ali, que a gente colocar ele como um Manager.
+
+
+
+41. E esse cara, ele tem 3 funcoes principais.
+
+
+
+42. Gerenciar, nao eh?, manter o Estado do Cluster, agendar algum Servico a ser executado, e servir de endpoints para o Swarm.
+
+
+
+43. Como assim?
+
+
+
+Node Instancia Docker que participa do Cluster. O ideal eh Um Servidor ser apenas Um Node.
+
+
+
+
+
+Service Definicao do que eh para ser executado.
+
+
+
+
+
+Task Contem o Container sendo executado.
+
+
+
+
+
+Manager Manter o estado do cluster, agendar Servicos e Servir endpoints para o Swarm.
+
+
+
+
+
+Worker
+
+
+
+
+
+
+
+44. O que que eh manter o Estado do Cluster?
+
+
+
+45. Manter o Estado do Cluster eh quando voce fala que eu quero um Servico com 3 Replicas. Isso tem que estar salvo em algum lugar, e esse Estado tem que estar sendo, constantemente, monitorado.
+
+
+
+46. Ou seja, eu tenho 3 replicas do nginx, eu tenho 3 replicas da minha aplicacao Java? Nao, so estou com Duas, entao, o Manager fica analisando essas coisas, entao, 'Opa, entao, eu tenho que subir mais uma, porque uma Caiu'.
+
+
+
+47. Entao, isso eh gerenciar o Estado do nosso Cluster.
+
+
+
+48. Agendar Servicos, voce pode criar Servicos, criar, ali, dentro do nosso Cluster, voce fala, 'Eu quero que ele seja executado Uma vez por Dia'.
+
+
+
+49. E servir de Endpoints, a gente consegue chamar API's dentro do Manager, para ele executar alguma funcao.
+
+
+
+50. Tem um algoritmo, que o Docker Swarm usa, eh conhecido como 'raft'. A gente nao precisa conhecer esse algoritmo em detalhes, mas, alguns conceitos dele sao bem importantes.
+
+
+
+51. Como, por exemplo, eles recomendam voce ter 3 Managers. Se voce tiver 3 Managers, na verdade, voce vai poder perder apenas Um.
+
+
+
+52. Entao, pensa que um Manager esta instalado em uma Maquina Virtual, uma Instancia EC2.
+
+
+
+53. Entao, se voce tem 3, voce vai poder perder 1. Se voce perder 2, os Managers nao conseguem mais identificar o Estado do Cluster.
+
+
+
+54. Okay?
+
+
+
+55. Entao, esse algoritmo 'raft'' que faz isso.
+
+
+
+56. Se voce tem 5, ele vai permitir voce perder 2 Managers.
+
+
+
+57. Entao, o que a gente tem que ter, aqui, pensar, eh essa formulinha, ai,
+
+
+
+(N - 1) / 2
+
+
+
+58. Isso tem que dar um numero inteiro.
+
+
+
+59. Entao, N eh o Numero de Managers.
+
+
+
+60. Entao, se voce tem 5 Managers, 5 - 1 = 4, /2, 2. Entao, voce pode perder 2 Managers, okay?
+
+
+
+61. Voce tem 7, que eh o numero maximo recomendado pelo Docker Swarm.
+
+
+
+62. Entao, o maximo eh voce ter 7.
+
+
+
+63. Beleza?
+
+
+
+64. Entao, 7 - 1 = 6, / 2 = 3. Se voce tem 7, voce pode perder ate 3 Managers, que o seu Cluster, ainda, continua de pe.
+
+
+
+65. Okay?
+
+
+
+66. Ate existe esse limite de 7, porque nada eh de graca. Entao, se voce, 'Ah, eu vou colocar um monte de Managers'. 
+
+
+
+67. Bom, mas, os Manager's, eles ficam conversando entre si, tem que ter troca de informacoes. Entao, se voce aumenta demais, vai aumentar a quantidade de informacoes, e o seu Cluster comeca a perder muito em performance.
+
+
+
+68. Okay? Entao, nao cresca demais, nesse caso, ai.
+
+
+
+69. Workers. O que sao os Workers?
+
+
+
+70. Os Workers, eles executam as tasks e, consequentemente, os Containers,
+
+
+
+Node Instancia Docker que participa do Cluster. O ideal eh Um Servidor ser apenas Um Node.
+
+
+
+
+
+Service Definicao do que eh para ser executado.
+
+
+
+
+
+Task Contem o Container sendo executado.
+
+
+
+
+
+Manager Manter o estado do cluster, agendar Servicos e Servir endpoints para o Swarm.
+
+
+
+
+
+Worker Executa as Tasks / Containers.
+
+
+
+
+
+71. Entao, quando a gente tem um cluster de Dockers Swarm, a gente tem Managers e Workers, Managers gerenciando Workers, trabalhando, executando as Tasks.
+
+
+
+72. Eh possivel a gente criar Manager-Workers. Ou seja, no mesmo Manager, trabalhar como um Worker tambem.
+
+
+
+73. Entao, se voce tem uma Aplicacao que nao eh tao acessada, algo que nao eh tao problematico, para o que que voce vai criar, la, Managers e Workers, separado? Vai gastar dinheiro a toa. Entao, cria um Manager como Worker. Mas, olha so, para uma Aplicacao que nao eh tao acessada, assim.
+
+
+
+74. Beleza?
+
+
+
+75. E, para finalizar, aqui, existe o Load Balancing dentro do proprio Docker Swarm.
+
+
+
+76. E esse Load Balancing eh legal, porque ele expoe os servicos do Cluster.
+
+
+
+Node Instancia Docker que participa do Cluster. O ideal eh Um Servidor ser apenas Um Node.
+
+
+
+
+
+Service Definicao do que eh para ser executado.
+
+
+
+
+
+Task Contem o Container sendo executado.
+
+
+
+
+
+Manager Manter o estado do cluster, agendar Servicos e Servir endpoints para o Swarm.
+
+
+
+
+
+Worker Executa as Tasks / Containers.
+
+
+
+
+
+
+
+Load Balancing Expoe os Servicos do Cluster
+
+
+
+
+
+77. E, quando a gente estiver na pratica, voce vai ver isso acontecendo. A gente vai criar um Servico, e fazer o deploy de uma Replica, com uma Replica apenas.
+
+
+
+78. Entao, a gente criar 3 Instancias EC2, e tem 1 Execucao apenas.
+
+
+
+79. A gente pode acessar qualquer 1, dos nos, nao eh?, qualquer uma das Instancias EC2, que a gente vai conseguir chegar no nosso Servico.
+
+
+
+80. Entao, o Docker Swarm consegue gerenciar isso tudo para a gente de forma transparente, a gente nao tem que fazer nada.
+
+
+
+81. So coloquei ai, para voce saber que existe isso, e, ai, voce vai ficar espantado como eh facil, como isso funciona legal, para as nossas aplicacoes.
+
+
+
+82. Beleza?
+
+
+
+83. So para finalizar, mostrar, aqui, a Imagem do que que sao, nao eh?, os Managers e os Workers.
+
+
+
+84. Entao, oh, nos temos os Managers, eles conversam entre si, aqui. Eles tem a forma de armazenar o Estado entre eles, usando o Raft, o algoritmo que eu disse para voces, okay?, e eles conversam com os Workers.
+
+
+
+85. Repara que os Workers nao conversam entre si.
+
+
+
+86. Os Managers conversam com os Workers.
+
+
+
+87. Entao, eu falo, 'Eu preciso de 1 Servico com 3 Replicas', a gente tem, aqui, 7 Workers, certo? Entao, ele vai pegar, e colocar 1 em cada Worker, por exemplo, ou seja, 3 flexinhas ligando 1 Manager em 3 Workers.
+
+
+
+88. Beleza? Entao, eh isso, ai, que eu queria falar para voces sobre esses conceitos importantes do Docker Swarm.
+
+
+
+89. A gente vai ver isso na pratica logo logo.
+
+
+
+90. Beleza?
+
+
+
+91. Fim da Aula 07.002. Conceitos Importantes do Docker Swarm.
+
+
+
+-->​

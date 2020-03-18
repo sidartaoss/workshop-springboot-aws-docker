@@ -1,0 +1,773 @@
+<!--
+
+
+
+Aula 07.013. Visualizacao do Cluster com Portainer
+
+
+
+
+
+
+
+1. Para a gente poder ver o nosso Cluster numa interface um pouco mais bonita, nos vamos usar o Portainer.
+
+
+
+
+
+
+
+2. Okay? Entao, ele vai servir para a gente gerenciar o nosso Ambiente Docker, de uma maneira bem simples. Ele eh bem leve, eh bem facil, e a instalacao dele vai ser via, pelo Ansible tambem.
+
+
+
+
+
+
+
+3. Entao, na hora que a gente terminar de instalar as nossas maquinas, ali, o nosso Cluster, o Docker ja inicializa um Portainer para a gente poder acessar e ver o nosso Cluster rodando.
+
+
+
+
+
+
+
+4. Okay? Entao, vamos la, vamos voltar, aqui, no Ansible, e fazer a instalacao dele.
+
+
+
+
+
+
+
+5. A primeira coisa que a gente precisa fazer eh criar um diretorio, na maquina, para a gente poder armazenar as coisas do Portainer, como usuario e senha.
+
+
+
+
+
+
+
+6. Entao, a gente vai colocar, em todas as maquinas a gente cria, 
+
+
+
+
+
+
+
+- name: Ensure Docker is installed
+
+
+
+hosts: all
+
+
+
+remote_user: ec2-user
+
+
+
+gather_facts: false
+
+
+
+become: true
+
+
+
+tasks:
+
+
+
+- name: Install Docker
+
+
+
+yum: name=docker
+
+
+
+
+
+
+
+- name: Ensure docker service is installed and enabled
+
+
+
+service:
+
+
+
+name: docker
+
+
+
+state: started
+
+
+
+enabled: yes
+
+
+
+
+
+
+
+- name: 
+
+
+
+
+
+
+
+
+
+
+
+porque eu nao sei para qual das maquinas que ele vai instalar, entao, eu vou criar um diretorio, aqui, chamado dentro do home do usuario, ai, sei la, do portainer, alguma coisa assim.
+
+
+
+
+
+
+
+7. Entao, - name, aqui, Create directory for Portainer,
+
+
+
+
+
+
+
+- name: Ensure Docker is installed
+
+
+
+hosts: all
+
+
+
+remote_user: ec2-user
+
+
+
+gather_facts: false
+
+
+
+become: true
+
+
+
+tasks:
+
+
+
+- name: Install Docker
+
+
+
+yum: name=docker
+
+
+
+
+
+
+
+- name: Ensure docker service is installed and enabled
+
+
+
+service:
+
+
+
+name: docker
+
+
+
+state: started
+
+
+
+enabled: yes
+
+
+
+
+
+
+
+- name: Create directory for Portainer
+
+
+
+
+
+
+
+8. Entao, eh o banco de dados local do Portainer. Se a gente perder as maquinas, a gente perde esse diretorio. Mas, nao tem problema, porque, aqui, eh so mesmo um acompanhamento, voce nao vai,..., o objetivo deste modulo, aqui, sobre o Portainer, eh so a gente ter uma visualizacao do nosso Cluster, okay?, para a gente poder ver o log, e tal.
+
+
+
+
+
+
+
+9. Entao, a gente pode reconstruir ele, nao eh problema a gente perder muita coisa la, nao.
+
+
+
+
+
+
+
+10. Beleza?
+
+
+
+
+
+
+
+11. Entao, vamos la. Como que eu crio um diretorio, aqui, no Ansible?
+
+
+
+
+
+
+
+12. Entao, vai ser, oh, file, coloca um file, aqui, path, onde que ele vai ficar, .portainer, que vai ser no home do usuario, ele esta no home, aqui, /data, so que o state eh directory, entao, ele vai criar um diretorio. O owner vai ser o ec2-user, o grupo, tambem, ec2-user, okay?
+
+
+
+
+
+
+
+- name: Create directory for Portainer
+
+
+
+file:
+
+
+
+path: .portainer/data
+
+
+
+state: directory
+
+
+
+owner: ec2-user
+
+
+
+group: ec2-user
+
+
+
+
+
+
+
+13. Entao, neste momento, a gente criou o diretorio para ser o banco de dados local, aqui, do Portainer. Beleza?
+
+
+
+
+
+
+
+14. E, ai, quando a gente acabar, aqui, de inicializar o nosso manager-leader, como a gente so esta executando em uma maquina, a gente pode vir aqui e ja iniciar o Servico do Portainer, entao,
+
+
+
+
+
+
+
+- name: Create Portainer Service
+
+
+
+
+
+
+
+15. Vai ser Service, porque a gente esta dentro do Docker Swarm. Eu vou falar mais sobre o comando service quando for criado a nossa aplicacao, por enquanto, eu vou mandar fixo, aqui, e, ai, a gente vai, eu vou explicando, mas, eh claro que eu vou falar mais para voce quando a gente chegar na nossa aplicacao Java, okay?
+
+
+
+
+
+
+
+16. Entao, docker service create, entao, vai ser assim, tambem, na nossa Aplicacao, --detach, para executar em um segundo plano, nao ficar preso, aqui, nao eh?, entao, detach=false, qual que eh o nome do servico? --name portainer, qual que eh a porta que ele vai escurtar? --publish 900:, o Portainer fica na porta 9000, entao, eu vou colocar, aqui, tambem, na porta 9000. --publish 9000:9000, --constraint, ai, aqui, ja sao regras, que a gente esta colocando, por ser o Portainer, okay?, entao, ele tem uma role de manager, --constraint 'node-role == manager', eu vou fazer o mapeamento do tipo bind, aqui, --mount type=bind, onde a origem eh /var/run/docker.sock. Isso eh por que? Porque o Portainer precisa saber onde esta o nosso docker, para conseguir gerenciar, okay? Entao, a gente precisa fazer esse mapeamento, mas, como eu disse, isso faz parte do Portainer, na nossa Aplicacao, nao precisa disso. Isso a gente consegue ver mais na documentacao, okay? Eh so dar uma olhada na documentacao, e da para aprender de la como que faz esse comando, entao, eu vou fazer, aqui, oh, eh o /home/ec2-user/.portainer, que eh aquele diretorio que a gente criou agora mesmo, okay?, e o destino, dentro do servico, vai ser /data, okay? Qual eh a imagem? portainer/portainer, pode ser a ultima la
+
+
+
+
+
+
+
+- name: Create Portainer Service
+
+
+
+command: docker service create --detach=false --name portainer --publish 9000:9000 
+
+
+
+--constraint 'node-role == manager' --mount type=bind,src=/var/run/docker.sock,dst=var/run/docker.sock
+
+
+
+--mount type=bind,src=/home/ec2-user/.portainer/data,dst=/data portainer/portainer
+
+
+
+
+
+
+
+17. Okay?
+
+
+
+
+
+
+
+18. Para a gente poder colocar isso como um estado, vamos verificar se o portainer ja nao esta iniciado. Entao, shell: "docker service ls, a gente ve todos os servicos que estao criados la dentro, grep -i portainer, a gente vai verificar, tem, a gente conta, wc -l, tem algum servico, ali, de portainer? Se tiver, a gente registra, register:, ele vai registrar, aqui, no portainer_started,
+
+
+
+
+
+
+
+- shell: "docker service ls | grep -i portainer | wc -l"
+
+
+
+register: portainer_started
+
+
+
+
+
+
+
+19. Okay? E, ai, a gente so executa esse comando grandao, aqui, quando stdout for 0, ou seja, nao tiver inicializado, ainda, o Portainer, caso, contrario, a gente nao executa,
+
+
+
+
+
+
+
+- name: Create Portainer Service
+
+
+
+command: docker service create --detach=false --name portainer --publish 9000:9000 
+
+
+
+--constraint 'node-role == manager' --mount type=bind,src=/var/run/docker.sock,dst=var/run/docker.sock
+
+
+
+--mount type=bind,src=/home/ec2-user/.portainer/data,dst=/data portainer/portainer
+
+
+
+when: portainer_stated.stdout == "0"
+
+
+
+
+
+
+
+20. Okay? Entao, vamos mandar executar o Ansible, mais uma vez. Como eu disse, todos esses detalhes, ai, do Portainer, sao detalhes, mesmo, de como a gente precisa inicializar o Portainer, na documentacao, a gente ja aprende isso. Okay?
+
+
+
+
+
+
+
+21. Nao precisa ficar todo preocupado, 'Nossa, eh bem complicado iniciar um servico'. Nao. Claro, se voce estiver criando um cara como Portainer, sim, voce vai precisar entender mais detalhes como esse. Mas, como a nossa Aplicacao, a gente nao precisa saber disso dai, eh so voce executar esse comando, ja eh suficiente.
+
+
+
+
+
+
+
+22. Okay?
+
+
+
+
+
+
+
+23. Entao, vamos la, 
+
+
+
+
+
+
+
+ansible> ./run-ansible.sh
+
+
+
+
+
+
+
+24. Ele ja criou o diretorio, oh, para o Portainer, aqui em cima, vamos esperar, agora, ele inicializar o Portainer. Ai, pode ser que ele demore um pouquinho mais, porque ele tem que baixar a Imagem, aqui, agora, entao, vai baixar a imagem da Internet, la na nossa Maquina. Entao, eu vou dar uma pausa, aqui, e eu ja volto ja.
+
+
+
+
+
+
+
+25. Esta demorando bastante, aqui, eh bem provavel que tenha dado algum problema, vamos investigar o problema. Entao, vamos la, vamos fazer o ssh na maquina, entao, 
+
+
+
+
+
+terraform> ssh -i key/beerstore_key ec2-user@3.84.132.23
+
+
+
+, e vamos investigar qual eh o problema.
+
+
+
+26. Entao, vamos la.
+
+
+
+> sudo docker service ls
+
+
+
+, ele vai mostrar os Servicos que estao aqui, na maquina.
+
+
+
+27. Entao, oh, tem o Servico do Portainer, com 0/1 Replicas, ou seja, nao tem nenhuma Replica no ar, de 1 possivel. Entao, se a gente der um,
+
+
+
+> sudo docker service ps portainer
+
+
+
+, a gente vai ver especifico do portainer mais informacoes, inclusive, a mensagem de erro, 'no suitable node (shceduling ...'
+
+
+
+28. Vamos ver mais detalhes, aqui, ai, a gente pode dar um sudo docker inspect, e, ai, a gente pode pegar esse ID, aqui, z6nrt03lakzy
+
+
+
+> sudo docker inspect z6nrt03lakzy
+
+
+
+, e dar uma olhada no "Status", aqui, oh, "Nao tem nenhum node disponivel, aqui, nao eh?, que caiba nas restricoes, scheduling constraints not satisfied, ou seja, as restricoes que eu coloquei do Servico nao foram satisfeitas".
+
+
+
+29. Eu vou dar CTRL+Z, aqui, e vamos dar uma olhada, aqui, de novo, em beerstore-playbook.yml, na constraint.
+
+
+
+30. Eu falei que os nos, ah..., tem um tracinho, aqui, eh node.role, e nao node-role,
+
+
+
+--constraint 'node.role == manager'
+
+
+
+, eu falei que eu queria que o portainer esteja instalado com uma restricao. Qual eh a restricao? Que a maquina que eu esteja executando, o node, no caso do nosso docker, seja um manager. Eh uma restricao, eu nao quero que seja instalado em um worker.
+
+
+
+31. Okay? Apenas no Manager.
+
+
+
+32. Entao, esse foi o problema, coloquei um tracinho, e era ponto.
+
+
+
+33. Entao, vamos mandar executar mais uma vez. E possivel que, agora, de algum problema, vamos fazer o seguinte, vamos remover, aqui, vamos ver, aqui, oh, 
+
+
+
+> sudo docker service ls
+
+
+
+34. Esta aqui.
+
+
+
+> sudo docker service rm portainer
+
+
+
+35. Vamos remover o servico do portainer, antes de a gente mandar instalar novamente.
+
+
+
+36. Okay?
+
+
+
+37. E, ai, eh bom que voce ja esta vendo, nao eh?, alguns comandos do Docker como servico,
+
+
+
+> sudo docker service --help
+
+
+
+, e, ai, voce ve os comandos a gente tem, aqui, para o service, que so faz sentido usar se a gente estiver no mondo swarm.
+
+
+
+38. okay?
+
+
+
+39. vou mandar executar mais uma vez, agora,
+
+
+
+> ./run-ansible.sh
+
+
+
+40. e, agora, sim, eu espero que ele consiga instalar, a nao se que apareca outro erro, nao eh?, normal.
+
+
+
+41. Chegou, aqui, na parte do portainer, novamente, vamos ver se, agora, ele vai um pouquinho mais rapido, nao da nenhum problema, nao eh?
+
+
+
+42. A gente podde vir, ate, aqui, e dar um sudo docker service ls,
+
+
+
+> sudo docker service ls
+
+
+
+, para a gente ver se esta tendo algum problema.
+
+
+
+43.
+
+
+
+> sudo docker service ps portainer
+
+
+
+44. "invalid mount target, must be..."
+
+
+
+45. 
+
+
+
+> sudo docker inspect <ID>
+
+
+
+46. Vamos pegar, aqui, precisa ser um path absoluto.
+
+
+
+47. Entao, vamos ver o que que eu fiz de errado, de novo. Remover o portainer,
+
+
+
+> sudo docker service rm portainer
+
+
+
+48. E, ai, a gente volta, aqui, em beerstore-playbook.yml, e vamos tentar ver, aqui, oh, faltou o /var, aqui, oh. Destino /var/run/docker.sock
+
+
+
+49. Agora, sim, vamos para o proximo erro,
+
+
+
+ansible> ./run-ansible.sh
+
+
+
+50. Voltamos, aqui, ao Portainer, vamos esperar um pouquinho, aqui, vamos dar uma olhada, ver se tem alguma coisa acontecendo,
+
+
+
+> sudo docker service ps portainer
+
+
+
+51. Agora, eu acho que esta Running.
+
+
+
+52. Ah, agora, passou.
+
+
+
+53. Entao, a gente subiu o Portainer, o servico, aqui, entao, 
+
+
+
+> sudo docker service ls
+
+
+
+, para a gente listar,
+
+
+
+ID NAME MODE REPLICAS IMAGE PORTS
+
+1/1 *:9000->9000/tcp
+
+
+
+54. Agora, sim, oh, 1 de 1 Replica, do nosso Portainer, que esta escutando na porta 9000.
+
+
+
+55. Beleza, mas, a gente nao vai conseguir chegar nessa porta 9000, de forma alguma. Se a gente copiar algum IP, desses aqui, e vier, aqui, no browser, http://3.84.132.23:9000, a gente nao vai conseguir. Por que?
+
+
+
+56. Por que?
+
+
+
+57. Por conta do Security Group.
+
+
+
+58. Entao, vamos, aqui, em security.tf, e vamos liberar, entao, aws_security_group, "allow_portainer", vpc_id = "${aws_vpc.main.id}", name, eu vou colocar, aqui, "hibicode_allow_portainer", ingress, na porta 9000, ate a porta 9000, protocolo tcp, cidr_blocks, eu vou colocar apenas do meu IP Publico, okay? var.my_public_ip. Beleza,
+
+
+
+resource "aws_security_group" "allow_portainer" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_allow_portainer"
+
+
+
+ingress {
+
+from_port = 9000
+
+to_port = 9000
+
+protocol = "tcp"
+
+cidr_blocks = [ "${var.my_public_ip}" ]
+
+}
+
+}
+
+
+
+59. Vamos, aqui, no terraform, run-terraform.bat, e, ai, e so a gente esperar ele executar, criar o Security Group e associar, opa, criei o security group, preciso vir, aqui, na instancia, en instances.tf, nao eh?, senao, nao vai adiantar nada, e adicionar no array de vpc_security_group_ids, "${aws_security_group.allow_portainer.id}"
+
+
+
+60. Agora, sim, adicionei nas instancias, eu posso voltar, aqui, e vou mandar executar novamente,
+
+
+
+terraform> run-terraform.bat
+
+
+
+61. Agora, ele me diz que vai criar o security group e que vai atualizar as instancias.
+
+
+
+62. Posso por um yes. Enquanto isso, a gente volta, aqui, no browser, http://3.84.132.23:9000, ele ja esta pensando. O Securit Group, ele demora alguns segundinhos, assim, um minutinho, para, depois que ele foi criado, ser aplicado nas instancias. Entao, nao necessariamente, acabou de aplicar aqui e de criar, ja pode correr la, e vai funcionar.
+
+
+
+63. Espera um pouquinho, nao eh?, que pode ser que demore um pouquinho.
+
+
+
+64. Okay?
+
+
+
+65. Aqui, ja foi rapido, ja esta carregando, aqui, o Portainer.
+
+
+
+60. Entao, ele vai pedir, ai, uma senha, voce coloca a senha que voce quiser, okay?, tem que ter so, pelo menos, 8 caracteres. Qual amiente que a gente vai monitorar? O ambiente local, okay? Entao, por isso que ele fala, aqui, oh, garanta que, quando voce startou o Portainer, a gente passou essas variaveis, aqui, oh, -v "/var/run/docker.sock:/var/run/docker.sock", foi exatamente isso que a gente fez aquela hora.
+
+
+
+61. Conecta, esta, aqui, no local, quando a gente clica, aqui, mais uma vez, beleza, a gente esta com o Portainer, aqui, monitorando o nosso cluster. Se voce vier, aqui, no menu lateral, em Swarm, olha so, ele vai mostrar para a gente as 3 maquinas, olha os IPs das nossas 3 maquinas, aqui. Se a gente vier, aqui, em Services, a gente ve que a gente so tem o servico do portainer, e a gente vai ver, quando a gente criar a nossa Aplicacao Java, ela vai aparecer aqui tambem.
+
+
+
+62. Okay? Ai, aqui, agora, voce pode brincar a vontade, oh, Networks, vamos ver a nossa rede service, oh, que a gente criou, uma rede do tipo overlay, okay, oh, 10.0.0.0/16, okay? Bom, tem muita coisa, aqui, nao vamos entrar em tantos detalhes do Portainer, apenas, aqui, a Monitoria de alguns servicos, principalmente, o Servico da nossa Aplicacao Java, que a gente vai comecar a fazer nas proximas aulas, tambem.
+
+
+
+63. Beleza? Entao, eh isso dai.
+
+
+
+64. Fim da Aula 07.013. Visualizacao do Cluster com Portainer.
+
+
+
+
+
+-->​
+
+

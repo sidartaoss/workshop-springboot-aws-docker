@@ -1,0 +1,428 @@
+<!-- 
+
+Aula 03.020. Tratando a Excecao de Negocio
+
+
+
+1. Vamos, entao, fazer o tratamento da excecao de negocio, para a gente nao ver um erro 500, que nao esta certo, nao eh? Entao, vamos la.
+
+
+
+2. A primeira coisa, vamos criar, aqui, oh, em api_errors.properties, o erro para a excecao de BeerAlreadyExistException.
+
+
+
+3. Eh o erro da Cerveja. Entao, vamos criar ele, aqui, como beers-5, e a gente poderia escrever, aqui, Beer already exists., por exemplo, Beer already exists, como sendo a mensagem que a gente ira mostrar,
+
+
+
+beers-5=Beer already exists.
+
+
+
+4. Okay? Bom, vamos la. Para a gente nao ter que ficar tratando excecao por excecao, la no ApiExceptionHandler, aqui, vamos criar uma Excecao Generica, de negocio, nao eh?
+
+
+
+5. Entao, a gente pode vir, aqui, oh, no pacote .service.exception, criar uma nova classe, vamos chamar ela de BusinessException. Essa excecao, ja vamos usar o Lombok, aqui, @RequiredArgsConstructor, para criar, para a gente, o Construtor, e, tambem, gerar os Getters,
+
+
+
+package com.hibicode.beerstore.service.exception;
+
+
+
+import lombok.RequiredArgsConstructor;
+
+
+
+import lombok.Getter;
+
+
+
+@RequiredArgsConstructor
+
+@Getter
+
+public class BusinessException {
+
+
+
+}
+
+
+
+6. Okay? Nao precisa ser @Data, porque eu nao vou gerar set(), essas coisas.
+
+
+
+7. Vai estender RuntimeException(). Okay,
+
+
+
+package com.hibicode.beerstore.service.exception;
+
+
+
+import lombok.RequiredArgsConstructor;
+
+import lombok.Getter;
+
+
+
+@RequiredArgsConstructor
+
+@Getter
+
+public class BusinessException extends RuntimeException {
+
+
+
+}
+
+
+
+8. Entao, aqui, ele ja tem o Construtor, nessa classe, para os atributos obrigatorios. Quais sao esses atributos obrigatorios? private final String code, o codigo, qual eh o codigo do erro, e, tambem, private final HttpStatus status, 
+
+
+
+package com.hibicode.beerstore.service.exception;
+
+
+
+import lombok.RequiredArgsConstructor;
+
+import lombok.Getter;
+
+
+
+@RequiredArgsConstructor
+
+@Getter
+
+public class BusinessException extends RuntimeException {
+
+
+
+private final String code
+
+private final HttpStatus status;
+
+
+
+}
+
+
+
+9. Nao eh? Toda excecao tem que me falar: qual vai ser o codigo dela e qual eh o status que ela esta tratando.
+
+
+
+10. Entao, aqui, em BeerAlreadyExistException,
+
+
+
+package com.hibicode.beerstore.service.exception;
+
+
+
+public class BeerAlreadyExistException extends RuntimeException {
+
+
+
+}
+
+
+
+, ao inves de estender RuntimeException, a gente vai estender BusinessException, e, ai, agora, eu vou ser obrigado a criar o Construtor, aqui, porque essa classe, BusinessException, tem um Construtor que precisa de argumentos, 
+
+
+
+package com.hibicode.beerstore.service.exception;
+
+
+
+import org.springframework.http.HttpStatus;
+
+
+
+public class BeerAlreadyExistException extends RuntimeException {
+
+
+
+public BeerAlreadyExistException(String code, HttpStatus status) {
+
+super(code, status);
+
+}
+
+
+
+}
+
+
+
+11. Entao, no codigo, eu vou passar "beers-5", que foi o que a gente colocou, oh, beers-5, em api_errors.properties, que foi o que a gente colocou, aqui,
+
+
+
+beers-5=Beer already exist
+
+
+
+, certo. E o Status, qual vai ser o Status? HttpStatus.BAD_REQUEST.
+
+
+
+12. Nao eh o 500.
+
+
+
+13. O certo eh a gente mandar um 400, la.
+
+
+
+14. Beleza?
+
+
+
+15. Agora, a gente pode ir, aqui, em ApiExceptionHandler, e implementar o ExceptionHandler para Excecao de Negocio.
+
+
+
+16. Vamos colocar ele antes? Eu gosto de colocar ele na ordem, aqui, de deixar sempre o Exception.class por ultimo, porque ele eh o cara que captura todo mundo.
+
+
+
+17. Entao, nos vamos colocar o nosso ExceptionHandler para BusinessException, nao eh BeerAlreadyExistException, a gente vai fazer o tratamento de BusinessException, nao eh?
+
+
+
+@ExceptionHandler(BusinessException.class)
+
+public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException exception, Locale locale) {
+
+
+
+}
+
+
+
+18. Beleza, estamos aqui. Bom, para a gente construir o ErrorResponse, a gente precisa do errorCode, e do Status.
+
+
+
+19. Entao, vamos criar, aqui, oh, final String errorCode, vai ver de onde? Da exception.getCode(), esse getCode() foi criado, la, pelo Lombok, final HttpStatus status = exception.getStatus();, tambem vamos pegar la do exception.getStatus(), beleza? Agora, a gente ja pode criar o ErrorResponse, final ErrorResponse errorResponse = ErrorResponse.of(status, toApiError(errorCode, locale)), a gente nao precisa passar argumentos, neste caso, beleza? E, finalmente, a gente pode retornar ResponseEntity.badRequest().body(errorResponse),
+
+
+
+@ExceptionHandler(BusinessException.class)
+
+public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException exception, Locale locale) {
+
+
+
+final String errorCode = exception.getCode();
+
+final HttpStatus status = exception.getStatus();
+
+
+
+final ErrorResponse errorResponse = ErrorResponse.of(status, this.toApiError(errorCode, locale));
+
+
+
+return ResponseEntity.badRequest.body(errorResponse);
+
+
+
+}
+
+
+
+20. Okay?
+
+
+
+21. Vamos parar e subir mais uma vez, e ver se a gente nao vai receber um Erro 500, agora, ao salvar uma Cerveja que ja existe,
+
+
+
+{
+
+"name": "Eisenbahn",
+
+"type": "LAGER",
+
+"volume": "350"
+
+}
+
+
+
+22. Esta falando, aqui, que esta com algum problema no construtor, em BeerService.
+
+
+
+23. Ah, porque, aqui, oh,
+
+
+
+...
+
+public Beer save(final Beer beer) {
+
+
+Optional<Beer> beerByNameAndType = beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+return beers.save(beer);
+
+}
+
+
+
+24. Quando a gente chegou, aqui, no beerBynameAndType.isPresent(), eu estou lancando essa excecao. Entao, eu preciso fazer o que, aqui? Imagina, eu tenho que lancar um BeerAlreadyExistException(), mas, ela esta recebendo esses argumentos, aqui, no Construtor,
+
+
+
+public class BeerAlreadyExistException extends BusinessException {
+
+
+
+public BeerAlreadyExistException(String code, HttpStatus status) {
+
+super("beers-5", HttpStatus.BAD_REQUEST);
+
+}
+
+}
+
+
+
+25. So que, na verdade, eu nao preciso desses caras. Porque eu estou passando fixo, aqui,
+
+
+
+public class BeerAlreadyExistException extends BusinessException {
+
+
+
+public BeerAlreadyExistException() {
+
+>>> super("beers-5", HttpStatus.BAD_REQUEST);
+
+}
+
+}
+
+
+
+26. Como esse codigo foi gerado, para mim, eu nao preciso dele.
+
+
+
+27. Entao, agora, aqui, em BeerService, ja passou a compilar. Vamos subir mais uma vez.
+
+
+
+28. Agora sim, esta subindo, vamos ver, demora uns 10 segundos, mais ou menos, subiu.
+
+
+
+29. No Postman, vamos tentar salvar essa Cerveja, que ja existe,
+
+
+
+{
+
+"name": "Eisenbahn",
+
+"type": "LAGER",
+
+"volume": "350"
+
+}
+
+
+
+30. Certo? Eisenbahn LAGER, que eh o zero, no Banco de Dados.
+
+
+
+31. Okay? Vamos tentar salvar. Send, no Postman.
+
+
+
+32. Retornou Status: 400 Bad Request, e a mensagem foi certa, tambem, olha la, foi o beers-5, de codigo, e o "Beer already exists".
+
+
+
+33. Okay?
+
+
+
+34. Vamos atualizar a mensagem, em api_errors.properties, para beers-5=Beer already exist.
+
+
+
+35. Okay? Bom, eh isso, dai. Agora, a gente ja esta tratando excecoes de negocio. Imagina se voce tivesse outras excecoes de negocio. Todas essas outras excecoes de negocio, elas estenderiam BusinessException, 
+
+
+
+public class BeerAlreadyExistException >>> extends BusinessException {
+
+
+
+public BeerAlreadyExistException() {
+
+super("beers-5", HttpStatus.BAD_REQUEST);
+
+}
+
+
+
+}
+
+
+
+, e passariam qual eh o codigo e qual eh o status,
+
+
+
+public class BeerAlreadyExistException extends BusinessException {
+
+
+
+public BeerAlreadyExistException() {
+
+super(>>> "beers-5", >>> HttpStatus.BAD_REQUEST);
+
+}
+
+
+
+}
+
+
+
+36. Pode ser que uma Excecao de negocio tenha um Status diferente que voce quer, nao eh? Entao, voce pode ir passando o Status assim, fica bem legal.
+
+
+
+37. Fim da Aula 03.020. Tratando a Excecao de Negocio.
+
+
+
+-->​
+
+

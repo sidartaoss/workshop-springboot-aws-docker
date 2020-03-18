@@ -1,0 +1,103 @@
+<!-- 
+
+Aula 07.003. Introducao ao Ansible
+
+
+
+1. Bom, agora, a gente vai precisar instalar o Ansible, para a gente poder provisionar as nossas Maquinas.
+
+
+
+2. Mas, antes, vamos conversar um pouquinho, aqui, sobre ele, sobre o que que eh o Ansible, para o que que ele serve, nao eh?
+
+
+
+3. Bom, a gente tem as nossas Instancias EC2, la na AWS, mas elas sao apenas Linux, sao maquinas virtuais com Linux. A gente precisa instalar os Softwares que a gente quer nelas, para a gente poder executar a nossa aplicacao.
+
+
+
+4. No caso, a gente precisa ter o Docker instalado, la no modo Swarm, ativo.
+
+
+
+5. Entao, a gente vai precisar fazer isso, nas nossas Instancias EC2. 
+
+
+
+6. E, para a gente nao ter que fazer SSH, uma por uma, e fazer essa instalacao, essa configuracao, a gente vai usar o Ansible.
+
+
+
+7. Entao, no Ansible, a gente escreve um Script que, no caso dele, eh chamado de Playbook, entao, a gente vai escrever o Playbook e, nesse Playbook, a gente fala, 'Oh, eu quero que voce, eu quero que a nossa Maquina, os Servidores, nao eh?, nao precisa ser so um, os Servidores tenham o Docker instalado, que o modo Swarm esteja ativo, a gente vai escrevendo todas essas instrucoes dentro de Playbooks'.
+
+
+
+8. Okay?
+
+
+
+9. Entao, eh isso que a gente vai comecar a fazer, a partir das proximas aulas, para a gente ter a nossa infraestrutura prontinha para a gente criar a nossa Aplicacao.
+
+
+
+10. Beleza?
+
+
+
+11. Bom, a documentacao do Ansible esta ai, docs.ansible.com. Eh uma documentacao legal, ela nao eh muito boa, porque tem hora que eu acho que ela nao esta muito bem escrita, mas, eles sempre estao mexendo, aqui, em algumas coisas, pode ser que vai melhorando com o tempo, okay?
+
+
+
+12. Entao, a primeira coisa que voce precisa fazer eh a instalacao.
+
+
+
+13. Entao, vai no Guia de Instalacao, e instala o Ansible na sua Maquina.
+
+
+
+14. Quando voce terminar de instalar, da um ansible --version, eu estou usando a ultima versao, agora, eh a 2.7.0, okay?, entao, a gente vai seguir com a 2.7.0.
+
+
+
+15. Nao esquece tambem, de ter o seu ambiente iniciado. Entao, oh, eu estou subindo o meu ambiente, eu tinha destruido ele. Entao, eu estou subindo o ambiente, aqui, agora, para poder fazer essa criacao. Entao, nao pode esquecer. Entao, deixa o ambiente todo preparado, todo iniciado, para a gente poder comecar a executar as coisas com o Ansible.
+
+
+
+16. Beleza?
+
+
+
+17. Entao, segue, ai, o guia de instalacao, da para voce instalar em qualquer sistema operacional, okay?
+
+
+
+18. No Windows, eu acho que voce vai precisar usar aquele terminal do Windows, para voce poder instalar, as vezes, via pip, as vezes, de alguma outra forma, usando apt, nao sei, nao eh? No Windows, tem que dar uma pesquisada, ai, mas nao tem muito segredo nao.
+
+
+
+19. A instalacao eh muito simples, mesmo. Oh, no Ubuntu, por exemplo, da um apt-get update, adiciona o repositorio do ansible, da um apt-get install ansible, pronto.
+
+
+
+20. Ja esta instalado.
+
+
+
+21. Bem simples, nao eh?
+
+
+
+22. Bom, eh isso. Para a instalacao, eh isso que o Ansible vai nos ajudar, entao. A gente vai poder instalar todos esses softwares nas Instancias EC2, atraves de arquivos, a nossa infra continua como codigo. O Ansible tambem entra na categoria Infra As Code, porque a gente ainda esta trabalhando na nossa Infra, usando Codigo. E, ai, a gente vai comecar a fazer isso nas proximas aulas.
+
+
+
+23. Beleza?
+
+
+
+24. Fim da Aula 07.003. Introducao ao Ansible.
+
+
+
+-->​

@@ -1,0 +1,599 @@
+<!-- 
+
+Aula 03.013. Corrigindo Bug do Tratamento de Excecao
+
+
+
+1. Esta aula, aqui, eh para mostrar um bug que os alunos mostraram, aqui, para mim, e, ai, eu estou gravando esta aula para mostrar por que que ele aconteceu, e tal. Entao, vamos la.
+
+
+
+2. Quando a gente adicionou, aqui, o @ExceptionHandler para Exception,
+
+
+
+@ExceptionHanlder(>>> Exception.class)
+
+public ResponseEntity<ErrorResponse> handleInternalServerError(Exception exception, Locale locale) {
+
+
+
+... 
+
+}
+
+
+
+, ou seja, para Excecao Geral, essa excecao, aqui,
+
+
+
+@ExceptionHanlder(Exception.class)
+
+public ResponseEntity<ErrorResponse> handleInternalServerError(Exception exception, Locale locale) {
+
+Log.error("Error not expected", exception);
+
+final String errorCode = "error-1";
+
+final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+final ErrorResponse errorResponse = ErrorResponse.of(status, this.toApiError(errorCode, locale));
+
+return ResponseEntity.status(status).body(errorResponse);
+
+}
+
+
+
+, as vezes, ela pode ter prioridade em relacao a outras.
+
+
+
+3. O que esta acontecendo eh, principalmente, em relacao a InvalidFormatException, 
+
+
+
+@ExceptionHandler(InvalidFormatException.class)
+
+public ResponseEntity<ErrorResponse> handleInvalidFormatException(InvalidFormatException exception, Locale locale) {
+
+
+
+...
+
+}
+
+
+
+4. Entao, por exemplo, eu vou cadastrar, no Postman, uma Cerveja, e coloco um Tipo, aqui, que nao tem nada a ver, oh, 
+
+
+
+{
+
+"name": "Alienada",
+
+"type": "OUTROTIPO",
+
+"volume": "10"
+
+}
+
+
+
+, e, ai, eu mando salvar, clicando em Send, e ele esta me dando um erro 500,
+
+
+
+{
+
+"statusCode": "500",
+
+"errors": [
+
+{
+
+"code": "error-1",
+
+"message": "Sorry, internal server error, try again later"
+
+}
+
+]
+
+}
+
+
+
+, e, na verdade, deveria ser o erro 400, falando que isso, aqui, esta errado:
+
+
+
+{
+
+"name": "Alienada",
+
+>>> "type": "OUTROTIPO",
+
+"volume": "10"
+
+}
+
+
+
+, nao eh? Eh so o tipo, aqui, que ficou errado,
+
+
+
+{
+
+"name": "Alienada",
+
+>>> "type": "OUTROTIPO",
+
+"volume": "10"
+
+}
+
+
+
+, se eu colocar "IPA", por exemplo, 
+
+
+
+{
+
+"name": "Alienada",
+
+"type": "IPA",
+
+"volume": "10"
+
+}
+
+
+
+, ele vai funcionar e ele vai gravar. Retornou Status: 201 Created,
+
+
+
+{
+
+"id": 4,
+
+"name": "Alienado",
+
+"type": "IPA",
+
+"volume": 10
+
+}
+
+
+
+5. Mas, se eu colocar, aqui, "OUTROTIPO",
+
+
+
+{
+
+"name": "Alienada",
+
+>>> "type": "OUTROTIPO",
+
+"volume": "10"
+
+}
+
+
+
+, que eh um tipo que nao existe, ele deveria me falar me falar exatamente sobre isso, mas retorna,
+
+
+
+{
+
+"statusCode": "500",
+
+"errors": [
+
+{
+
+"code": "error-1",
+
+"message": "Sorry, internal server error, try again later"
+
+}
+
+]
+
+}
+
+
+
+6. E isso aconteceu por conta da ordem que os ExceptionHandlers foram carregados.
+
+
+
+7. Okay?
+
+
+
+8. Entao, o Spring tem uma ordem interna como ele pode carregar isso, mas, o legal eh que a gente pode controlar essa ordem.
+
+
+
+9. Entao, vamos la, o que que eu vou fazer?
+
+
+
+10. Eu vou criar uma classe, uma outra classe que vai fazer o tratamento de erro, e nos vamos falar que o tratamento de erros da API eh prioritario, em relacao aos erros gerais.
+
+
+
+11. Entao, eu posso criar, aqui, uma nova classe, em com.hibicode.beerstore.error, que eu vou chamar de GeneralExceptionHandler. Eu vou anotar, aqui, oh, tambem, com @RestControllerAdvice. E eu vou passar, aqui, esse @ExceptionHandler(Exception.class), em ApiExceptionHanlder, para ca, ou seja, para GeneralExceptionHandler,
+
+
+
+package com.hibicode.beerstore.error;
+
+
+
+@RestControllerAdvice
+
+public class GeneralExceptionHandler {
+
+
+
+@ExceptionHandler(Exception.class)
+
+public RestponseEntity<ErrorResponse> handleInternalServerError(Exception exception, Locale locale) {
+
+Log.error("Error not expected", exception);
+
+final String errorCode = "error-1";
+
+final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+final ErrorResponse errorResponse = ErrorResponse.of(status, this.toApiError(errorCode, locale));
+
+return ResponseEntity.status(status).body(errorResponse); 
+
+}
+
+}
+
+
+
+12. Oh, so essa parte de tratamento de Excecao do Exception, do mais geral, que veio para ca.
+
+
+
+13. Entao, vamos la, eu preciso, aqui, de um LOG, vamos copiando, aqui, nao eh, de ApiExceptionHandler.java,
+
+
+
+private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
+
+
+14. toApiError(), para a gente nao duplicar codigo, vamos fazer o seguinte, vamos injetar? Entao, @Autowired private ApiExceptionHandler apiExceptionHandler;. Eu posso usar o ApiExceptionHandler para chamar o toApiError(), so que ele esta privado, eu vou deixar, ele, aqui, em ApiExceptionHanlder, como public.
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+
+@RestControllerAdvice
+
+public class GeneralExceptionHandler {
+
+
+
+private static final Logger LOG = LoggerFactory.getLogger(GeneralExceptionHandler.class);
+
+
+
+@Autowired
+
+private ApiExceptionHandler apiExceptionHandler;
+
+
+
+@ExceptionHandler(Exception.class)
+
+public RestponseEntity<ErrorResponse> handleInternalServerError(Exception exception, Locale locale) {
+
+Log.error("Error not expected", exception);
+
+final String errorCode = "error-1";
+
+final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+final ErrorResponse errorResponse = ErrorResponse.of(status, this.apiExceptionHandler.toApiError(errorCode, locale));
+
+return ResponseEntity.status(status).body(errorResponse); 
+
+}
+
+}
+
+
+
+15. Okay?
+
+
+
+16. Beleza. Vamos voltar, aqui, em GeneralExceptionHandler. Agora, eu acho que sim.
+
+
+
+17. Esta tudo certo. Bom, o que que eu preciso fazer agora?
+
+
+
+18. Eu preciso que esse objeto, aqui, nao eh?, esse Bean ApiExceptionHandler, seja carregado primeiro. Entao, eu vou adicionar uma anotacao, aqui, oh, @Order, do pacote org.springframework.core.annotation, e vou colocar, aqui, Ordered.HIGHEST_PRECEDENCE, do pacote org.springframework.core, ou seja, tem uma prioridade maior, entao, vai carregar esse cara primeiro,
+
+
+
+import org.springframework.core.annotation.Order;
+
+
+
+@Order(Ordered.HIGHEST_PRECEDENCE)
+
+@RestControllerAdvice
+
+@RequiredArgsConstructor
+
+public class ApiExceptionHandler {
+
+
+
+...
+
+}
+
+
+
+19. E, aqui, em GeneralExceptionHandler, eu vou colocar o mesmo @Order(), e eu vou colocar, no Ordered, um LOWEST_PRECEDENCE, okay?
+
+
+
+@Order(Ordered.LOWEST_PRECEDENCE)
+
+@RestControllerAdvice
+
+public class GeneralExceptionHandler {
+
+
+
+...
+
+}
+
+
+
+20. Pronto.
+
+
+
+21. Eu vou parar e subir de novo, para, na hora em que ele estiver subindo, aqui, ele conseguir entender e vai falar, "ah, beleza, o ApiExceptionHandler tem prioridade, entao, eu vou carregar esse Bean, ApiExceptionHandler, primeiro, antes de carregar esse GeneralExceptionHandler".
+
+
+
+22. Okay? Entao, essa eh a ideia.
+
+
+
+23. Vamos ver, aqui, esperar ele subir. Subiu. Olha so, ele mostra, ate, aqui, no log, oh, que ele detectou dois ExceptionHandler's, detectou, aqui, no ApiExceptionHandler e no GeneralExceptionHandler, okay?
+
+
+
+24. Vamos, aqui, no Postman, agora, se a gente mandar o "OUTROTIPO", 
+
+
+
+{
+
+"name": "Alienada",
+
+"type": "OUTROTIPO",
+
+"volume": "10"
+
+}
+
+
+
+, ele ja vai dar um Erro 400, e nao mais um erro de 500, Internal Server Error,
+
+
+
+{
+
+"statusCode": "400",
+
+"errors": [
+
+{
+
+"code": "generic-1",
+
+"message": "OUTROTIPO is invalid."
+
+}
+
+]
+
+}
+
+
+
+25. E, caso eu venha, aqui, nao eh?, e force, simule um erro, aqui, por exemplo, na hora de criar, por exemplo, em BeerResource, int i = 10 / 0, por exemplo, 
+
+
+
+@PostMapping
+
+@ResponseStatus(HttpStatus.CREATED)
+
+public Beer create(@Valid @RequestBody Beer beer) {
+
+int i = 10 / 0;
+
+return this.beers.save(beer);
+
+}
+
+
+
+, vamos parar, subir de novo, a gente ja testa, aqui, no Postman. Voce vai ver que, como esse eh um erro Nao Esperado, ele tem que cair aqui no GeneralExceptionHandler.
+
+
+
+26. Vai ter que cair no metodo GeneralExceptionHandler.handleInternalServer(), mostrando "error-1".
+
+
+
+27. Vamos la, esta subindo. Subiu. Vou no Postman. Vamos alterar o Json de Request para um Json valido, porque, ai, ele vai passar do erro de validacao para "OUTROTIPO",
+
+
+
+{
+
+"name": "Alienada",
+
+"type": "IPA",
+
+"volume": "10"
+
+}
+
+
+
+28. E, ai, beleza, deu um "error-1",
+
+
+
+{
+
+"statusCode": "500",
+
+"errors": [
+
+{
+
+"code": "error-1",
+
+"message": "Sorry, internal server error, try again later."
+
+}
+
+]
+
+}
+
+
+
+29. Agora, sim, porque foi um bug que a gente colocou na aplicacao de proposito.
+
+
+
+30. Vou tirar ele, daqui, para nao esquecer ele, aqui,
+
+
+
+@PostMapping
+
+@ResponseStatus(HttpStatus.CREATED)
+
+public Beer create(@Valid @RequestBody Beer beer) {
+
+// int i = 10 / 0;
+
+return this.beers.save(beer);
+
+}
+
+
+
+31. Entao, eh isso. Entao, so recaptulando, eh a questao da ordem. Entao, quando a gente esta carregando Beans, no Spring, nao eh?, todos esses objetos que o Spring vai criando, eh possivel que ele carregue em uma ordem que voce nao queira. Okay?
+
+
+
+32. Entao, se voce quiser definir a ordem, voce pode usar, aqui, a anotacao @Order, do pacote org.springframework.core.annotation. Ela recebe, nesse value, aqui, um inteiro. Eu estou usando esse Ordered, aqui, 
+
+
+
+@Order(>>> Ordered.HIGHEST_PRECEDENCE)
+
+
+
+, so para facilitar a minha vida, mas, eu poderia colocar, aqui, por exemplo, quanto menor,..., vamos ver, aqui, oh, so ler a documentacao, quanto menor o numero, oh, 'Valores menores tem prioridade maior'. Entao, eu poderia colocar, aqui, por exemplo, no GeneralExceptionHandler,
+
+
+
+@Order(Ordered.HIGHEST_PRECEDENCE)
+
+@RestControllerAdvice
+
+public class GeneralExeptionHandler {
+
+
+
+...
+
+}
+
+
+
+, um numero grande, por exemplo, 1000,
+
+
+
+@Order(1000)
+
+@RestControllerAdvice
+
+public class GeneralExeptionHandler {
+
+
+
+...
+
+}
+
+
+
+, e, aqui, no ApiExceptionHandler, eu poderia colocar 0, por exemplo,
+
+
+
+@Order(0)
+
+@RestControllerAdvice
+
+public class GeneralExeptionHandler {
+
+
+
+...
+
+}
+
+
+
+33. Daria na mesma. Mas, fica mais bonito, nao eh?, a gente utilizar esse LOWEST_PRECEDENCE.
+
+
+
+34. Fim da Aula 03.013. Corrigindo Bug do Tratamento de Excecao.
+
+
+
+-->​
+
+

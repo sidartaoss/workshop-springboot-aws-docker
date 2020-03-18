@@ -1,0 +1,998 @@
+<!-- 
+
+Aula 05.014. Provisionando Postgres com RDS
+
+
+
+1. Vamos provisionar, agora, o Banco, com o Terraform, da AWS, que vai ser usando RDS. So que, para isso, eu vou usar algo diferente, aqui, porque eu quero te mostrar essa outra opcao, que voce tem para criar Recurso.
+
+
+
+2. terraform registry, digita isso no Google, vai aparecer, aqui, o https://registry.terraform.io
+
+
+
+3. Sao modulos do Terraform.
+
+
+
+4. Eh uma outra forma de a gente provisionar.
+
+
+
+5. O que que acontece?
+
+
+
+6. Muitos Recursos, como a gente acabou de ver, aqui, como o Internet Gateway, oh, tem hora que a gente precisa fazer varios Recursos para ter um. Como o Internet Gateway, depois, tem que criar o Route Table, depois, tem que fazer Uma Associacao, enfim, entao,a gente tem que criar varios recursos para ter uma Funcionalidade de Um Servico, nao eh?
+
+
+
+7. Entao, o Banco de Dados, seria a mesma coisa.
+
+
+
+8. Eu precisaria, se a gente fosse usando os Resources la do Terraform, normais, a gente precisaria colocar varios.
+
+
+
+9. Entao, o que que ele fez?
+
+
+
+10. Criou essa forma e chamou de Modulo, Terraform Module Registry, que eh uma forma que agrupa varios recursos junto, ja configurados entre si.
+
+
+
+11. Okay?
+
+
+
+12. Entao, tem varios.
+
+
+
+13. Tem varios Resource Modules que voce pode usar.
+
+
+
+14. Eu vou te ensinar a utilizar o do banco. Entao, vamos pesquisar, aqui, oh, 'rds', da um <enter>, aqui, oh, tem um modulo de 'rds', aqui, okay?
+
+
+
+15. Esse cara, ele tem 55 parametros de entrada e 18 de saida.
+
+
+
+16. Entao, a gente consegue ver ele da mesma forma, entao, olha la, esses, aqui, sao todos parametros de entrada.
+
+
+
+17. Aqui, sao os obrigatorios, e, depois os opcionais, comecam a aparecer aqui.
+
+
+
+18. Beleza? Entao, eh assim que a gente vai usar.
+
+
+
+19. A gente vai usar o RDS com o modulo, e eh dessa forma que a gente configura, ele ja coloca, aqui, para voce, oh, como que voce deve iniciar um arquivo de modulo, porque eh um pouquinho diferente de como a gente faz, aqui, nao eh resource,
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+# insert the 10 required variables here
+
+}
+
+
+
+20. Entao, eu vou criar um novo arquivo, na pasta /terraform, eu vou chamar de database.tf, e vamos colocar essa parte inicial, aqui,
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+# insert the 10 required variables here
+
+}
+
+
+
+, e ele esta dizendo para inserir as variaveis a partir daqui.
+
+
+
+21. Okay?
+
+
+
+22. Entao, terraform-aws-modules/rds/aws, a versao, desse modulo, nao eh?, que foi o que ele mandou a gente colocar, em https://registry.terraform.io/modules/terraform-aws-modules/rds/aws/1.28.0?tab=inputs.
+
+
+
+23. Depois que a gente faz isso, a gente eh obrigado a vir, aqui, no Prompt de Comando, e dar um terraform init,
+
+
+
+> terraform init
+
+
+
+24. Okay? A gente pode, ate, continuar, ali, a configuracao, mas ele tem que baixar da Internet esse modulo.
+
+
+
+25. Aqui, ele ja esta falando, oh, que esta com erro, porque esta faltando um monte de parametros obrigatorios.
+
+
+
+26. Vamos colocar e, depois, a gente faz o init, novamente, okay?
+
+
+
+27. Entao, vamos la, identificador, que eh o nome do banco, entao, vamos colocar, aqui, hibocode-beerstore-rds,
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+}
+
+
+
+28. Vamos colocar a engine do banco. A gente vai usar o postgres,
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+
+
+}
+
+
+
+29. Vai ser qual versao? engine_version. Vai ser a 10.3,
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.3"
+
+}
+
+
+
+30. Vamos ver se ele ja tem a 10.4? Nao tenho certeza se ja esta com a 10.4 ou a 10.5.
+
+
+
+31. Vams Procurar pelo Servico RDS no AWS Console.
+
+
+
+32. Lembrando de selecionar, aqui, a Virginia, okay?
+
+
+
+33. Nao pode esquecer disso.
+
+
+
+34. Vamos, no menu lateral em Instances, vamos supor que a gente vai criar uma Instancia, aqui, em Create Database, do PostgreSQL, vamos dar um Next, Next, oh, a ultima versao que ele tem, aqui, eh a 10.6, okay? Entao, eu vou usar a versao 10.6. Deixa eu cancelar, aqui, no Console da AWS.
+
+
+
+35. Vamos voltar, aqui, para o Terraform.
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+}
+
+
+
+36. O instance_class, eh qual tipo de maquina que voce vai usar para poder provisionar esse banco.
+
+
+
+37. Entao, se voce precisa de mais acesso, voce vai ter mais acessos nesse banco, uma maquina maior. Mas, mais uma vez, nem todas estao na versao gratis. Okay? a db.t2.micro esta dentro da faixa gratis.
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+}
+
+
+
+38. Quanto de HD eu vou selecionar? Quanto de Storage, nao eh?
+
+
+
+39. Eu vou colocar, aqui, 100 GB.
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+}
+
+
+
+40. Qual eh o nome desse banco? "beerstore"
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+
+
+name = "beerstore"
+
+}
+
+
+
+41. Esse, aqui, a gente ja vai usar na String de conexao, la do Spring, okay?
+
+
+
+42. name = "beerstore", username = "beerstore", passworkd = "beerstore", okay?
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+
+
+name = "beerstore"
+
+username = "beerstore"
+
+password = "beerstore"
+
+}
+
+
+
+, e a porta, 5432,
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+
+
+name = "beerstore"
+
+username = "beerstore"
+
+password = "beerstore"
+
+
+
+port = "5432"
+
+}
+
+
+
+43. Que mais que a gente pode coloca aqui?
+
+
+
+44. vpc_security_group_ids = [""]
+
+
+
+45. Ou seja, quem pode conectar nessa instancia, aqui?
+
+
+
+46. Bom, ai, a gente vai usar a seguinte ideia. Vamos criar, aqui, no Security Group, no arquivo security.ts, para o Banco de dados.
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+
+
+name = "beerstore"
+
+username = "beerstore"
+
+password = "beerstore"
+
+
+
+port = "5432"
+
+
+
+vpc_security_group_ids = [""]
+
+}
+
+
+
+47. Entao, vamos criar, aqui, oh, "aws_security_group", vamos chamar esse Security Group de database,
+
+
+
+resource "aws_security_group" "database" {
+
+
+
+}
+
+
+
+48. Vai esta na VPC que a gente tem, qual eh o nome?, "hibicode_database", e, ai, a gente vai colocar, ingress {}, na porta 5432, ate a porta 5432, protocolo tcp, quem? self = true, apenas. Esse self = true, ele vai criar um Security Group, liberando a port 5432, via TCP, apenas para quem tiver esse Security Group, aqui, de nome "database",
+
+
+
+resource "aws_security_group" "database" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+
+
+ingress {
+
+from_port = 5432
+
+to_port = 5432
+
+protocol = "tcp"
+
+self = true
+
+}
+
+}
+
+
+
+48. Okay? Entao, a gente vai ter esse Security Group nele, e a gente vai dar esse Security Group para a Aplicacao, por exemplo, para o Security Group das Instancias da Aplicacao, ai, ela tendo esse Security Group, ela consegue conectar na Porta 5432 do Banco de Dados.
+
+
+
+49. Beleza?
+
+
+
+50. Entao, vamos voltar, aqui, em database.tf, em vpc_security_group_ids, e vamos colocar ${aws_security_group.database.id},
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+
+
+name = "beerstore"
+
+username = "beerstore"
+
+password = "beerstore"
+
+
+
+port = "5432"
+
+
+
+vpc_security_group_ids = ["${aws_security_group.database.id}"]
+
+}
+
+
+
+51. Beleza.
+
+
+
+52. O que mais a gente pode colocar?
+
+
+
+53. Vamos colocar, oh, maintenance_windows, ou seja, janela de manutencao. Eu so quero que tenha manutencao, nesse banco, nas Quintas-feiras, das 3 e meia da manha, ate, no maximo, 5 e meia da manha, maintenance_window = "Thu:03:30-Thu:05:30"
+
+
+
+54. Qual que eh a janela de backup?
+
+
+
+55. Vamos colocar todo dia, entre 05:30 e 06:30 da manha, backup_window = "05:30-06:30", que eh o horario em que esta sendo menos acessado a minha aplicacao.
+
+
+
+56. Qual que eh o storage_type?
+
+
+
+57. gp2
+
+
+
+58. Esse gp2 eh um HD estilo SSD, okay?, pela forma de armazenamento. Existe, tambem, em fita magnetica, que eu imagino que voce nao vai querer utilizar, porque vai ser bem lento, e existe uma outra para quando voce precisa de muito entrada/saida, iops, quando voce precisa de muito entrada/saida, voce pode trocar o HD. Obviamente, tudo tem custo. Okay?
+
+
+
+59. multi_az, eu quero que tenha novos bancos criados em espera nas outras zonas?
+
+
+
+60. Sim,
+
+
+
+61. multi_az = "true"
+
+
+
+62. vou querer criar.
+
+
+
+63. Nao tenho certeza se esse cara, aqui, multi_az, esta na versao gratis, okay?
+
+
+
+64. Entao, toma cuidado, se voce nao quiser pagar, poe false, aqui. Okay?, senao poe true. So para a gente fazer um teste, aqui, oh. Vamos criar um banco, e a gente pode marcar, aqui, oh, Postgres, apenas mostrar o que tem parte gratis, vamos ver, aqui, Free-Tier, olha so, nao esta mesmo. Eu so estou mostrando as opcoes na Gratis.
+
+
+
+65. Entao, Mult-AZ nao esta na Gratis.
+
+
+
+66. Entao, se voce desmarcar, ele vai deixar voce clicar em Multi-AZ, oh, se voce deixar, aqui, em Only enable options for RDS Free Usage Tier, nao, ai, voce nao pode selecionar a Multi-AZ. Beleza? Entao, se voce quiser testar Multi-AZ, voce vai pagar um pouquinho.
+
+
+
+67. Okay? Entao, o que eu estava falando, do tipo do HD, entao, esse SSD eh o GP2, e voce tem, tambem, o cara para mais IOPS, quando voce precisa de mais Entrada/Saida.
+
+
+
+68. Okay?
+
+
+
+69. Mas, tambem, voce viu que nao esta na parte gratis. A parte gratis so o SSD.
+
+
+
+70. Okay?
+
+
+
+71. Bom, eu vou cancelar, aqui, no Console da AWS, para a gente continuar no Terraform.
+
+
+
+72. Eu vou deixar true, aqui, mas, lembre-se, se voce deixar true, voce vai pagar um pouquinho,
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+
+
+name = "beerstore"
+
+username = "beerstore"
+
+password = "beerstore"
+
+
+
+port = "5432"
+
+
+
+vpc_security_group_ids = ["${aws_security_group.database.id}"]
+
+
+
+maintenance_window = "Thu:03:30-Thu:05:30"
+
+
+
+backup_window = "05:03-06:30"
+
+
+
+storage_type = "gp2"
+
+
+
+multi_az = "true"
+
+}
+
+
+
+73. Em quais subnets esse banco sera criado?
+
+
+
+74. Vamos aproveitar e atualizar o nosso Desenhozinho, aqui, nao eh?, que a gente estava fazendo, a gente estava colocando, aqui, nos vamos colocar, um RDS, aqui, em draw.io, em More shapes, em Database, esse desenho, aqui, eh uma instancia de Postgres, vamos colocar, aqui, essa Instancia de Postgres, vai ficar em Uma dessas, ai, eu e stou colocando nessa, mas eu nao sei se vai ficar nessa Instancia, okay? Ele que vai determinar, eu vou passar todas as subredes que ele pode colocar, e ele vai criar em uma delas.
+
+
+
+75. E, essa, aqui, vai ser a Instancia em Stand-by, vai ficar, aqui, como Instancia Stand-by, uma, aqui, e outra, aqui. Mas, mais uma vez, ele que vai escolher onde esta, isso, aqui, eh flutuante, okay? eu nao sei onde fica, exatamente.
+
+
+
+76. Beleza.
+
+
+
+77. Entao, vamos voltar e falar quais sao as subnets_ids, aqui, que ele esta fazendo.
+
+
+
+78. 
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+
+
+name = "beerstore"
+
+username = "beerstore"
+
+password = "beerstore"
+
+
+
+port = "5432"
+
+
+
+vpc_security_group_ids = ["${aws_security_group.database.id}"]
+
+
+
+maintenance_window = "Thu:03:30-Thu:05:30"
+
+
+
+backup_window = "05:03-06:30"
+
+
+
+storage_type = "gp2"
+
+
+
+multi_az = "true"
+
+
+
+subnet_ids = ""
+
+}
+
+
+79. Bom, aqui, eu tive que fazer uma,..., eu vou colocar uma outra, aqui, family = postgres10, para finalizar, isso, aqui, tudo da documentacao, okay?, para voce aprender,
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+
+
+name = "beerstore"
+
+username = "beerstore"
+
+password = "beerstore"
+
+
+
+port = "5432"
+
+
+
+vpc_security_group_ids = ["${aws_security_group.database.id}"]
+
+
+
+maintenance_window = "Thu:03:30-Thu:05:30"
+
+
+
+backup_window = "05:03-06:30"
+
+
+
+storage_type = "gp2"
+
+
+
+multi_az = "true"
+
+
+
+family = "postgres10"
+
+
+
+subnet_ids = ""
+
+}
+
+
+
+80. Mas, essa, aqui, oh, subnet_ids, para eu conseguir pegar todas as subnets da rede privada, aqui, de network.tf, private_subnet, os ids, na forma como ele precisa, deu um trabalhinho para eu descobrir, e aprender como que faz isso.
+
+
+
+81. Entao, eu vou te explicar, aqui, oh. Primeiro, voce tem que fazer um flatten(), de um chunklist(), e, aqui, a gente vai poder passar o aws_subnet.private_subnet.*.id, e, aqui, a gente coloca 1, de 1 a 1. O que que significa isso daqui?
+
+
+
+module "rds" {
+
+source = "terraform-aws-modules/rds/aws"
+
+version = "1.28.0"
+
+
+
+identifier = "hibicode-beerstore-rds"
+
+engine = "postgres"
+
+engine_version = "10.6"
+
+instance_class = "db.t2.micro"
+
+allocated_storage = "100"
+
+
+
+name = "beerstore"
+
+username = "beerstore"
+
+password = "beerstore"
+
+
+
+port = "5432"
+
+
+
+vpc_security_group_ids = ["${aws_security_group.database.id}"]
+
+
+
+maintenance_window = "Thu:03:30-Thu:05:30"
+
+
+
+backup_window = "05:03-06:30"
+
+
+
+storage_type = "gp2"
+
+
+
+multi_az = "true"
+
+
+
+family = "postgres10"
+
+
+
+subnet_ids = "${flatten(chunklist(aws_subnet.private_subnet.*.id, 1))}"
+
+}
+
+
+
+82. Vamos digitar, aqui, oh, no Google, Terraform flatten(), que ele deve levar, ja, para la, https://www.terraform.io/docs/configuration-0-11/interpolation.html#flatten-list-of-lists-.
+
+
+
+83. Ele pega uma lisa de lista, e faz um down para uma lista apenas. Okay? Eu preciso disso, oh, pega uma lista de uma lista, porque, da forma como vem, ele vai trazer em uma lista de lista.
+
+84. E o chunklist(), olha so, eh porque,.., quando eu pego de uma lista que sao todos os ids, de 1 a 1, ele vai fazer isso, daqui, oh, ele vai me retornar em uma lista de lista, ta vendo, oh, eu descobri por esse cara, aqui, mesmo, oh, aws_subnet, todos os ids, de 1 em 1, ele pega a lista de lista.
+
+85. Ai, o flatten, eh aquele que a gente estava vendo, ali, ele tira a lista de lista, e deixa apenas uma lista.
+
+86. Entao, foi isso. Deu um trabalhinho para descobrir isso, daqui.
+
+87. Beleza?
+
+88. Bom, eh isso. Acho que a gente ja vai ter um Postgres para ser criado, vamos dar o init, novamente, aqui, 
+
+> terraform init,
+
+, para ver se nao vai ter nada errado. E, ai, um detalhe.
+
+89. O RDS demora muito para ser criado,
+
+> terraform apply
+
+90. 
+
+90. Muito mesmo. Demora em torno de 15 minutos, 10 a 15 minutos para ser criado. Okay? 
+
+91. Bom, esta aparecendo, aqui, para ele criar os Recursos, entao, olha la, esta criando toda a parte do Banco de Dados, aqui, do RDS, okay?, esta aparecendo tudo, aqui, se voce quiser conferir, devagarzinho, o que ele vai fazer.
+
+92. Okay, eu vou aceitar, 'yes'
+
+93. Bom, terminou, aqui, como eu disse, demora bastante, 18 minutos, aqui, porque eu coloquei multi-az. Se nao colocar multi-az, vai ser um pouco mais rapido.
+
+94. Entre 10 minutos, por ai, okay? Ele tem que fazer muitas coisas, aqui.
+
+95. E ele conseguiu criar, nao eh?, a instancia, aqui, beleza, do banco de dados.
+
+96. Vamos dar uma olhada, aqui, no Servico RDS, em Databases, ai, tem, aqui, o nosso Banco, criado, esta disponivel, pronto, para ser utilizado.
+
+97. Beleza? Ele esta pronto para receber conexoes. Esse, aqui, vai ser o Endpoint de conexao, 
+
+Endpoint
+hibicode-beerstore-rds.crxyils0ua9a.us-east-1.rds.amazonaws.com
+
+, com o banco. Beleza? O Usuario e Senha a gente ja configurou. O Postgres, oh, versao 10.6, ele esta na us-east-1c, neste momento, pode ser que, no seu, tenha subido em outra, okay?, porque ele pode estar em qualquer uma das 3 Subnets.
+
+98. Como eu coloquei o multi-az True, yes, ai, eu vou pagar por isso, aqui, entao, lembre-se, mesmo, voce, na conta gratis, se voce colocar yes, voce vai pagar. Se essa Zona cair, us-east-1c, se esse banco tiver algum problema, ele vai subir em outra, porque esta o multi-az yes.
+
+99. Okay?
+
+100. Eu acho que eh isso, daqui, o Security Group, oh, 
+
+Security group
+Type
+Rule
+terraform-20190409121337352700000001 (sg-07893958603b7b875)	EC2 Security Group - Inbound	sg-07893958603b7b875
+
+, aqui, eh quando a gente vai dar esse mesmo Security Group para a Aplicacao, para as Instancias, elas vao ser capazes de conectar no Banco.
+
+101. Okay? Mas, a gente, olha, repara bem, a gente nao consegue conectar no banco pela Internet, aqui. Porque eu nao deixei no Security Group disponivel. Eu nao deixei de proposito, porque eu nao quero chegar nesse banco, a nao ser atraves da Aplicacao.
+
+102. Okay?
+
+103. Ah, Normandes, mas, por que? E se eu quiser fazer isso?
+
+104. Olha, voce tem que colocar ele numa Subnet publica e dar um IP Publico para esse banco.
+
+105. Ai, voce vai conseguir, mas, normalmente, nas empresas, eh bloqueado, e voce so iria conseguir, se voce estivesse na VPN, por exemplo.
+
+106. Entao, configura uma VPN, ai, voce estaria na mesma rede, a sua VPC estaria na mesma rede da empresa que voce trabalha.
+
+107. Okay? Ai, atraves da VPN, aumenta um pouco a seguranca.
+
+108. Mas, eu nao quero que ninguem, na Internet, fique tentando acessar o meu Banco de Dados.
+
+109. Beleza?
+
+110. Bom, por enquanto, eh isso daqui, na proxima aula, eu vou te mostrar como a gente pode destruir tudo, para voce nao pagar nada e voce aprender como destruir e recriar, okay?, e, depois, a gente ja entra na parte do Docker, e a gente vai, aos poucos, ainda, ajustando muitas coisas que a gente precisa, na AWS, para a nossa Aplicacao estar la. Mas, essa ja eh a parte basica completa do que a gente precisa fazer na AWS.
+
+111. Fim da Aula 05.014. Provisionando Postgres com RDS.
+
+-->

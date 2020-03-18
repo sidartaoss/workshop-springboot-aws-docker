@@ -1,0 +1,324 @@
+<!--
+    Aula 03.004. Configurando o Spring Data JPA
+
+1. Vamos configurar, agora, o Spring Data JPA, na nossa Aplicacao.
+
+2. Bom, a gente vai abrir, aqui, o arquivo build.gradle, 
+
+plugins {
+    id 'org.springframework.boot' version '2.1.3.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.hibicode'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+, para a gente adicionar as dependencias. Esse arquivo, build.gradle, eh o arquivo do Gradle, que configura o Gradle.
+
+3. Se voce ja esta acostumado com o Maven, eh o pom.xml, tem o pom.xml do Maven e tem o build.gradle, do Gradle.
+
+4. Okay?
+
+5. Entao, a gente nao vai, como eu disse, a gente nao vai entrar tanto em detalhes no Gradle, porque o Gradle eh bem grande, da para fazer muita coisa.
+
+6. Mas, eu ja quero que voce tenha um primeiro projeto, caso voce nunca tenha feito, usando o Gradle.
+
+7. Okay?
+
+8. E a gente vai mexer onde, aqui?
+
+9. Mais, aqui, na parte de dependencias,
+
+dependencies {
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+}
+
+10. Eh, aqui, que a gente configura e adiciona as dependencias do Projeto.
+
+11. Entao, quando a gente gerou, ja veio algumas dependencias prontas, aqui, e nos vamos adicionar, aqui, as dependencias do Spring Data JPA.
+
+12. Quem que eh o Spring Data JPA?
+
+13. Vamos la.
+
+14. O Spring Data JPA, https://spring.io/projects/spring-data-jpa, eh um Projeto, dentro do Spring Data, que traz uma facilidade para a gente trabalhar com JPA, okay?, dentro do Spring.
+
+15. Bom, o que que ele vai trazar para a gente?
+
+16. Bom, ele traz, por exemplo, uma interface, um Repositorio Generico, que eh uma interface, que traz varios metodos prontos, para a gente poder fazer Consultas, Apagar, Remover, Editar, uma Entidade.
+
+17. Entao, isso, a gente vai ganhar tudo de graca, sem precisar escrever uma linha de SQL, de JPQL, nada, ele ja traz isso tudo para a gente, entre outras coisas.
+
+18. A documentacao dele, a documentacao de referencia, ela eh bem legal, https://docs.spring.io/spring-data/jpa/docs/2.1.5.RELEASE/reference/html/. Depois, recomendo voce vir, aqui, e dar uma lida mais nela, tambem.
+
+19. Beleza?
+
+20. Entao, vamos la. Vamos configurar o Spring Data JPA no projeto.
+
+21. Eu ja deixei, aqui, uma colinha, para voce nao ficar esperando eu digitar, olha so,
+
+dependencies {
+
+    ...
+
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtime 'org.postgresql:postgresql'
+}
+
+22. Com o escopo de compile, eu vou colocar o starter do spring-data-jpa. Esse starter, ele ja vem com o Hibernate, la, com as interfaces do JPA, ja vem tudo pronto, nas versoes que sao compativeis entre si.
+
+23. Legal, nao eh? Entao, eu nao preciso nem colocar versao,
+
+    ...
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa >>> <<<'
+
+, porque eu ja estou usando o Spring Boot, e, pelo Spring Boot, 
+
+plugins {
+    id 'org.springframework.boot' version >>> '2.1.3 RELEASE' <<<
+    id 'java'
+}
+
+, ele ja consegue pegar a versao. Entao, eu nao preciso colocar aqui,
+
+    ...
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa >>> <<<'
+
+24. Okay?
+
+25. Eu preciso colocar, em escopo de Runtime, a dependencia do Postgres,
+
+    ...
+    runtime 'org.postgresql:postgresql'
+
+, porque o Spring Data JPA nao consegue determinar qual o Banco que eu vou usar. Entao, eu preciso colocar, aqui, a dependencia do Postgres.
+
+26. Qual que eh a diferenca, aqui, Normandes, por que que uma eh compile, e a outra eh runtime?
+
+27. Ambas vao ser empacotadas dentro do Projeto. No Jar final do Projeto, as duas vao estar la dentro.
+
+28. A diferenca eh para a IDE, aqui.
+
+29. Para a IDE, o compile eh carregado, aqui, enquanto eu estou desenvolvendo.
+
+30. O runtime, ele nao eh carregado enquanto eu estou desenvolvendo. O que que isso significa?
+
+31. Se eu nao preciso dela em compile, para que que eu vou carregar? Para que que eu vou prejudicar a performance da minha IDE?
+
+32. Nao eh? Entao, voce usar o escopo certo te ajuda nesse sentido. Entao, aqui, a IDE vai ficar um pouco mais leve, colocando o Postgres em runtime, por exemplo, porque ela nao precisa carregar isso, daqui, 
+
+    ...
+    runtime 'org.postgresql:postgresql'
+
+, enquanto eu estou desenvolvendo.
+
+33. Okay? So quando for executar.
+
+34. Entao, eu adicionei essas duas dependencias.
+
+35. Vamos, aqui, em application.properties, configurar a string de conexao com o Banco de Dados.
+
+36. Entao, tenho que vir, aqui, 
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/beerstore
+spring.datasource.username=beerstore
+spring.datasource.password=beerstore
+
+37. Sao aqueles valores que a gente configurou la no docker.
+
+38. Se voce quer saber se o seu docker esta no ar, eh so rodar o comando,
+
+> docker ps
+
+CONTAINER ID        IMAGE                  COMMAND                  CREATED             STATUS              PORTS                    NAMES                                                                         870a489a2adc        postgres:11.2-alpine   "docker-entrypoint.s…"   25 hours ago        Up 25 hours         0.0.0.0:5432->5432/tcp   beerdb  
+
+39. Ele esta aqui, oh, o beerdb
+
+40. Vamos imaginar que, nesse periodo, ai, voce tivesse parado ele.
+
+41. Vamos la, deixa eu te explicar.
+
+42. Vamos supor que voce parou a sua maquina, desligou alguma coisa, assim.
+
+43. Eu vou rodar o comando: docker stop, e o nome, aqui, oh, beerdb, 
+
+> docker stop beerdb
+
+44. Ai, ele vai parar o postgres.
+
+C:\Users\SEMPR>docker stop beerdb                                                                                beerdb  
+
+45. Vai demorar, ai, alguns segundinhos, e ja vai conseguir parar.
+
+46. Eu acho que eu estou conectado, nele, aqui, nao tem problema.
+
+47. Parou. Rodar o comando docker ps,
+
+> docker ps
+
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES  
+
+
+, oh, nao tem ninguem no ar.
+
+48. Rodar o comando,
+
+> docker ps -a
+
+, para ele mostrar todos os Containers que eu tenho,
+
+C:\Users\SEMPR>docker ps -a                                                                                                                                                                                        CONTAINER ID        IMAGE                  COMMAND                  CREATED             STATUS                     PORTS               NAMES                                                                       870a489a2adc        postgres:11.2-alpine   "docker-entrypoint.s…"   25 hours ago        Exited (0) 3 minutes ago                       beerdb  
+
+49. No caso, aqui, oh, eu apaguei tudo antes de comecar a gravar. Entao, so tem 1 Container, que eh o beerdb.
+
+50. Entao, para eu iniciar esse Container, eh docker start, e o nome do Container,
+
+> docker start beerdb
+
+C:\Users\SEMPR>docker start beerdb                                                                               beerdb   
+
+51. Okay?
+
+52. Ai, agora, eh so esperar ele subir, oh. Subiu, esta terminando de subir o Servico. Rodar docker ps,
+
+> docker ps
+
+C:\Users\SEMPR>docker ps                                                                                                                                                                                           CONTAINER ID        IMAGE                  COMMAND                  CREATED             STATUS              PORTS                    NAMES                                                                         870a489a2adc        postgres:11.2-alpine   "docker-entrypoint.s…"   25 hours ago        Up 58 seconds       0.0.0.0:5432->5432/tcp   beerdb
+
+, a gente ja vai ver que ele esta no ar a 58 segundos,
+
+STATUS
+
+Up 58 seconds
+
+53. Okay? Oh, aqui, eh diferente, oh, ele esta no ar a 58 segundos, mas ele foi criado ha 25 horas atras, eu gravei a ultima aula que a gente mexeu ontem, nao foi hoje.
+
+54. Okay? Entao, por isso que aparece dessa forma, aqui,
+
+        CREATED                     STATUS
+        26 hours ago                Up 58 seconds
+
+55. Entao, o Postgres esta no ar, vamos voltar, aqui, o IntelliJ, e vamos continuar as configuracoes.
+
+55. Ah, uma coisa importante.
+
+56. Eu mexi, aqui, em dependencias, nao eh?, em build.gradle,
+
+...
+dependencies {
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    ...
+}
+
+, ou seja, se eu mexi em dependencias, vamos parar a aplicacao, para subir novamente, porque, se voce nao fizer isso, o Dev-Tools nao consegue entender bem, quando a gente mexe em dependencias.
+
+57. Okay?
+
+58. Essa eh a configuracao do Spring Data JPA, eh o minimo que a gente precisa.
+
+59. Vamos subir a Aplicacao?
+
+60. So para a gente ver se vai dar algum erro, se vai funcionar, e, na proxima aula, a gente comeca a implementacao do Cadastro.
+
+61. Vamos ver, aqui.
+
+62. Lembre-se do Banco estar de pe, senao, ele vai dar erro de Conexao.
+
+63. Okay?
+
+64. Opa, deu um erro, aqui.
+
+65. Ah, mas esse erro, aqui, eh um erro esperado.
+
+66. Ja viu aquelas pessoas que falam assim, 'Eh um erro normal...', nao existe erro normal, nao eh?
+
+67. Vamos la, vamos resolver isso, daqui.
+
+68. Mas, na verdade, isso nao eh um erro. Olha so, ele loga como INFO. Na verdade, ele da so uma mensagem, aqui, para falar que esse createClob() nao esta implementado ainda, no Driver, aqui, que a gente esta usando,
+
+Caused by: java.sql.SQLFeatureNotSupportedException: Método org.postgresql.jdbc.PgConnection.createClob() ainda não foi implementado, ele ainda nao foi implementado.
+
+69. Entao, para a gente desabilitar essa mensagem, vamos adicionar essas propriedades, aqui, no application.properties,
+
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=false
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+
+70. Isso, daqui, vai desabilitar essa verificacao, aqui, do createClob(), porque a gente nao vai fazer isso no nosso Projeto,
+
+Caused by: java.sql.SQLFeatureNotSupportedException: Método org.postgresql.jdbc.PgConnection.createClob() ainda não foi implementado, ele ainda nao foi implementado.
+
+71. Entao, a gente nao precisa ficar vendo essa mensagem, aqui, assustando a gente, nao eh?, falar que essa excecao eh uma excecao normal, nao eh?
+
+72. Vamos evitar falar isso, okay?
+
+73. Entao, a gente adiciona isso, desabilitando, essa verificacao,
+
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=false
+
+, e, ai, eu preciso forcar, aqui, o Dialeto do Postgres,
+
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+
+, apesar de a gente estar usando o 11.2, o Dialeto ultimo que tem eh o 9, okay?
+
+74. Pronto, posso parar e iniciar de novo.
+
+75. Eu imagino que a gente ja nao va ver esse erro, novamente.
+
+76. Vamos dar uma olhada.
+
+77. E, ai, depois, quando ele acabar de subir, aqui, vamos pegar essa outra configuracao, para a gente adicionar, aqui, no application.properties.
+
+78. Oh, agora, startou, sem nenhum Erro Normal, nao eh?
+
+79. E vamos adicionar essas ultimas propriedades, aqui, do Hibernate, para, quando a gente estiver subindo a Aplicacao, ele ja criar as tabelas, no banco de dados,
+
+spring.jpa.hibernate.ddl-auto=update
+
+, baseado no modelo que a gente, ainda, vai criar, mostrar o sql e mostrar o sql formatado,
+
+spring.jpa.properties.hibernate.show_sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+80. Okay?
+
+81. Entao, eh isso, daqui, para esta aula. Vou parar, aqui, subir mais uma vez, so para garantir, aqui, que esta tudo certo com esse codigo. E, na proxima aula, a gente faz a implementacao do Cadastro.
+
+82. Okay? Vamos so ver, nao se esqueca que o Banco de Dados tem que estar de pe.
+
+83. Ele subiu, e ele ja configurou, oh, ele ja inicializou o EntityManagerFactory do JPA, entao, a gente ja consegue conectar no Banco de Dados.
+
+84. Fim da     Aula 03.004. Configurando o Spring Data JPA.
+
+-->

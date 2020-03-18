@@ -1,0 +1,229 @@
+<!-- 
+
+Aula 05.004. Instalando e Configurando o AWS CLI
+
+
+
+1. Agora, a gente precisa instalar o AWS CLI, CLI, nao eh?, que eh a Interface de Linha de Comando, da AWS.
+
+
+
+2. Por que?
+
+
+
+3. Porque o Terraform usa o AWS CLI, para chegar na AWS, e poder provisionar os Recursos. Okay?
+
+
+
+4. Entao, por isso que a gente precisa instalar.
+
+
+
+5. Entao, voce pode vir, aqui, no site da AWS, https://aws.amazon.com/pt/cli, tem versao para Windows, para o Mac e para o Linux, voce precisa do Python instalado, com o pip. E, ai, eh so dar um,
+
+
+
+> pip install awscli
+
+
+
+6. Okay?
+
+
+
+7. Mas, tambem, se voce esta no Mac, voce pode usar o,
+
+
+
+> brew search awscli
+
+
+
+8. Por exemplo, voce vai ver que ele vai encontrar.
+
+
+
+9. Entao, seria dar um,
+
+
+
+> brew install awscli
+
+
+
+, que daria certo.
+
+
+
+10. Nas versoes que usam apt get, tambem eu sei que tem a possibilidade de voce instalar o AWS CLI por aptget, okay?
+
+
+
+11. Bom, tem varias formas de voce poder instalar. Aqui, no site https://aws.amazon.com/pt/cli, voce pode encontrar a forma que ele fala para voce instalar, ou seguir algumas dessas outras coisas, usando o brew, ou usando apt get.
+
+
+
+12. Beleza?
+
+
+
+13. O importante eh que voce instale.
+
+
+
+14. Depois de instalar, voce vai, no prompt de comando, > aws configure --profile, e vamos setar como terraform,
+
+
+
+> aws configure --profile terraform
+
+
+
+15. O que que eh isso?
+
+
+
+16. Isso daqui, oh, vai ser util para a gente poder configurar as credenciais dentro do AWS CLI, para, depois, o Terraform usar.
+
+
+
+17. Entao, eu vou mostrar, aqui, as minhas credenciais, ele esta aqui dentro de /Downloads/credentials.csv
+
+
+
+> cat Downloads/credentials.csv
+
+
+
+18. Okay? Entao, foram essas, aqui, do Usuario terraform que eu criei,
+
+
+
+User name,Password,Access key ID,Secret access key,Console login link
+
+terraform,,AKIAVSAE2XPDDXGIZQOF,bPX9TsIr3Gf/ohP5aAIDcSLbfg5t0nhFicVCYOuf,https://382262229958.signin.aws.amazon.com/console
+
+
+
+19. Entao, eu vou fazer agora,
+
+
+
+> aws configure --profile terraform
+
+
+
+20. Ai, ele vai me pedir, agora, o Access Key ID, eh esse primeiro aqui, oh,
+
+
+
+terraform,, >>> AKIAVSAE2XPDDXGIZQOF <<< ,bPX9TsIr3Gf/ohP5aAIDcSLbfg5t0nhFicVCYOuf,https://382262229958.signin.aws.amazon.com/console
+
+
+
+, cuidado, aqui, para nao pegar virgula,
+
+
+
+> AWS Access Key ID [None]: AKIAVSAE2XPDDXGIZQOF
+
+
+
+21. Okay?
+
+
+
+22. Coloquei aqui. Agora, ele vai pedir o Secret Access Key.
+
+
+
+23. Eh esse daqui,
+
+
+
+terraform,,AKIAVSAE2XPDDXGIZQOF, >>> bPX9TsIr3Gf/ohP5aAIDcSLbfg5t0nhFicVCYOuf <<<,https://382262229958.signin.aws.amazon.com/console
+
+
+
+, cuidado para nao pegar a virgula de novo,
+
+
+
+> AWS Secret Access Key [None]: bPX9TsIr3Gf/ohP5aAIDcSLbfg5t0nhFicVCYOuf
+
+
+
+24. Okay, configurei.
+
+
+
+25. Vai perguntar: Qual que eh a Regiao default que voce quer que esse Profile use?
+
+
+
+26. Eu vou deixar us-east-1, que eh a mais barata, nao eh?, que eh o norte da Virginia.
+
+
+
+27. E qual que eh o formato default que voce quer que ele mostre?
+
+
+
+28. Eu vou colocar text, para ele mostrar em formato de texto,
+
+
+
+> Default output format [None]: text
+
+
+
+29. Quando voce faz isso, ele cria, dentro, aqui, do /home do seu usuario, em um diretorio .aws/credentials, .aws, porque eh um diretorio oculto, no arquivo chamado credentials, olha so, 
+
+
+
+[terraform]
+
+aws_access_key_id = AKIAVSAE2XPDDXGIZQOF
+
+aws_secret_access_key = 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
+
+
+
+, ai, aqui, vai aparecer o Access Key e o Secret Access Key, debaixo do profile "terraform",
+
+
+
+>>> [terraform]
+
+aws_access_key_id = AKIAVSAE2XPDDXGIZQOF
+
+aws_secret_access_key = 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
+
+
+
+30. Se voce nao colocar o profile, aqui, terraform,
+
+
+
+> aws configure --profile terraform
+
+
+
+, ele vai configurar como sendo default, ou seja, se voce nao informar qual eh o profile, ele vai procurar o default. Se voce nao informar, ele vai dar erro, falando que nao encontrou nenhum perfil default.
+
+
+
+31. Okay?
+
+
+
+32. Entao, configure, instale o AWS CLI, e, depois, configure o Profile do Terraform, que a gente vai usar quando a gente comecar a criar os nossos arquivos do Terraform.
+
+
+
+33. Fim da Aula 05.004. Instalando e Configurando o AWS CLI.
+
+
+
+-->​

@@ -1,0 +1,719 @@
+<!--
+    Aula 03.010. Usando o ControllerAdvice para tratar argumentos invalidos
+
+1. Vamos fazer, entao, o tratamento do argumento invalido, esse tipo de situacao, aqui, nao eh?
+
+{
+
+    "volume": "250"
+
+}
+
+2. Eu nao passei os argumentos, entao, os argumentos estao invalidos, vamos la.
+
+3. Para isso, a gente vai criar uma classe, aqui, dentro do pacote error, mesmo, vamos chamar essa classe, aqui, de ApiExceptionHandler.
+
+4. Okay?, ApiExceptionHandler, dentro do pacote error, ta certo?
+
+package com.hibicode.beerstore.error;
+
+public class ApiExceptionHandler {
+
+}
+
+5. Okay.
+
+6. Quais vao ser as anotacoes que a gente vai colocar aqui, oh?
+
+7. A primeira eh a @RestControllerAdvice, do pacote org.springframework.web.bind.annotation.RestControllerAdvice.
+
+package com.hibicode.beerstore.error;
+
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+public class ApiExceptionHandler {
+
+}
+
+8. ControllerAdvice eh um cara do Spring bem famoso.
+
+9. Com ele, voce consegue interceptar as excecoes lancadas pela Aplicacao num local Centralizado, que vai ser nesta classe.
+
+10. Entao, essa eh a ideia do ControllerAdvice, de a gente poder capturar as excecoes em um local unico, para deixar o nosso codigo mais facil de ler, nao eh?, mais facil de dar manutencao.
+
+11. Voce nao precisa colocar try/catch em todo Controlador, em todo lugar que lanca excecao, voce faz isso num lugar centralizado.
+
+12. Okay?
+
+13. E o Rest, aqui, na frente,
+
+@RestControllerAdvice
+public class ApiExceptionHandler {
+
+}
+
+, eh porque eh para uma API Rest, e, ai, ele facilita algumas coisinhas pra gente, na hora de retornar os objetos, pra evitar algumas anotacoes que a gente precisaria colocar.
+
+14. Okay? Bem, isso eh a parte bem simples dele, aqui. Vamos colocar esse ApiExceptionHandler, ele precisa ter acesso a esse arquivo, api_errors.properties.
+
+15. So que ele nao tem acesso direto a esse arquivo. Ele vai ter acesso atraves da configuracao do MessageSource, com a classe ApiErrorConfig.
+
+16. Ai, eu vou injetar esse atributo, aqui, 
+
+@RestControllerAdvice
+public class ApiExceptionHandler {
+
+    private final MessageSource 
+}
+
+, final, porque, depois que ele criou, nao precisa mudar. Eu vou injetar pelo construtor.
+
+17. E, ai, eu vou colocar so um "m", aqui,
+
+@RestControllerAdvice
+public class ApiExceptionHandler {
+
+    private final MessageSource m;
+}
+
+18. Eu injetar ele, aqui, pelo Construtor. Entao, @RequiredArgsConstructor, do lombok, beleza,
+
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class ApiExceptionHandler {
+
+    private final MessageSource m;
+}
+
+19. So que, ai, se eu fizer dessa forma, aqui, o nome do objeto, aqui,
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.MessageSource;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class ApiExceptionHandler {
+
+    private final MessageSource >>> m <<<;
+}
+
+, precisa ser, exatamente, o nome desse Bean que foi criado, ali, na classe de configuracao, ou seja, apiErrorMessageSource(),
+
+package com.hibicode.beerstore.config;
+
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ApiErrorConfig {
+
+    public MessageSource >>> apiErrorMessageSource() <<< {
+
+        ...
+        return messageSource;
+    }
+
+}
+
+20. Sendo assim,
+
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class ApiExceptionHandler {
+
+    private MessageSource apiErrorMessageSource;    
+}
+
+21. Beleza? Entao, coloca o mesmo nome, aqui, e eu vou conseguir injetar pelo construtor, ou seja, atraves da anotacao @RequiredArgsConstructor, assim, dessa forma, mais simples.
+
+22. Okay?
+
+23. Bom, vamos la.
+
+24. Vamos continuar aqui.
+
+25. Agora, eu ja estou com o cara que consegue capturar as excecoes centralizadas. Qual excecao que eu quero capturar?
+
+26. Ai, agora, comeca a nossa implementacao. Vamos la.
+
+27. Para eu capturar uma excecao, eu tenho a anotacao @ExceptionHandler, do pacote org.springframework.web.bind.annotation, e eu falo, aqui, qual que eh a excecao que eu quero capturar. E esse tipo de excecao lancada, ali, eh o MethodArgumentNotValidException, do pacote org.springframework.web.bind, essa aqui, mesmo. Entao, eu vou colocar isso, para um metodo que vai retornar um ResponseEntity, do pacote org.springframework.http, de ErrorResponse, que a gente ja criou,
+
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class ApiErrorConfig {
+
+    private final MessageSource apiErrorMessageSource;
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> 
+}
+
+28. Isso, aqui, eh para ele retornar um Json, aqui, dessa forma, aqui,
+
+{
+  "status_code": 400,
+  "reason_phrase": "Bad Request",
+  "errors": [
+      {"code": "geeks-2", "message": "The first_name is mandatory"},
+      {"code": "geeks-3", "message": "The last_name is mandatory"}
+  ]
+}
+
+29. Okay?
+
+30. Entao, vamos la. Ele vai retornar um ErrorResponse, e, aqui, a gente pode dar o nome que a gente quiser. Eu costumo colocar sempre como handle(), e, ai, eu falo o restante, aqui, oh, handle(), e o nome da Excecao, normalmente, ou eu simplifico, aqui, por exemplo, para MethodArgumentNotValidException, fica handleNotValidException(), por exemplo. E o que que esse metodo vai receber? Vai receber a excecao, ou seja, MethodArgumentNotValidException exception, e vamos receber, tambem, o Locale locale, do pacote java.util,
+
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class ApiExceptionHandler {
+    
+    private final MessageSource apiErrorMessageSource;
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+
+    }
+}
+
+31. Por que que a gente vai receber o Locale, aqui?
+
+32. Se voce quiser, depois, nesse link, aqui, https://alidg.me/blog/2016/9/24/rest-api-error-handling, ele mostra, aqui, oh, que eh possivel voce, inclusive, traduzir as mensagens de erro.
+
+33. Entao, aqui, ele fez uma em ingles e, depois, em frances.
+
+34. Se voce passar o seguinte header: Accept-Language, ai, voce passar o valor fr-FR, por exemplo, ele vai conseguir traduzir, se voce tiver, aqui, no seu src/main/resources, o arquivo api_errors.properties, que traduza para o frances, por exemplo.
+
+35. Entao, teria que ter um arquivo, seria algo nesse sentido, aqui, oh, um novo arquivo, em src/main/resource, chamado de api_errors_fr-FR.properties. Ai, voce vai la e coloca na outra lingua que voce queira, okay? No caso, aqui, em frances.
+
+36. Beleza?
+
+37. Se quiser colocar em portugues, pt-BR, por ai vai.
+
+38. Combinado? Por isso que ja vou deixar, aqui, o Locale, pronto, se voce quiser usar isso depois.
+
+39. Bom, vamos la, a gente esta com o metodo pronto, para se implementado, mas vamos por partes, vamos devagarzinho.
+
+40. A gente precisa criar o ApiError,
+
+{
+  "status_code": 400,
+  "reason_phrase": "Bad Request",
+  >>> "errors": [
+      {"code": "geeks-2", "message": "The first_name is mandatory"},
+      {"code": "geeks-3", "message": "The last_name is mandatory"}
+  ]
+}
+
+41. Entao, vamos criar o metodo que cria esse ApiError, aqui, que a gente vai precisar dele, ali, dentro.
+
+42. Entao, eu vou criar ele, aqui, como private ErrorResponse.ApiError, aqui, ele esta importando, la, dentro de ErrorResponse, e, ai, a gente pode fazer o import diferente, aqui, se a gente quiser, oh, vamos importar assim, oh, import com.hibicode.beerstore.error.ErrorResponse.ApiError;, ai, a gente simplifica, aqui, 
+
+import com.hibicode.beerstore.error.ErrorResponse.ApiError;
+
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class ApiExceptionHandler {
+    
+    private final MessageSource apiErrorMessageSource;
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+
+    }
+
+    private ApiError toApiError()
+
+
+}
+
+, ele recebe o codigo, nao eh verdade, oh, 
+
+{
+  "status_code": 400,
+  "reason_phrase": "Bad Request",
+  "errors": [
+      {>>> "code": "geeks-2", "message": "The first_name is mandatory"},
+      {"code": "geeks-3", "message": "The last_name is mandatory"}
+  ]
+}
+
+, ele recebe o codigo, e a mensagem,
+
+    private ApiError toApiError(String code, )
+
+, e, se a gente olhar la dentro, oh, em ErrorResponse,
+
+    @JsonAutoDetect(fieldVisibility = ANY)
+    @RequiredArgsConstructor
+    static class ApiError {
+        private final String code;
+        private final String message;
+    }
+
+, eu preciso do codigo e da mensagem. Entao,
+
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class ApiExceptionHandler {
+    
+    private final MessageSource apiErrorMessageSource;
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+
+    }
+
+    private ApiError toApiError(String code, String message) {
+
+    }
+
+
+} 
+
+43. Esse camarada, aqui, toApiError(), o que que ele vai fazer?
+
+44. Ele vai pegar do apiErrorMessageSource a mensagem baseada no codigo para montar esse objeto.
+
+45. Entao, o que que eu posso fazer, oh?
+
+    private ApiError toApiError(String code, String message) {
+        String message = this.apiErrorMessageSource.getMessage()
+    }
+
+, passando o codigo, passando null, e o locale. Ele nao tem nenhum argumento, null, aqui, eh de um argumento. Faltou receber, aqui, o locale,
+
+    private ApiError toApiError(String code, String message, Locale locale) {
+        String message = this.apiErrorMessageSource.getMessage(code, null, locale);
+
+
+    }
+
+46. Entao, eh porque ele nao tem nenhum argumento,
+
+    private ApiError toApiError(String code, String message, Locale locale) {
+        String message = this.apiErrorMessageSource.getMessage(code, >>> null, locale);
+
+
+    }
+
+, a gente ainda vai implementar algo relacionado a argumento, aqui.
+
+47. Okay? Bem, aqui, eu nao recebo uma mensagem, eu recupero a partir do codigo, entao, toApiError() so recebe o codigo e o Locale,
+
+    private ApiError toApiError(String code, Locale locale) {
+        String message = this.apiErrorMessageSource.getMessage(code, null, locale);
+
+
+    }
+
+48. Bom, eu tenho uma mensagem. Mas, e se essa mensagem nao existir?
+
+49. Se eu passar um codigo, aqui, 
+
+    private ApiError toApiError(String >>> code, Locale locale) {
+        String message = this.apiErrorMessageSource.getMessage(code, null, locale);
+
+
+    }
+
+, como eu fiz, aqui, oh, de proposito, para a gente ver isso, em api_errors.properties,
+
+beers-1=Name is mandatory and cannot be blank.
+
+
+, e se eu nao cadastrar todas as mensagens?
+
+50. Pode acontecer.
+
+51. Esse metodo, toApiError(), vai lancar uma excecao.
+
+52. Entao, para a gente ja se preparar nisso, eu posso colocar, aqui, um try/catch, capturando NoSuchMessageException, do pacote org.springframework.context, e, aqui, eu posso colocar isso em uma mensagem padrao,
+
+    private ApiError toApiError(String code, Locale locale) {
+        String message;
+        try {
+            message = this.apiErrorMessageSource.getMessage(code, null, locale);
+        } catch(NoSuchMessageException e) {
+            message = 
+        }   
+        return
+    }
+
+53. Dentro do catch(), vamos colocar como uma constante, aqui, em cima, oh, private static final String NO_MESSAGE_AVAILABLE = "No message available.";, para a gente mostrar para o usuario que nao tem nenhuma mensagem padrao disponivel,
+
+    private ApiError toApiError(String code, Locale locale) {
+        String message;
+        try {
+            message = this.apiErrorMessageSource.getMessage(code, null, locale);
+        } catch(NoSuchMessageException e) {
+            message = NO_MESSAGE_AVAILABLE;
+        }   
+        return
+    }
+
+54. E outra coisa, se isso acontecer, vamos logar um erro, tambem. Vamos criar, aqui, um outro atributo, para a gente poder logar, private static final Logger, do pacote org.slf4j, private static final Logger LOG = LoggerFactory.getLogger(ApiErrorHandler.class), para a gente saber, oh, que foi logado, nessa classe, algum erro,
+
+...
+
+import 
+
+...
+
+    private static final Logger LOG = LoggerFactory.getLogger(ApiErrorHandler.class);
+
+...
+
+
+    private ApiError toApiError(String code, Locale locale) {
+        String message;
+        try {
+            message = this.apiErrorMessageSource.getMessage(code, null, locale);
+        } catch(NoSuchMessageException e) {
+            message = NO_MESSAGE_AVAILABLE;
+        }   
+        return
+    } 
+
+55. E, ja deixando, ai, uma dica, 
+
+    private ApiError toApiError(String code, Locale locale) {
+        String message;
+        try {
+            message = this.apiErrorMessageSource.getMessage(code, null, locale);
+        } catch(NoSuchMessageException e) {
+            LOG.error("Could not find any message for {} code under {} locale", code, locale);
+            message = NO_MESSAGE_AVAILABLE;
+        }   
+        return
+    }
+
+, pronto, ele vai conseguir substituir, ai, para a gente, em LOG.error("Could not find any message for {} code under {} locale", code, locale);
+
+56. Uma dica que eu quero deixar, eh sobre esse LOG, aqui, oh,
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
+57. Onde voce deve logar em um try/catch, num catch(), principalmente?
+
+58. Somente no ultimo local, antes de ser retornado para o usuario. Okay?
+
+59. Se voce ficar fazendo isso, daqui, em todo lugar na sua aplicacao, se der um erro, vai ter um monte de log de erros para voce olhar. E, na verdade, pode ter sido em um unico local so.
+
+60. Entao, logar erro, somente no ultimo local, possivel.
+
+61. Okay?
+
+62. Isso, ai, fica como uma dica.
+
+63. Bom, aqui, agora, eu ja posso retornar, agora, um ApiError, passando o codigo, e a mensagem que ja foram criados,
+
+    private ApiError toApiError(String code, Locale locale) {
+        String message;
+        try {
+            message = this.apiErrorMessageSource.getMessage(code, null, locale);
+        } catch(NoSuchMessageException e) {
+            LOG.error("Could not find any message for {} code under {} locale", code, locale);
+            message = NO_MESSAGE_AVAILABLE;
+        }   
+        return new ApiError(code, message);
+    } 
+
+64. Okay? Agora, a gente pode voltar, para ca, 
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+    
+        
+    }
+
+, e continuar a nossa implementacao.
+
+65. Bom, eu vou pegar, aqui, da excecao, se eu pegar, aqui, de getBindResult(), eu pego os resultados do que aconteceram, ali, dessa requisicao que acabou de chegar, e eu vou pegar todos os erros, getAllErrors(), mas, ele me retorna uma Lista, eu vou pegar, atraves de um stream(), por que? Porque, ai, no stream, eu acho que vai ficar mais fluido, aqui, o codigo que a gente vai implementar, agora,
+
+    @ExceptionHandler(MethodArgumentNotValidException.class) 
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+        Stream stream = exception.getBindingResult().getAllErrors().stream();    
+    }
+
+66. Entao, eu vou pegar uma Stream de ObjectError, do pacote org.springframework.validation,
+
+    @ExceptionHandler(MethodArgumentNotValidException.class) 
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+        Stream<ObjectError> errors = exception.getBindingResult().getAllErrors().stream();
+    }
+
+67. Entao, tem essa Stream, aqui.
+
+68. Entao, agora, eu posso montar uma Lista de ApiErrors, para, depois, a gente construir o nosso ErrorResponse.
+
+69. Okay?
+
+70. Entao, eu vou precisar criar, aqui, oh, uma Lista, de ApiError,
+
+    @ExceptionHandler(MethodArgumentNotValidException.class) 
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+        Stream<ObjectError> errors = exception.getBindingResult().getAllErrors().stream();
+
+        List<ApiError> 
+    }    
+
+, so para lembrar, aqui, oh, uma Lista de ApiError, eh exatamente isso daqui, que eu vou criar,
+
+{
+  "status_code": 400,
+  "reason_phrase": "Bad Request",
+  >>> "errors": [
+  >>>    {"code": "geeks-2", "message": "The first_name is mandatory"},
+  >>>    {"code": "geeks-3", "message": "The last_name is mandatory"}
+  >>> ]
+}
+
+71. 
+
+    @ExceptionHandler(MethodArgumentNotValidException.class) 
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+        Stream<ObjectError> errors = exception.getBindingResult().getAllErrors().stream();
+
+        List<ApiError> apiErrors
+    }
+
+, List<ApiError> apiErrors, vai ser, entao, do errors.map(ObjectError), eu quero pegar a defaultMessage, entao, errors.map(ObjectError:getDefaultMessage), que eh quem, vamos abrir a classe Beer, defaultMessage eh esse valor, aqui,
+
+        @NotBlank(message = ">>> beers-1 <<< ")
+        private String name;
+
+, okay, 
+
+    @ExceptionHandler(MethodArgumentNotValidException.class) 
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+        Stream<ObjectError> errors = exception.getBindingResult().getAllErrors().stream();
+
+        List<ApiError> apiErrors = errors
+                .map(ObjectError::getDefaultMessage)
+
+    }
+
+, List<ApiError> apiErrors = errors.map(ObjectError::getDefaultMessage), .map(), vamos fazer o mapeamento dessa mensagem, entao, pegar a entrada, aqui, code -> this.toApiError(), entao, eu vou passar o code e o locale, code -> this.toApiError(code),
+
+
+    @ExceptionHandler(MethodArgumentNotValidException.class) 
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+        Stream<ObjectError> errors = exception.getBindingResult().getAllErrors().stream();
+
+        List<ApiError> apiErrors = errors
+                .map(ObjectError::getDefaultMessage)
+                .map(code -> this.toApiError(code, locale))
+
+    }
+
+, entao, esse code eh o defaultMessage, que esta aqui, que eh aquele codigo de erro, eu passo, aqui, para o toApiError, para criar um ApiError, certo? E, agora, eu posso fazer um Collectors.toList(), e, aqui, tambem, eh outro cara que eu gosto de implementar estatico,
+
+import static java.util.stream.Collectors.toList;
+
+...
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+        Stream<ObjectError> errors = exception.getBindingResult().getAllErrors().stream();
+
+        List<ApiError> apiErrors = errors
+                .map(ObjectError::getDefaultMessage)
+                .map(code -> this.toApiError(code, locale))
+                .collect(toList());
+
+    }
+
+72. Entao, agora, tem uma lista de ApiErrors. Eu posso, finalmente, retornar um ResponseEntity.badRequest(), importante, o codigo de erro, aqui, sempre, o melhor eh retornar um badRequest(), ResponseEntity.badRequest().body(), e, no corpo, o que que eu vou colocar no corpo? Um ErrorResponse, que a gente vai criar, aqui, agora. ErrorResponse errorResponse = ErrorResponse.of(), o primeiro parametro dele eh o HttpStatus.BAD_REQUEST, e a lista de apiErrors, 
+
+@ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidException exception, Locale locale) {
+        
+        Stream<ObjectError> errors = exception.getBindingResult().getAllErrors().stream();
+
+        List<ApiError> apiErrors = errors
+                .map(ObjectError::getDefaultMessage)
+                .map(code -> this.toApiError(code, locale))
+                .collect(toList());
+        ErrorResponse errorResponse = ErrorResponse.of(HttpStatus.BAD_REQUEST, apiErrors);
+        return ResponseEntity.badRequest().body(errorResponse);
+
+    }
+
+    
+73. Todos os erros a gente vai passar para mostrar, aqui,
+
+{
+  "status_code": 400,
+  "reason_phrase": "Bad Request",
+  >>> "errors": [
+  >>>    {"code": "geeks-2", "message": "The first_name is mandatory"},
+  >>>    {"code": "geeks-3", "message": "The last_name is mandatory"}
+  >>> ]
+}
+
+74. Entao, eu estou com isso, oh,
+
+{
+  >>> "status_code": 400,
+  >>> "reason_phrase": "Bad Request",
+  "errors": [
+      {"code": "geeks-2", "message": "The first_name is mandatory"},
+      {"code": "geeks-3", "message": "The last_name is mandatory"}
+  ]
+}
+
+, se eu quisesse colocar o reason_phrase, tava facil, nao eh?, pega, aqui, do HttpStatus.BAD_REQUEST, e pega a mensagem la, eu vou deixar um pouco mais simples.
+
+75. Beleza?
+
+76. Bom, eu acho que esta pronto, a chance de dar errado eh meio grande, nao eh?, mas vamos la. 
+
+77. Vamos la, apesar de eu ter olhado a minha cola, aqui, para errar menos possivel. 
+
+78. Subindo a Aplicacao. Okay, startou, sem nenhum problema, ali.
+
+79. Vamos limpar os logs, para a gente executar, aqui, o teste, no Postman,
+
+{
+	"volume": "250"
+}
+
+80. Vamos ver, clicar em Send, no Postman.
+
+81. Oh, funcionou,
+
+{
+    "statusCode": 400,
+    "errors": [
+        {
+            "code": "beers-1",
+            "message": "Name is mandatory and cannot be blank."
+        },
+        {
+            "code": "beers-2",
+            "message": "No message available."
+        }
+    ]
+}
+
+82. Funcinou em partes. Vamos la ver por que oh. Deu Status: Bad Request, okay, era o que eu queria, oh, statusCode: 400, quais sao os erros, retornou uma lista, olha la, com codigo beers-1, beers-2, mas a mensagem ele colocou No message available, porque ele nao conseguiu encontrar a mensagem.
+
+83. Vamos la ver, porque deve ter erro, aqui, oh.
+
+84. Realmente tem. Lembra, la, que a gente fez o Log do erro, aqui, oh, 
+
+2019-03-24 16:19:01.922 ERROR 2872 --- [nio-8080-exec-9] c.h.beerstore.error.ApiExceptionHandler  : Could not find any message for beers-2 code and pt_BR locale
+
+85. Could not find any message for beers-1 code under {} locale. Ah, porque eu nao passei o locale, aqui, oh,
+
+LOG.error("Could not find any message for {} code under {} locale", code, locale);
+
+86. Agora, sim.
+
+87. Vamos tentar descobrir por que.
+
+88. Oh, 'beers-1', a primeira coisa que eu vou buscar, eh ver se eu escrevi certo, em api_errors.properties, beers-1. Esta certo.
+
+89. Em ApiExceptionHandler,
+
+    private ApiError toApiError(String code, Locale locale) {
+        String message;
+        try {
+            message = this.apiErrorMessageSource.getMessage(code, null, locale);
+        }
+
+        ...
+    }
+
+, o que que ele nao pegou? Ele injetou aqui, se ele nao tivesse injetado, ja tinha dado um NullPointerException.
+
+90. Por que que ele ainda nao encontrou? Vamos continuar pensando. 
+
+91. Descobri o problema, olha so, agora, aqui, no Postman, esta aparecendo a mensagem, 
+
+{
+    "statusCode": 400,
+    "errors": [
+        {
+            "code": "beers-1",
+            "message": "Name is mandatory and cannot be blank."
+        },
+        {
+            "code": "beers-2",
+            "message": "No message available."
+        }
+    ]
+}
+
+, "message": "Name is mandatory and cannot be blank". Na verdade, era so adicionar o @Bean, do pacote org.springframework.context.annotation, aqui, na classe ApiErrorConfig, no metodo apiErrorMessageSource().
+
+92. Bem, bem chato, isso, nao eh?
+
+93. Ficou faltando o @Bean, e, ai, ele nao conseguiu resolver o MessageSource corretamente.
+
+94. Entao, so para revisar o que que a gente fez nesta aula, a gente criou, entao, o ControllerAdivce, e a gente injetou, aqui, em ApiExceptionHanlder, o apiErrorMessageSource, que eh o cara que esta carregando esse arquivo, o api_errors.properties, e, ai, a gente capturou o MethodArgumentNotValidException, que eh a Excecao que eh lancada quando da um erro, quando da uma mensagem daquele tipo, e, ai, ah, como eh que voce descobre que eh essa mensagem, nao eh?
+
+95. Na documentacao, olhando o Log, la, na hora em que a excecao eh logada, vai aparecer isso para voce.
+
+96. Okay? Ai, o que que a gente fez?
+
+97. A gente recuperou todos os erros que foram capturados, aqui, nesse @ExceptionHandler, atraves de um Stream, e a gente fez o mapeamento e coletou os erros, transformando em uma ApiError, nao eh?, usando esse metodo, toApiError(), e, depois, criamos o ErrorResponse, e retornamos como um Bad Request,
+
+@ExceptionHandler(MethodArgumentNotValidExcepion.class)
+public ResponseEntity<ErrorResponse> handleNotValidException(MethodArgumentNotValidExcepion exception, Locale locale) {
+    Stream<ObjectError> errors = exception.getBindingResult().getAllErrors().stream();
+    List<ApiError> apiErrors = errors
+                .map(ObjectError::getDefaultMessage)
+                .map(code -> toApiError(code, locale))
+                .collect(Collectors.toList();
+    ErrorResponse errorResponse = ErrorResponse.of(HttpStatus.BAD_REQUEST, apiErrors);
+    return ResponseEntity.badRequest().body(errorResponse);
+}
+
+98. Okay? O Log, para mostrar, nao eh?,
+
+    private ApiError toApiErro(String code, Locale locale) {
+        String message;
+        try {
+            message = this.apiErrorMessageSource.getMessage(code, null, locale);
+        } catch (NoSuchMessageException e) {
+            >>> LOG.error("Could not find any message for {} code under {} locale", code, locale)
+            message = NO_MESSAGE_AVAILABLE;
+        }
+        return new ApiError(code, message);
+    }
+
+, quando nao tem, nao encontrou a mensagem, e, ai, a gente pode, ate, terminar de escrever, nao eh?, aqui, no nosso resource bundle, ou seja, api_errors.properties, o restante das mensages. Entao, a gente pode colocar beers-2=Type is mandatory, beers-3=Volume is mandatory., beers-4=Volume should be greater than zero.
+
+99. Se a gente so der um Build, aqui, sera que ele vai conseguir recarregar?
+
+100. Vamos testar, vamos voltar, aqui, no Postman.
+
+101. Sim,
+
+{
+    "statusCode": 400,
+    "errors": [
+        {
+            "code": "beers-1",
+            "message": "Name is mandatory and cannot be blank."
+        },
+        {
+            "code": "beers-2",
+            "message": "Type is mandatory."
+        }
+    ]
+}
+
+, Type is mandatory, Name is mandatory and cannot be blank.
+
+102. Fim da     Aula 03.010. Usando o ControllerAdvice para tratar argumentos invalidos.
+
+
+-->

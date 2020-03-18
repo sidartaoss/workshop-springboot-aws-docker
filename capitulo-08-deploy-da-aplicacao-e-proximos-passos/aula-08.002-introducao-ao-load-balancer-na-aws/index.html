@@ -1,0 +1,147 @@
+<!-- 
+
+Aula 08.002. Introducao ao Load Balancer na AWS
+
+
+
+1. Antes de a gente criar o Load Balancer, vamos so entender um pouquinho da teoria que existe, aqui, por tras, do Load Balancer, okay?
+
+
+
+2. Entao, ele fica, aqui, dentro de EC2, tem, aqui embaixo, oh, a parte de Load Balancers.
+
+
+
+3. Entao, se voce clicar, aqui, em Load Balancers, e clicar em Create Load Balancer, ele vai pedir para voce escolher o tipo de Load Balancer.
+
+
+
+4. Pode ser o Application Load Balancer, ou NetWork Load Balancer.
+
+
+
+5. O Classic Load Balancer eh mais antigo, nao eh recomendado mais voce usar.
+
+
+
+6. Entao, a gente escolhe um desses 2, aqui, Application ou o Network. O NetWork Load Balancer, ele trabalha em uma camada um pouco mais baixa, Level 4, enquanto o Application Load Balancer trabalha de Aplicacao, entao, HTTP, HTTPS. Entao, dependendo do que voce quer, voce vai escolher um ou outro.
+
+
+
+7. Esse daqui, ou seja, Network Load Balancer, vai ter mais performance.
+
+
+
+8. Porem, esse daqui, ou seja, Application Load Balancer, vai te dar mais possibilidade de criar regras. Entao, por exemplo, voce pode ter um Load Balancer para uma aplicacao web, onde /api encaminha para o Backend, enquanto o restante, nao sendo /api, encaminha para requisicoes de arquivos estaticos, se voce estiver criando uma aplicacao SPA, por exemplo, onde voce tem o index.html, os arquivos Javascript, imagens, CSS, essas coisas, voce encaminharia para um lugar, para um nginx, por exemplo, dentro da sua aplicacao, e, se for /api, eh para chamar dentro das instancias EC2, na sua Aplicacao Java. Assim, voce elimina qualquer problema de CORS que voce poderia ter, por exemplo.
+
+
+
+9. Okay?
+
+
+
+10. Entao, voce poderia escolher um desses 2, ai, para fazer, nao eh?, a forma de criar mudaria um pouquinho.
+
+
+
+11. Nos vamos para o Application Load Balancer, por ele ter essa possibilidade de a gente criar mais regras, e tal, eh um cara bastante utilizado tambem, okay?
+
+
+
+12. Bom, vamos, so, aqui, para a teoria, entao, do que que eh o Application Load Balancer? Entao, eles estao dentro do Elastic Load Balancer. E, ai, dentro do Elastic Load Balancer, tem o Application Load Balancer, e eu quero mostrar essa figura, aqui, porque a gente precisa entender esse conceito para a gente poder criar.
+
+
+
+13. Entao, a gente tem a criacao de um Load Balancer, entao, quando a gente estiver la, no Terraform, provisionando, a gente tem a criacao do Load Balancer, okay?
+
+
+
+14. Mas, 1 Load Balancer, ele eh composto por 1 Listener, ou 1 ou Mais Listeners, como voce esta vendo, aqui, na figura.
+
+
+
+15. Okay?
+
+
+
+16. E, nesse Listener, existe uma Regra, que voce pode criar. Entao, como eu estava dizendo, voce pode ter uma Regra, para enviar para algum grupo, para algumas Instancias EC2, ou para outras, dependendo da Regra que voce crie.
+
+
+
+17. Okay?
+
+
+
+18. Entao, entao, temos o Load Balancer, o Listener, com 1 Regra, e olha so, esse Listener, ele encaminha para um Target Group.
+
+
+
+19. Okay?
+
+
+
+20. Target Group. Eh muito importante voce lembrar desse nome, porque a gente vai criar um Target Group la no Terraform.
+
+
+
+21. Entao, a gente criar um Target Group, atraves de Health Checks, ele fica verificando se as Instancias estao sadias ou nao.
+
+
+
+22. Health, nao eh?, seria no sentido de saudaveis.
+
+
+
+23. Entao, vamos checar se elas estao saudaveis?
+
+
+
+24. Se nao estiverem, o Load Balancer tira ela da distribuicao, ali, do balanceamento de carga.
+
+
+
+25. Okay?
+
+
+
+26. Entao, eh isso que ele vai fazer.
+
+
+
+27. Entao, a gente vai criar um Load Balancer, criar um Listener, adicionar uma Regra para encaminhar para um Target Group, e, dentro desse Target Group, a gente configura quais as Instancias participam desse grupo?
+
+
+
+28. Okay?
+
+
+
+29. Bem, bem,..., bastante coisinha, aqui, nao eh?, bem complicado para criar um Load Balancer.
+
+
+
+30. Mas, eu vou ficar voltando, nessa figura, aqui, na hora em que a gente estiver la no Terraform.
+
+
+
+31. Beleza?
+
+
+
+32. Entao, eh isso, daqui, se voce quiser, depois, dar uma lida, aqui, nao eh?, mais detalhes do Load Balancer, fique a vontade, e recomendo tambem. Beleza?
+
+
+
+33. 
+
+
+
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html
+
+
+
+34. Fim da Aula 08.002. Introducao ao Load Balancer na AWS.
+
+
+
+-->​

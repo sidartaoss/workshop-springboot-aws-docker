@@ -1,0 +1,83 @@
+<!--
+    Aula 07.012. Criando Rede para Aplicacao.
+
+1. Uma outra tarefa que a gente vai fazer, aqui, agora, eh criar uma Rede, dentro do nosso Cluster, para que as aplicacoes possam conversar entre si.
+
+2. Como assim?
+
+3. A gente nem vai precisar usar, aqui, mas eu achei importante colocar essa Rede, porque isso pode ser comum no dia-a-dia, ai, do seu trabalho.
+
+4. Imagine. Voce tem duas aplicacoes, duas aplicacoes Java, la, e uma precisa conversar com a outra. E, ai, voce vai fazer essa comunicacao atraves dessa Rede Overlay, que a gente vai criar, aqui, agora.
+
+5. Entao, eh uma forma de todos os Containers estarem dentro de uma mesma rede para eles enxergarem entre si.
+
+6. Lembra que a gente fez, la, no inicio, quando a gente queria que o nosso Container com a Aplicacao Java enxergasse o Banco de Dados, que era um outro Container Postgres? A gente criou uma Rede para eles conversarem entre si. Entao, eh a mesma ideia. 
+
+7. Entao, aqui, so que, ai, o driver que a gente vai criar, aqui, na hora de criar, vai se chamar overlay, e a gente vai criar uma Sub-Rede totalmente diferente, para que a gente nao precise, nao tenha conflito de IP's e tal.
+
+8. Entao, a gente vai criar uma Rede totalmente diferente para essa Rede. Okay?, vai criar uma Sub-Rede totalmente diferente para essa Rede.
+
+9. Beleza?
+
+10. Entao, vamos la, vamos fazer essa inicializacao, aqui, no beerstore-playbook.yml, no manager-leader, mesmo. Entao, vamos la, "Create service overlay network", service porque eh a rede de servico entre os Containers, okay? Entao, qual eh o comando que a gente vai criar? docker network create --driver overlay --subnet 10.0.0.0/16, uma rede totalmente diferente, e o nome, que eu vou chamar de service,
+
+- name: Initialize Swarm Mode
+  hosts: manager-leader
+
+  ...
+
+  tasks:
+
+    ...
+
+    - name: Create service overlay network
+      command: docker network create --driver overlay --subnet 10.0.0.0/16 service
+
+11. Quando a gente criar a nossa aplicacao, a gente joga ela dentro dessa Rede service, okay?
+
+12. Entao, a gente nao vai usar, porque a gente nao tem mais de uma aplicacao dentro do nosso cluster. Mas, como eu disse, eu ja estou criando para voce ficar ciente de que, caso voce precise de um outro Container, ali dentro, para conversar com a sua Aplicacao, cria essa Rede e, na hora de subir as Aplicacoes, jogue dentro dessa Rede.
+
+13. A gente vai subir a nossa aplicacao dentro dessa Rede service, aqui, para voce ver como que faz isso, tambem.
+
+14. Okay?
+
+15. Para nao dar erro, para nao dar erro, aqui, vamos verificar o estado. Erro do que? Ah, vai que a gente esta executando de novo e essa rede ja foi criada, iria dar problema. Entao, docker network ls, ele iria mostrar todas as redes, aqui, entra mais um pouquinho de Linux, | grep service -c, ele vai procurar, ali, e, ai, eu vou fazer um outro grep, aqui, um pouquinho mais avancado, | { grep -v grep || true;  }, como eu disse, isso, aqui, faz parte de conhecer um pouquinho de Linux, okay?
+
+    - shell: "docker network ls | grep service -c | { grep -v grep || true; }"
+
+15. Entao, eu fiz so um grep, aqui, um pouco mais avancado, para ele me retornar 0 ou 1 se tem essa rede criada ou nao, com o nome service.
+
+16. Okay?
+
+17. Entao, vamos registrar isso, register, em overlay_network_created
+
+            - shell: "docker network ls | grep service -c | { grep -v grep || true; }"
+              register: overlay_network_created
+
+, entao, ele vai gerar, aqui, dentro, dessa variavel, e isso, daqui, a gente so executa quando stdout dessa variavel for 0, ou seja, nao encontrou,
+
+            - shell: "docker network ls | grep service -c | { grep -v grep || true; }"
+              register: overlay_network_created
+              when: overlay_network_created.stdout == "0"
+
+18. Se ele nao encontrou essa rede, esse comando retorna 0. Se encontrou, ele vai retornar algo diferente de zero, e, ai, a gente nao precisa executar essa criacao da rede.
+
+19. Okay?
+
+20. Vamos executar mais uma vez o Ansible, so para ver a criacao dessa rede, 
+
+ansible> ./run-ansible.sh
+
+21. Comando Linux para copiar folders: rsync -a /mnt/c/beerstore/aula07010/ansible /home/sempr/beerstore/aula07010/ansible
+
+22. Okay, ja vai chegar na parte, aqui, dos followers, e vai criar a rede, vamos ver se vai dar algum probleminha.
+
+23. Okay, criou a rede. A gente usou o manager-leader para criar a rede, mas, como a gente esta no Cluster, ele cria dentro do Cluster essa rede. Entao, nao eh so naquela maquina. Ou seja, essa rede ja esta criada em todo o Cluster.
+
+24. Okay?
+
+25. Bom, deu tudo certo aqui, beleza, nao deu nenhuma falha.
+
+26. Fim da     Aula 07.012. Criando Rede para Aplicacao.
+
+-->

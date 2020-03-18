@@ -1,0 +1,280 @@
+<!--
+    Aula 03.002. Rodando o Postgres no Docker
+
+1. Vamos rodar, agora, o Postgres, dentro de um Container Docker.
+
+2. E, ai, por que que eu vou fazer isso dessa forma?
+
+3. Primeiro, porque eu acho bem mais facil, voce rodar o Postgres dentro de um Docker, do que voce ter que instalar o Postgres.
+
+4. Nao eh?, instalar o Postgres da uma trabalheira grande, nao eh? Eu nunca lembro como funciona a questao do usuarios, e tal.
+
+5. Enfim, entao, eu acho mais facil.
+
+6. Segundo. O Docker resolve um probleminha, nao eh um problema, ele te da uma forma de resover um problema muito legal.
+
+7. Que eh o seguinte. Eu tive uma experiencia, uma vez, em uma empresa, que eu tinha dois projetos, na empresa, e um dos projetos usava o MySQL 5.6, e o outro usava o MySQL 5.7.
+
+8. E eu tinha, as vezes, assim, oh, eu trabalhava uma semana num Projeto, outra semana em outro, e, ai, imagina eu gerenciar a instalacao desses MySQL's, tinha que ficar gerenciando a instalacao disso.
+
+9. Ia ser bem complicado.
+
+10. Entao, eu fiz isso com Docker, e, nessa epoca, eu estava aprendendo a mexer com Docker, eu lembrei, assim, 'Poxa, olha que facil que ficou a minha vida, agora, nao eh?'. Eu consigo gerenciar essas versoes diferentes de Banco com simples comandos.
+
+11. E a gente vai fazer isso, aqui, agora. Ta okay? Entao, para a gente poder,..., deixa eu acessar aqui, oh, hub.docker.com.
+
+12. Para a gente poder baixar essa imagem, a gente precisa saber o nome da Imagem do Docker.
+
+13. Entao, a partir da Imagem, a gente cria o Container, nao eh?
+
+14. Entao, eu preciso descobrir essa Imagem.
+
+15. Entao, se eu vier, aqui, no hub.docker.com, pesquisar, aqui, postgres, eu vou achar a imagem oficial, aqui, do postgres.
+
+16. Okay?
+
+17. E, ai, eu consigo ver quais sao as versoes que eu tenho disponiveis para eu poder baixar.
+
+18. Okay?
+
+19. E, a ultima versao que eu tenho, aqui, oh, eh a 11.2-alpine. Esse alpine eh um Linux mais leve, menorzinho. Ele vem com quase nada instalado dentro dele. Entao, a imagem do alpine eh bem menor do que uma imagem normal. Entao, se eu baixar essa 11.2, eu nao lembro, aqui, qual versao que vem no Postgres, do Linux, mas, deve ser, sei, la, um CentOS, vai vir uns cento e tantos Mega. O 11.2 vai ser bem menos, o tamanho vai ser bem menor.
+
+20. Vamos ver se eu consigo descobrir, aqui, oh, na Guia Tags.
+
+21. A 11.2-alpine, tem 28 MB. A 11 normal, sem ser o alpine, tem 117 MB. Entao, de 28 para 117 MB. Nao eh? E a gente nao precisa de um Linux todo completao, para a gente rodar esse Postgres, aqui, entao, a alpine ja vai ser suficiente para a gente.
+
+22. E, ai, o legal eh, quanto mais especifico voce colocar a sua versao, melhor, entao, eu vou colocar 11.2-alpine, okay?, para baixar essa imagem, aqui, para rodar o nosso Container.
+
+23. E, ai, na documentacao, a gente consegue descobrir muitas coisas, na hora de a gente subir o Container.
+
+24. Entao, como, por exemplo, as Variaveis de Ambiente, que, as vezes, voce esta se perguntando, "Bom, eu vou subir o Postgres, mas qual que eh o nome do usuario e senha? Qual que eh o valor de Usuario e Senha, para eu poder conectar nesse Banco? Qual que eh o Banco inicial? Eu consigo ja criar um Banco inicial, nao eh?, uma instancia, dele, ja especifica, para eu poder subir?"
+
+25. Atraves das Variaveis de ambiente, voce consegue descobrir essas coisas.
+
+26. Okay? Entao, aqui, em Environment Variables, eu posso passar, entao, POSTGRES_PASSWORD, POSTGRES_USER, e POSTGRES_DB, nos vamos usar essas 3 variaveis de ambiente para subir esse Banco.
+
+27. Okay?
+
+28. Entao, vamos la.
+
+29. Na linha de comando, 
+
+> docker run -p 5432:5432
+
+, o que que eu estou fazendo, aqui, nesse -p 5432? Essa primeira porta, 
+
+    -p >>> 5432: <<< 5432
+
+, eh a porta da Minha Maquina. E, aqui,
+
+    -p 5432: >>> 5432 <<<
+
+, eh a porta do Container.
+
+30. Entao, eu estou mapeando, pro lado de fora, essa porta 5432,
+
+    -p 5432: >>> 5432 <<<
+
+, para a porta 5432, tambem,
+
+    -p >>> 5432 <<< :5432
+
+31. Okay? Se eu quisesse uma porta diferente, e fosse exposta, eu poderia colocar, aqui, oh, 5433, por exemplo,
+
+    -p >>> 5433 <<< :5432
+
+, por exemplo.
+
+32. Essa, aqui, 
+
+    -p >>> 5433 <<< :5432
+
+, seria a porta que eu teria que usar, na minha maquina, para conectar, nesse banco, na 5432,
+
+    -p 5433 >>> :5432 <<<
+
+33. Okay?
+
+34. Mas, a 5432, aqui, a interna,
+
+    -p 5433 >>> :5432 <<<
+
+, nao muda, porque eh a porta que a Imagem vai subir la dentro, o Container vai subir nessa porta, la, interna.
+
+35. Qual que eh o nome, aqui, desse banco?,
+
+> docker run -p 5432:5432 --name 
+
+36. Eu posso dar o nome que eu quiser. Eu vou dar o nome de beerdb. Eh o banco que eu estou criando para a nossa Aplicacao beer,
+
+> docker run -p 5432:5432 --name beerdb
+
+37. Entao, eh o nome do Container, aqui.
+
+38. Okay?
+
+39. -e, agora, eu comeco a passar as variaveis de ambiente.
+
+40. Entao, vamos la, tem o POSTGRES_USER, 
+
+> docker run -p 5432:5432 --name beerdb -e POSTGRES_USER
+
+41. O POSTGRES_USER vai ser igual, eu vou colocar, aqui, beerstore, o nome da Aplicacao. Vamos colocar tudo como Nome da Aplicacao,
+
+> docker run -p 5432:5432 --name beerdb -e POSTGRES_USER=beerstore
+
+42. -e POSTGRES_PASSWORD, vamos colocar a senha, aqui, tambem,
+
+> docker run -p 5432:5432 --name beerdb -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore
+
+43. -e Qual que vai ser o banco de dados, POSTGRES_DB, vamos colocar beerstore, tambem,
+
+> docker run -p 5432:5432 --name beerdb -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore
+
+44. Okay?
+
+45. Entao, docker run, 
+
+> >>> docker run <<< -p 5432:5432 --name beerdb -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore
+
+, para a gente rodar o Container, nao eh? 
+
+46. Passo o Mapeamento das Portas, 
+
+> docker run >>> -p 5432:5432 <<< --name beerdb -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore
+
+, o nome do Container, 
+
+> docker run -p 5432:5432 >>> --name beerdb <<< -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore
+
+, e, aqui,
+
+> docker run -p 5432:5432 --name beerdb >>> -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore <<<
+
+, eu estou passando as variaveis de ambiente.
+
+47. Vamos la.
+
+48. -d, para ele rodar em Background. Se eu nao passar o -d, ele vai executar e vai ficar parado, aqui, no meu Console, se eu der um CTRL+C, ele vai matar,
+
+> docker run -p 5432:5432 --name beerdb -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore -d
+
+49. E, agora, finalmente, o nome da Imagem, que eh o nome, aqui, https://hub.docker.com/_/postgres, postgres, o nome oficial, aqui, do repositorio (Official Repository), entao, postgres,
+
+> docker run -p 5432:5432 --name beerdb -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore -d postgres
+
+50. Se eu nao passar mais nada, ele vai baixar a ultima versao, sempre.
+
+51. Mas, eu vou ser o mais especifico possivel. Entao, eu coloquei um dois pontos, ali,
+
+> docker run -p 5432:5432 --name beerdb -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore -d postgres:
+
+, 11.2-alpine,
+
+> docker run -p 5432:5432 --name beerdb -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore -d postgres:11.2-alpine
+
+52. Eu vou dar um <ENTER>, aqui, e ele vai falar que nao encontrou essa Imagem, localmente, e vai comecar a baixar essa Imagem, a fazer o Download dessa Imagem.
+
+53. Nao vai demorar tanto, porque sao 28 MB, nao eh?
+
+54. Ele faz em varias etapas, aqui, entao, rapidinho, ele termina.
+
+55. Entao, da para a gente esperar, aqui, oh.
+
+56. Esta baixando, baixando, baixou.
+
+57. Fez o download da Imagem, e Startou o Container, para mim, do Postgres,
+
+Digest: sha256:bbd4d82fcb35cf5d6b0e002dedac0e899b9affcc240ec8ae5bb0e24882420a43                                  Status: Downloaded newer image for postgres:11.2-alpine                                                          870a489a2adc2ea040c5bafc8c79a8ae9a1e2a189927589381f06b133e7a9832  
+
+58. Como que eu sei que esse Container esta iniciado?
+
+59. docker ps <ENTER>
+
+CONTAINER ID        IMAGE                  COMMAND                  CREATED             STATUS              PORTS                    NAMES                                                                     870a489a2adc        postgres:11.2-alpine   "docker-entrypoint.s…"   4 minutes ago       Up 4 minutes        0.0.0.0:5432->5432/tcp   beerdb
+
+
+60. Ele vai mostrar, para mim, o ID do Container, 
+
+CONTAINER ID 
+870a489a2adc
+
+, o nome da Imagem que ele trouxe e iniciou esse Container, 
+
+IMAGE
+postgres:11.2-alpine
+
+, qual o comando que ele executou la dentro, isso, aqui, a gente vai ver mais detalhes quando a gente for estudar mais a fundo o Docker, 
+
+COMMAND
+"docker-entrypoint.s…"
+
+, a quanto tempo, atras, ele foi criado,
+
+CREATED
+4 minutes ago
+
+, ele esta iniciado, ele "levantou" a 4 minutos,
+
+STATUS
+Up 4 minutes
+
+, e aqui, o mapeamento de portas,
+
+PORTS
+0.0.0.0:5432->5432/tcp
+
+, e o nome dele,
+
+NAMES
+beerdb
+
+61. No mapeamento de portas, deixa eu so destacar, essa parte, aqui, eh importante para voce descobrir problemas,
+
+PORTS
+0.0.0.0:5432->5432/tcp
+
+62. Ah, Normandes, nao estou conseguindo conectar, aqui, no meu banco, no meu Container, por que?
+
+63. Da uma olhada no mapeamento de portas.
+
+64. Aqui, oh, ele esta falando que qualquer endereco,
+
+>>> 0.0.0.0 <<< :5432->5432/tcp
+
+, o 0.0.0.0, aqui, ou seja, qualquer endereco, ou seja, o local, aqui, na porta 5432, vai ser encaminhado,
+
+0.0.0.0:5432 >>> -> <<< 5432/tcp
+
+, vai ser encaminhado para a porta 5432, la dentro do Container,
+
+0.0.0.0:5432-> >>> 5432/tcp <<<
+
+
+65. Tem que ter essa setinha, aqui, oh, 
+
+0.0.0.0:5432->5432/tcp
+
+, dessa forma que esta aqui, com essa setinha, apontando la para dentro do Container.
+
+66. Okay? Se nao tiver isso, daqui,
+
+0.0.0.0:5432->5432/tcp
+
+, provavelmente, voce esqueceu de fazer o mapeamento de portas, 
+
+> docker run >>> -p 5432:5432 <<< --name beerdb -e POSTGRES_USER=beerstore -e POSTGRES_PASSWORD=beerstore -e POSTGRES_DB=beerstore -d postgres:11.2-alpine
+
+, e voce nao consegue conectar.
+
+67. Para fazer o teste, aqui, voce pode fazer um telnet localhost 5432 <ENTER>. 
+    
+    
+68. Ai, ele fecha o Telnet, Da um CTRL+], ele fechou. Oh, conectou no Telnet. Entao, deu tudo certo, voce conseguiu fechar, pelo menos, a conexao, aqui, no Telnet. Com isso, voce pode usar, depois, a gente vai baixar, nao eh?, voce pode baixar qualquer IDE para conectar no Postgres, para voce fazer o teste de conexao, la, tambem.
+
+69. A gente vai fazer isso, daqui, um pouco, tambem.
+
+70. Fim da     Aula 03.002. Rodando o Postgres no Docker.
+
+
+-->

@@ -1,0 +1,161 @@
+<!--
+    Aula 03.012. Tratando Erros Inesperados.
+
+1. E existem os erros inesperados, tambem, que eh quando a gente tem um bug, na nossa aplicacao, nao eh?, alguma coisa desse tipo, sei la, o banco caiu, um monte de coisas podem acontecer.
+
+2. Entao, vamos simular um bug, aqui, na nossa aplicacao?
+
+3. Vamos vir, aqui, em BeerResource, e vamos colocar um erro, aqui, de proposito, int i = 5 / 0;, isso, aqui, vai lancar uma Excecao, nao eh?, entao, eh um Bug proposital,
+
+@PostMapping
+@ResponseStatus(HttpStatus.CREATED)
+public Beer create(@Valid @RequestBody Beer beer) {
+    int i = 5 / 0;      // Bug proposital
+    return this.beers.save(beer);
+}
+
+4. Nao eh?, para a gente so testar esse lancamento de uma excecao que a gente nao esta esperando.
+
+5. Okay?
+
+6. Depois, a gente apaga isso daqui, nao eh?
+
+7. Vamos la, eu vou dar o Build, aqui, mexi em coisa simples, e vamos tentar salvar a Cerveja, vamos ver o que que vai acontecer, agora. Vamos colocar, aqui, inclusive, como se estivesse salvando a Cerveja certa,
+
+{
+	"name": "Colorado",
+	"type": "IPA",
+	"volume": "600"
+}
+
+8. Entao, clicar em Send.
+
+9. Entao, lembre-se que isso, daqui, 
+
+@PostMapping
+@ResponseStatus(HttpStatus.CREATED)
+public Beer create(@Valid @RequestBody Beer beer) {
+    >>> int i = 5 / 0;      // Bug proposital
+    return this.beers.save(beer);
+}
+
+, eh so um bug que pode aparecer, nao eh? Foi o melhor bug que eu consegui pensar, aqui, para a gente simular.
+
+10. Okay? Entao, vamos la.
+
+11. Eu mandei, deu um 500 Internal Server Error, ta certo a mensagem, a mensagem que foi um erro la dentro do Servidor, o Usuario nao fez nada de errado, o Usuario estava certinho,
+
+{
+	"name": "Colorado",
+	"type": "IPA",
+	"volume": "600"
+}
+
+, mas deu um erro la dentro do Servidor.
+
+12. Acontece que a mensagem que esta mostrando, aqui, eh que esta meio demais, nao eh?
+
+{
+    "timestamp": "2019-03-25T01:25:10.151+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "/ by zero",
+    "trace": "java.lang.ArithmeticException: / by zero\r\n\tat com.hibicode.beerstore.resource.BeerResource.create(BeerResource.java:28)\r\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n\tat java.lang.reflect.Method.invoke(Method.java:498)\r\n\tat org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:189)\r\n\tat org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)\r\n\tat org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:102)\r\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\r\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:800)\r\n\tat org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\r\n\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1038)\r\n\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:942)\r\n\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1005)\r\n\tat org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:908)\r\n\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:660)\r\n\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:882)\r\n\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:741)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.boot.actuate.web.trace.servlet.HttpTraceFilter.doFilterInternal(HttpTraceFilter.java:90)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:92)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:93)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.filterAndRecordMetrics(WebMvcMetricsFilter.java:117)\r\n\tat org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:106)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:200)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:200)\r\n\tat org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)\r\n\tat org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:490)\r\n\tat org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)\r\n\tat org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)\r\n\tat org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\r\n\tat org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)\r\n\tat org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:408)\r\n\tat org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:66)\r\n\tat org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:834)\r\n\tat org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1415)\r\n\tat org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)\r\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)\r\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)\r\n\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\r\n\tat java.lang.Thread.run(Thread.java:748)\r\n",
+    "path": "/beers"
+}
+
+13. Esta mostrando, la, a divisao por zero, nao eh?, esta mostrando muitos detalhes, la, de dentro.
+
+14. Entao, vamos tratar esse tipo de mensagem.
+
+15. Entao, eh um novo ExceptionHandler, agora, para qual excecao?
+
+16. Exception.
+
+@ExceptionHandler(Exception.class)
+
+17. Porque, qualquer uma que nao for, das excecoes acima, vai ser a Exception.
+
+18. Okay?
+
+19. Entao, public ResponseEntity<ErrorResponse> handleInternalServerError(Exception exception, Locale locale), e vamos receber o Locale, tambem, nao eh?, se nos quisermos traduzir.
+
+20. Okay.
+
+21. Quando isso acontecer, a primeira coisa que eu vou fazer eh logar um Erro, aqui. Entao, eh um local excelente para a gente logar um erro, nao eh? Entao, "Error not expected", exception, vamos logar, aqui, para a gente ve, nao eh?, nos nossos logs da aplicacao, que aconteceu um erro que a gente nao estava esperando,
+
+@ExceptionHandler(Exception.class)
+public ResponseEntity<ErrorResponse> handleInternalServerError(Exception exception, Locale locale) {
+    LOG.error("Error not expected", exception);
+
+}
+
+22. final String errorCode = "", agora, eu vou chamar, aqui, de "error", quando eh um erro inesperado, assim, "error-1". Ah, eu quero chamar de "generic". Pode ser tambem. Mas eu colocaria em uma nova categoria de erro.
+
+23. Okay? final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;, que eh o que a gente vai mandar, nao eh?, e vamos criar o ErrorResponse, final ErrorResponse errorResponse = ErrorResponse.of(status, this.toApiError(errorCode, locale)), passando o errorCode e o locale,
+
+@ExceptionHandler(Exception.class)
+public ResponseEntity<ErrorResponse> handleInternalServerError(Exception exception, Locale locale) {
+    LOG.error("Error not expected", exception);
+    final String errorCode = "error-1";
+    final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+    final ErrorResponse errorResponse = ErrorResponse.of(status, this.toApiError(errorCode, locale));
+}
+
+24. Certo?
+
+25. E, agora, eh so retornar, return ResponseEntity., aqui, nao tem internalServerError(), entao, a gente vai ter que mandar com status(), passando o status, aqui, .body(), passando o errorResponse,
+
+@ExceptionHandler(Exception.class)
+public ResponseEntity<ErrorResponse> handleInternalServerError(Exception exception, Locale locale) {
+    LOG.error("Error not expected", exception);
+    final String errorCode = "error-1";
+    final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+    final ErrorResponse errorResponse = ErrorResponse.of(status, this.toApiError(errorCode, locale));
+    return ResponsEntity.status(status).body(errorResponse);
+}
+
+26. Okay? Vamos parar e iniciar,..., ah, faltou definir a mensagem error-1, em api_errors.properties, entao, vamos fazer isso, deixa eu cadastrar ela, aqui,
+
+error-1=Sorry, internal server error, try again later.
+
+27. Vamos dar um Build / Build Project, aqui, para ele carregar esse camarada.
+
+28. Agora, sim, vamos testar novamente, no Postman,
+
+{
+	"name": "Colorado",
+	"type": "IPA",
+	"volume": "600"
+}
+
+, clicar em Send.
+
+29. Retornou,
+
+{
+    "statusCode": 500,
+    "errors": [
+        {
+            "code": "error-1",
+            "message": "Sorry, internal server error, try again later."
+        }
+    ]
+}
+
+30. "error-1", "Sorry, internal server error, try again later." Interessante, voce ve que a gente nao mudou o formato, aqui, da API. Sempre a gente esta colocando, aqui, como um array do erro. Isso eh legal, por que?
+
+31. Para o seu cliente nao ficar, cada hora, achando que a mensagem vem de um jeito. Entao, mesmo que a gente so tenha Um Erro, sempre vai chegar um array com, pelo menos, um elemento ali dentro, nao eh?, nao vai chegar cada hora de um jeito.
+
+32. Beleza? Vamos tirar o bug, aqui, da aplicacao, nao eh?, depois a gente esquece disso, e eh isso dai,
+
+@PostMapping
+@ResponseStatus(HttpStatus.CREATED)
+public Beer create(@Valid @RequestBody Beer beer) {
+    return this.beers.save(beer);
+}
+
+33. Fim da     Aula 03.012. Tratando Erros Inesperados.
+
+
+-->

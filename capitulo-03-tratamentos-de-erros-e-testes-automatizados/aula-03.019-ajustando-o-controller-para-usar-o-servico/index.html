@@ -1,0 +1,581 @@
+<!-- 
+
+Aula 03.019. Ajustando o Controller para Usar o Servico
+
+
+
+1. Eh sempre uma boa ideia a gente testar, nao eh?, a nossa API, para ver se esta tudo certo.
+
+
+
+2. Entao, vamos la, eu vou tentar salvar, agora, uma Eisenbahn.
+
+
+
+3. Aqui, no Banco, se eu mandar executar essa Query, oh, 
+
+
+
+select * from beer;
+
+
+
+, tem a Heineken, a Colorado, e a Stella.
+
+
+
+4. O ID, aqui, pode ser que nao fique sequencial por alguns testes, porque, as vezes, eu vou fazendo antes de gravar a aula. Okay?
+
+
+
+5. Entao, vamos atentar, aqui, aos nomes, tambem.
+
+
+
+6. Okay, vou mandar salvar.
+
+
+
+7. Salvei, ele retornou 201 Created,
+
+
+
+{
+
+"id": "5",
+
+"name": "Eisenbahn",
+
+"type": "PILSEN",
+
+"volume": "350"
+
+}
+
+
+
+8. Okay.
+
+
+
+9. Vamos ver, aqui, no pgAdmin, select * from beer;, Retornou okay, incluir o registro.
+
+
+
+10. Entao, vamos so acompanhar, no codigo, aqui, o que que aconteceu.
+
+
+
+11. Em BeerResource.
+
+
+
+12. No BeerResource,..., Opa, tem, aqui, um problema, oh, 
+
+
+
+...
+
+
+
+import org.springframework.web.bind.annotation.*;
+
+import org.springframework.http.HttpStatus;
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+
+@RestController
+
+@RequestMapping("/beers")
+
+public class BeerResource {
+
+
+
+@Autowired
+
+private Beers beers;
+
+
+
+@GetMapping
+
+public List<Beer> all() {
+
+return this.beers.findAll(); 
+
+}
+
+
+
+@PostMapping
+
+@ResponseStatus(HttpStatus.CREATED)
+
+public Beer create(@Valid @RequestBody Beer beer) {
+
+return this.beers.save(beer);
+
+}
+
+
+
+}
+
+
+
+, o BeerResource, ele esta chamando em Beers. E nao esta chamando no Servico.
+
+
+
+13. Entao, aqui, a gente tinha deixado so como um Quebra-galho, lembra?
+
+
+
+14. Entao, eu vou injetar, aqui, o @Autowired private BeerService beerService, e, aqui, a gente vai passar a usar o BeerService, ao inves do beers, direto,
+
+
+
+...
+
+
+
+import org.springframework.web.bind.annotation.*;
+
+import org.springframework.http.HttpStatus;
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+
+@RestController
+
+@RequestMapping("/beers")
+
+public class BeerResource {
+
+
+
+@Autowired
+
+private Beers beers;
+
+
+
+@Autowired
+
+private BeerService beerService;
+
+
+
+@GetMapping
+
+public List<Beer> all() {
+
+return this.beers.findAll(); 
+
+}
+
+
+
+@PostMapping
+
+@ResponseStatus(HttpStatus.CREATED)
+
+public Beer create(@Valid @RequestBody Beer beer) {
+
+return this.beerService.save(beer);
+
+}
+
+
+
+}
+
+
+
+15. Beleza?
+
+
+
+16. Bom, essa alteracao, aqui, deixa eu parar e iniciar novamente.
+
+
+
+17. Vamos dar uma acompanhada, aqui, no log, em alguns instantes, ele consegue subir a Aplicacao, e a gente testa mais uma vez.
+
+
+
+18. Na verdade, ele salvou, mas seria bom a gente testar salvar uma nova Cerveja. Vamos salvar uma Eisenbahn LAGER,
+
+
+
+{
+
+"name": "Eisenbahn",
+
+"type": "LAGER",
+
+"volume": "350"
+
+}
+
+
+
+19. Okay? Nao sei se tem, mas eh so para a gente poder salvar uma Cerveja nova, passando pela Regra que a gente acabou de implementar.
+
+
+
+20. Agora que eh passando pelo Servico, ele vai passar, aqui,
+
+
+
+public Beer save(final Beer beer) {
+
+Optional<Beer> beerByNameAndType = beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+>>> if (beerByNameAndType.isPresent()) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+return this.beers.save(beer);
+
+}
+
+
+
+21. Entao, bora, vamos la, vamos executar, no Postman. Ele salvou, a Eisenbahn, LAGER,
+
+
+
+{
+
+"id": "6",
+
+"name": "Eisenbahn",
+
+"type": "LAGER",
+
+"volume": "350"
+
+}
+
+
+
+22. Vamos dar uma olhada, aqui, no Banco de Dados, select * from beer; esta, aqui, a Eisenbahn, o Type 0, que significa a primeira, la, no enum, no BeerType,
+
+
+
+public enum BeerType {
+
+
+
+LAGER,
+
+PILSEN,
+
+IPA
+
+}
+
+
+
+23. Oh, o LAGER eh o 0, a PILSEN eh o 1, e a IPA eh o 2.
+
+
+
+24. Se voce quiser salvar esses nomes, ao inves de salvar o indice, eh totalmente possivel.
+
+
+
+25. Agora, como la ja esta com indice, a gente nao pode alterar, teria que zerar e comecar de novo.
+
+
+
+26. Mas, aqui, seria so a gente anotar, @Enumerated(), e, aqui, a gente colocaria EnumType.STRING,
+
+
+
+@Entity
+
+public class Beer {
+
+
+
+...
+
+
+
+@NotNull(message = "beers-2")
+
+@Enumerated(EnumType.STRING)
+
+private BeerType beer;
+
+
+
+...
+
+}
+
+
+
+27. Colocando essa anotacao, aqui,
+
+
+
+@Entity
+
+public class Beer {
+
+
+
+...
+
+
+
+@NotNull(message = "beers-2")
+
+>>> @Enumerated(EnumType.STRING)
+
+private BeerType beer;
+
+
+
+...
+
+}
+
+
+
+, ele passaria a salvar, aqui no Banco, na coluna type, o valor do Enum, ou seja, ele iria salvar LAGER, PILSEN, OU IPA.
+
+
+
+28. Okay?
+
+
+
+29. Mas, como a gente ja salvou algumas, eu vou deixar sem isso, daqui: @Enumerated(EnumType.STRING)
+
+
+
+30. Vamos la. Bom, salvou a Cerveja, estava falando, aqui, para voce que ele salvou a Cerveja, e, agora, eu vou tentar mais uma vez, se eu tentar salvar, aqui, de novo, ele vai deixar?
+
+
+
+{
+
+"name": "Eisenbahn",
+
+"type": "LAGER",
+
+"volume": "350"
+
+}
+
+
+
+31. Eh para dar erro, nao eh?
+
+
+
+32. Vamos ver.
+
+
+
+33. Retornou 500 Internal Server Error,
+
+
+
+{
+
+"statusCode": "500",
+
+"errors": [
+
+{
+
+"code": "error-1",
+
+"message": "Sorry, internal server error, try again later"
+
+}
+
+]
+
+}
+
+
+
+34. Vamos ver o motivo, aqui, no Console.
+
+
+
+35. E o motivo eh: BeerAlreadyExistException, a Cerveja ja existe. Foi a excecao de negocio que foi lancada,
+
+
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.getName(), beer.getType());
+
+
+
+if (beerByNameAndType.isPresent()) {
+
+>>> throw new BeerAlreadyExistException();
+
+}
+
+
+
+return this.beers.save(beer);
+
+}
+
+
+
+
+
+}
+
+
+
+, e, ai, a excecao de negocio nao deveria dar um Erro 500.
+
+
+
+36. Concorda comigo?
+
+
+
+37. Nao deveria dar um erro 500.
+
+
+
+38. Deveria dar um Erro 400, falando, "Olha, essa Cerveja ja esta cadastrada no Banco de Dados".
+
+
+
+39. Esse erro, aqui,
+
+
+
+{
+
+"statusCode": "500",
+
+"errors": [
+
+{
+
+"code": "error-1",
+
+"message": "Sorry, internal server error, try again later"
+
+}
+
+]
+
+}
+
+
+
+, nao esta ajudando muito.
+
+
+
+40. Entao, na proxima aula, nao eh?, faca essa alteracao, nao esqueca, ai, la no BeerResource, de injetar o BeerService, para poder passar pelo servico que a gente criou,
+
+
+
+@RestController
+
+@RequestMapping("/beers")
+
+public class BeerResource {
+
+
+
+@Autowired
+
+private Beers beers;
+
+
+
+>>> @Autowired
+
+>>> private BeerService beerService;
+
+
+
+@GetMapping
+
+public List<Beer> all() {
+
+return this.beers.findAll(); 
+
+}
+
+
+
+@PostMapping
+
+@ResponseStatus(HttpStatus.CREATED)
+
+public Beer create(@Valid @RequestBody Beer beer) {
+
+return this. >>>beerService.save(beer);
+
+}
+
+
+
+}
+
+
+
+, e, na proxima aula, a gente vai fazer esse tratamento dessa excecao centralizado.
+
+
+
+41. Fim da Aula 03.019. Ajustando o Controller para Usar o Servico.
+
+
+
+-->​
+
+

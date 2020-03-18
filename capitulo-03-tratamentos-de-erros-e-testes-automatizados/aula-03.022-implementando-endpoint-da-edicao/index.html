@@ -1,0 +1,427 @@
+<!-- 
+
+Aula 03.022. Implementando Endpoint da Edicao.
+
+
+
+1. Bom, agora que voce ja implmentou, nao eh?, o teste da Edicao, vamos implementar o Endpoint da Edicao.
+
+
+
+2. Entao, a gente vai criar, aqui, em BeerResource,
+
+
+
+package com.hibicode.beerstore.resource;
+
+
+
+@RestController
+
+@RequestMapping("/beers")
+
+public class BeerResource {
+
+
+
+@Autowired
+
+private BeerService beerService;
+
+
+
+@Autowired
+
+private Beers beers;
+
+
+
+@GetMapping
+
+public List<Beer> all() { return this.beers.findAll(); }
+
+
+
+@PostMapping
+
+@ResponseStatus(HttpStatus.CREATED)
+
+public Beer create(@Valid @RequestBody Beer beer) { return this.beerService.save(beer); }
+
+
+
+}
+
+
+
+3. Entao, a gente vai criar, aqui, um novo metodo para a gente poder editar uma Cerveja. Entao, vamos chamar ele, aqui, de update(), a requisicao vai ser bem parecida com a do metodo create(), @Valid @RequestBody Beer beer, eu tambem vou receber uma Cerveja, nao eh?, no Corpo da Requisicao, mas, existem algumas diferencas, como, por exemplo, qual eh o metodo que eu vou usar para atualizar essa cerveja? Metodo Http?
+
+
+
+@PutMapping
+
+public Beer update(@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+4. No caso, eu vou usar PUT, com a anotacao @PutMapping, do pacote org.springframework.web.bind.annotation. Entao, eu tenho que passar todo o Corpo, todo o Json que representa uma Cerveja para atualizar ela.
+
+
+
+5. Okay? Entao, se eu quero atualizar so o nome, eu tenho que passar o nome, o tipo, e o volume.
+
+
+
+6. Beleza?
+
+
+
+7. E, eu, se eu vou atualizar Uma Cerveja, tem que saber qual Cerveja que eh.
+
+
+
+8. E, ai, qual Cerveja que eh, a gente passa na URL. Entao, vai vir aqui, oh, 
+
+
+
+@PutMapping("/{id}")
+
+public Beer update(@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, vai ser beers/1, por exemplo, eu estou editando a Cerveja numero 1. Entao, a forma como o Rest fala para a gente fazer essa edicao, eh passando o ID, aqui, na URL,
+
+
+
+@PutMapping(" >>> /{id}")
+
+public Beer update(@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+9. Okay?
+
+
+
+10. E como que eu faco para pegar esse valor, aqui,
+
+
+
+@PutMapping(" >>> /{id}")
+
+public Beer update(@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, e colocar dentro do ID da Cerveja,
+
+
+
+@PutMapping("/{id}")
+
+public Beer update(@Valid @RequestBody Beer >>> beer) {
+
+
+
+}
+
+
+
+11. Bom, eu costumo colocar, aqui, logo no primeiro, um PathVariable, 
+
+
+
+@PutMapping("/{id}")
+
+public Beer update(@PathVariable
+
+@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, Long id,
+
+
+
+import org.springframework.web.bind.annotation.*;
+
+
+
+@PutMapping("/{id}")
+
+public Beer update(@PathVariable Long id,
+
+@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, do pacote org.springframework.web.bind.annotation.
+
+
+
+12. Se esse nome,
+
+
+
+@PutMapping("/{id}")
+
+public Beer update(@PathVariable Long >>> id,
+
+@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, eh exatamente o mesmo nome desse,
+
+
+
+@PutMapping(" >>> /{id}")
+
+public Beer update(@PathVariable Long id,
+
+@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, e voce tem essa anotacao @PathVariable, pronto, eh assim que voce vai fazer.
+
+
+
+13. Se esse nome, aqui, 
+
+
+
+@PutMapping(">>> /{id}")
+
+public Beer update(@PathVariable Long id,
+
+@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, eh diferente, voce poderia passar, aqui, 
+
+
+
+@PutMapping("/{id}")
+
+public Beer update(@PathVariable( >>> <<< ) Long id,
+
+@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, como o valor default. Entao, poderia ser que voce chamasse, aqui, de codigo,
+
+
+
+@PutMapping(" >>> /{codigo}")
+
+public Beer update(@PathVariable Long id,
+
+@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, por exemplo, e ficaria estranho, portugues e ingles, mas,..., entao, seria assim,
+
+
+
+@PutMapping(" >>> /{codigo}")
+
+public Beer update(@PathVariable("codigo") Long id,
+
+@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, mas, ja que eh id e id,
+
+
+
+@PutMapping(" >>> /{id}")
+
+public Beer update(@PathVariable( >>> "id") Long id,
+
+@Valid @RequestBody Beer beer) {
+
+
+
+}
+
+
+
+, posso deixar assim, mas, nao preciso, porque eh o mesmo nome.
+
+
+
+14. Okay?
+
+
+
+15. Beleza. E, agora, como eh que eu faco para setar?
+
+
+
+16. beer.setId(id); Simples assim. E, depois, eh so chamar o beerService.save(), passando o beer,
+
+
+
+@PutMapping("/{id}")
+
+public Beer update(@PathVariable Long id,
+
+@Valid @RequestBody Beer beer) {
+
+beer.setId(id);
+
+return beerService.save(beer);
+
+}
+
+
+
+17. Tudo ja esta testado, tudo ja esta pronto.
+
+
+
+18. Entao, vamos subir, aqui, a aplicacao, para a gente testar, e vamos ver, ali, se, no Postman, a gente consegue editar uma Cerveja. Ai, voce pode fazer mais testes. Eu vou fazer o Teste Simples.
+
+
+
+19. Vamos Listar todas as cervejas, para eu ver quais que eu tenho, aqui, agora, no Sistema.
+
+
+
+20. Entao, vamos editar, por exemplo, a Cerveja "Colorado Indiga", LAGER.
+
+
+
+21. Entao, eu vou editar a Cerveja 2,
+
+
+
+PUT http://localhost:8080/beers/2
+
+
+
+, e, aqui, qual que vai ser o Corpo dela?
+
+
+
+22. Entao, o ID eu nao passo, so o Corpo, vamos editar, aqui, o volume. Eu vou passar, aqui, 590, imaginar que era 590 ml, a Cerveja 2,
+
+
+
+{
+
+"name": "Colorado Indiga",
+
+"type": "LAGER",
+
+"volume": "590"
+
+}
+
+
+
+23. Okay? Via PUT, nao esquece de alterar, aqui, o verbo, via PUT. Vamos mandar, clicar em Send.
+
+
+
+24. Retornou, aqui, um 200 OK. Parece que deu certo. Retornou,
+
+
+
+{
+
+"id": "2",
+
+"name": "Colorado Indiga",
+
+"type": "LAGER",
+
+"volume": "590"
+
+}
+
+
+
+25. Se a gente listar todas de novo, GET http://localhost:8080/beers, a Cerveja 2 mudou para 590,
+
+
+
+{
+
+"id": "2",
+
+"name": "Colorado Indiga",
+
+"type": "LAGER",
+
+"volume": "590"
+
+}
+
+
+
+26. E nao adicionou uma nova, so atualizou o volume. 
+
+
+
+27. Fim da Aula 03.022. Implementando Endpoint da Edicao.
+
+
+
+
+
+-->​

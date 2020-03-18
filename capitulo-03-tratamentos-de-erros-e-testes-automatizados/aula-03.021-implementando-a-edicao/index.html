@@ -1,0 +1,410 @@
+<!-- 
+
+Aula 03.021. Implementando a Edicao
+
+
+
+1. Tente implementar o resto das regras da edicao, antes de continuar lendo esta pagina. Isso sera util para voce treinar.
+
+
+
+2. Pense comigo. Quando buscamos uma Cerveja pelo nome e tipo e encontramos, pode acontecer duas coisas, agora, na edicao:
+
+
+
+A. O ID da Cerveja em edicao eh igual ao da Cerveja no Banco.
+
+B. Os ID's sao diferentes.
+
+
+
+3. Para o primeiro caso, esta tudo certo, porque nos estamos editando uma Cerveja que ja esta salva e isso nao tem problema nenhum, pode continuar e atualizar o volume, por exemplo.
+
+
+
+4. Agora, no segundo caso, da problema, pois nao podemos ter duas Cervejas com o mesmo nome e tipo no banco de dados e, agora, nos precisamos lancar uma Excecao de Cervaja ja existente.
+
+
+
+5. Veja o codigo completo no GitHub no link abaixo, na classe BeerService.java,
+
+
+
+package com.hibicode.beerstore.service;
+
+
+
+import org.springframework.
+
+
+
+import org.springframework.
+
+
+
+import java.io.Optional;
+
+
+
+@Service
+
+public class BeerService {
+
+
+
+private Beers beers;
+
+
+
+public BeerService(@Autowired Beers beers) {
+
+this.beers = beers;
+
+}
+
+
+
+public Beer save(Beer beer) {
+
+this.verifyIfBeerExists(beer);
+
+return this.beers.save(beer);
+
+}
+
+
+
+private void verifyIfBeerExists(final Beer beer) {
+
+Optional<Beer> beerByNameAndType = this.beers.findByNameAndType(beer.betName(), beer.getType());
+
+
+
+if (beerByNameAndType.isPresent() && (beer.isNew() || 
+
+isUpdatingToDifferentBeer(beer, beerByNameAndType))
+
+) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+}
+
+
+
+private boolean isUpdatingToDifferentBeer(Beer beer,
+
+Optional<Beer> beerByNameAndType) {
+
+return beer.alreadyExist() && !beerByNameAndType.get().equals(beer) ; 
+
+}
+
+
+
+}
+
+
+
+
+
+import lombok.Data;
+
+import lombok.EqualsAndHashCode;
+
+
+
+@Entity 
+
+@Data
+
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+
+public class Beer {
+
+
+
+@Id
+
+@SequenceGenerator(name = "beer_seq", sequenceName="beer_seq", allocationSize = 1)
+
+@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beer_seq")
+
+@EqualsAndHashCode.Include
+
+private Long id;
+
+
+
+@NotBlank(message = "beers-1")
+
+private String name;
+
+
+
+@NotNull(message = "beers-2") 
+
+private BeerType type;
+
+
+
+@NotNull(message = "beers-3")
+
+@DecimalMin(value = "0", message = "beers-4")
+
+private BigDecimal volume;
+
+
+
+@JsonIgnore
+
+public boolean isNew() {
+
+return getId() == null;
+
+}
+
+
+
+@JsonIgnore
+
+public boolean alreadyExist() {
+
+return getId != null;
+
+}
+
+
+
+}
+
+
+
+6. 
+
+
+
+package com.hibicode.beerstore.resource;
+
+
+
+import org.springframework.web.bind.annotation.*;
+
+
+
+import org.springframework.
+
+
+
+@RestController
+
+public class BeerResource {
+
+
+
+@Autowired
+
+private BeerService beerService;
+
+
+
+@Autowired
+
+private Beers beers;
+
+
+
+@GetMapping
+
+public List<Beer> all() {
+
+return this.beers.findAll();
+
+}
+
+
+
+@PostMapping
+
+@ResponseStatus(HttpStatus.CREATED)
+
+public Beer create(@Valid @RequestBody Beer beer) {
+
+return this.beerService.save(beer);
+
+}
+
+
+
+
+
+}
+
+
+
+7. Um ponto que vale eu chamar atencao para voce no codigo eh a anotacao @JsonIgnore em Beer.java. O nome ja diz tudo, o valor sera ignorado na hora de gerar o Json do objeto Beer. Ela eh util para usarmos no caso de criarmos metodos uteis, como foi o caso de isNew() e alreadyExist() em Beer.java.
+
+
+
+8. Eh interessante ter esses metodos para evitarmos colocar muito '== null' ou '!= null' no codigo de negocio, em BeerService.java. Repare que o codigo ficou bem mais limpo.
+
+
+
+9. 
+
+
+
+...
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+@Mock
+
+private Beers beersMocked;
+
+
+
+@Before
+
+public void setUp() {
+
+MockitoAnnotations.initMocks(this);
+
+this.beerService = new BeerService(beersMocked);
+
+}
+
+
+
+...
+
+
+
+@Test
+
+public void should_update_beer_volume() {
+
+final Beer beerInDatabase = new Beer();
+
+beerInDatabase.setId(10L);
+
+beerInDatabase.setName("Devassa");
+
+beerInDatabase.setType(BeerType.PILSEN);
+
+beerInDatabase.setVolume(new BigDecimal("300"));
+
+
+
+when(beersMocked.findByNameAndType("Devassa", BeerType.PILSEN))
+
+.thenReturn(Optional.of(beerInDatabase));
+
+
+
+final Beer beerToUpdate = new Beer();
+
+beerToUpdate.setId(10L);
+
+beerToUpdate.setName("Devassa");
+
+beerToUpdate.setType(BeerType.PILSEN);
+
+beerToUpdate.setVolume(new BigDecimal("200"));
+
+
+
+final Beer beerMocked = new Beer();
+
+beerMocked.setId(10L);
+
+beerMocked.setName("Devassa");
+
+beerMocked.setType(BeerType.PILSEN);
+
+beerMocked.setVolume(new BigDecimal("200"));
+
+
+
+when(beersMocked.save(beerToUpdate))
+
+.thenReturn(Optional.of(beerMocked));
+
+
+
+final Beer beerUpdated = beerService.save(beerToUpdate);
+
+assertThat(beerUpdated.getId(), equalTo(10L));
+
+assertThat(beerUpdated.getName(), equalTo("Devassa"));
+
+assertThat(beerUpdated.getType(), equalTo(BeerType.PILSEN));
+
+assertThat(beerUpdated.getVolume(), equalTo(BigDecimal.valueOf(200.0)));
+
+
+
+}
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_update_of_an_existing_beer_that_already_exists() {
+
+final Beer beerInDatabase = new Beer();
+
+beerInDatabase.setId(10L);
+
+beerInDatabase.setName("Heineken");
+
+beerInDatabase.setType(BeerType.LAGER);
+
+beerInDatabase.setVolume(new BigDecimal("355"));
+
+when(beersMocked.findByNameAndType("Heineken", BeerType.LAGER))
+
+.thenReturn(Optional.of(beerInDatabase));
+
+
+
+final Beer beerToUpdate = new Beer();
+
+beerToUpdate.setId(5L);
+
+beerToUpdate.setName("Heineken");
+
+beerToUpdate.setType(BeerType.LAGER);
+
+beerToUpdate.setVolume(new BigDecimal("355"));
+
+
+
+this.beerService.save(beerToUpdate);
+
+
+}
+
+
+
+}
+
+
+
+
+
+9. Fim da Aula 03.021. Implementando a Edicao.
+
+
+
+-->​

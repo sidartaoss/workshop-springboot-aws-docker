@@ -1,0 +1,333 @@
+<!--
+    Aula 07.004. Criando o Primeiro Playbook Ansible
+
+1. Bom, abra o Projeto e a gente vai criar uma Pasta, agora, chamada de ansible, entao, eu vou criar, agora, New / Directory, no diretorio chamado ansible, e, aqui, eu vou colocar o nosso Playbook.
+
+2. Aqui, New / File, ah, como eh que eu vou chamar esse Playbook?
+
+3. Eu gosto de colocar o nome playbook sempre, entao, eu coloco o nome, normalmente, do Projeto, entao, beerstore, ou, se eu divido em mais de um, porque tem vezes que eu faco em mais de um, como, quando o ambiente precisa ser configurado, ser bem grande, entao, eu tenho varios playbooks, entao, eu crio Playbooks por Temas. 
+
+4. Entao, por exemplo, esse, poderia ser docker-playbook.yml, as vezes, eu coloco o nome do projeto, entao, beerstore-docker-playbook.yml, por exemplo.
+
+5. Poderia ser algo nesse sentido.
+
+6. Okay?
+
+7. Como a gente so vai ter Um Playbook para esse Projeto, eu vou colocar o nome de beerstore apenas, okay? Entao, beerstore-playbook.yml
+
+8. Bom, esse arquivo, .yml, ele sempre comeca com 3 tracinhos. Entao, tem que dar 3 tracinhos, ai, depois, a gente vai comecar a escrever, aqui, ja, as coisas. Ja estamos falando de ansible, o Ansible que vai executar esse Playbook daqui um pouco. Okay?
+
+9. Entao, a gente vai criar, agora, um bloco para ser executado.
+
+10. 
+
+---
+- name: 
+
+11. Entao, o que que a gente vai fazer nesse primeiro bloco?
+
+12. A gente vai garantir a Instalacao, vamos colocar em ingles, nao eh?, Ensure Docker is installed, okay?
+
+---
+- name: Ensure Docker is installed
+
+13. Entao, vamos garantir que o Docker esteja instalado na maquina.
+
+14. Em quais maquinas?
+
+15. hosts. Em quais hosts?
+
+16. A gente vai chegar nesses hosts daqui um pouquinho, mas eu ja vou colocar, aqui, all, para falar: 'Eu quero que instale o Docker em todos os nossos Servidores EC2',
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+
+
+17. Okay? A gente ainda vai mexer muito nesse hosts, aqui, quando a gente for executar de fato. Beleza?
+
+18. Qual que eh o Usuario que eu quero que execute esses comandos?
+
+19. O ec2-user,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+
+, que eh o Usuario da nossa Instancia Linux.
+
+20. Okay?
+
+21. remote_user: ec2-user. Eu vou colocar, aqui, oh, gather_facts: false. Esse gather_facts: false, ele fala o seguinte: 'Nao precisa ficar buscando informacoes para tentar deduzir informacoes da maquina, nao precisa recuperar informacoes do ambiente, eu vou passar todas as informacoes necessarias',
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+
+
+22. E, para que a gente consiga executar os comandos, a gente tem que usar o sudo antes, entao, 'become' significa: eh para virar o superusuario antes de executar os comandos? Sim. Entao, become: true eh importante colocar, senao, nao vai dar certo, porque, senao, nao teremos permissoes,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+
+23. Okay?
+
+24. Bom, essa foi a parte de configuracao, a gente deu um nome, algumas configuracoes. Onde que aprende todos esses detalhes?
+
+25. La na documentacao, mesmo, do Ansible.
+
+26. Okay? Quando voce estiver desvendando a documentacao do Playbook, voce ve todas as opcoes que voce tem aqui.
+
+27. Mas, a parte que a gente mais utiliza, com certeza, comeca, aqui, dentro, de tasks, okay?
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+
+28. Entao, eu dou um tasks, dois pontos, e atencao, muita, muita atencao na formatacao desse arquivo. Oh, na quantidade de espacos, tasks vai comecar, oh, dois espacos depois do 't', oh, agora, eu vou colocar um tracinho, um espaco, name, e vou dar o nome. Tem que estar formatadinho, bonitinho, assim. Se voce nao colocar os espacos certinhos, aqui, nao vai funcionar,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+    - name: 
+
+29. Okay? Ai, voce vai mandar uma mensagem, eu vou olhar o seu arquivo e falar, 'Voce esqueceu de um pequeno espaco, aqui'
+
+30. Entao, muita, muita atencao nesse cenario, aqui, de espacos, okay?
+
+31. Entao, vamos la. Vamos instalar o Docker.
+
+32. Okay?
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install Docker
+
+33. Entao, eu vou criar a task com o nome de Install Docker. Esses nomes sao importantes voce colocar, porque, quando a gente estiver executando o Ansible, la, na linha de comando, eles vao aparecendo.
+
+34. Entao, da para voce saber onde esta.
+
+35. E, ai, as tasks do Ansible, existem varias, inumeras tasks do Ansible.
+
+36. Essas tasks, elas podem ser mais simples e mais complexas.
+
+37. Por exemplo, essa do yum eh muito simples. yum: name=docker
+
+38. Pronto, acabou.
+
+39. O que que isso significa? Ele vai fazer um yum install -y docker, la, ele vai transformar esse cara num comando yum e vai fazer a instalacao do Docker para a gente.
+
+40. Simples assim.
+
+41. Quando nao tiver essa possibilidade, voce pode executar um comando shell especifico,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+, a gente poderia estar executando um comando shell, e mandando fazer um yum install -y docker. E ele iria instalar, tambem, o Docker, da mesma forma. So que, sempre que voce puder, tente ja usar as tasks prontas, como essa,
+
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install Docker
+      >>> yum: name=docker
+
+
+, do yum, e nao executar um shell direto, nao eh?, fica mais simples, ai. Se voce esquecer do -y, por exemplo, no install, pode ter problema.
+
+42. Okay?
+
+43. Oh, -name: vamos fazer uma outra, aqui,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+    - name: 
+
+, a gente esta garantindo a instalacao do Docker, mas, vamos garantir que ele esta startado, nao eh?, entao, Ensure Docker service is started, okay? Vamos garantir isso aqui?
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+    - name: Ensure Docker service is started
+
+44. Entao, ai, eu ja vou usar uma task chamada service, ela ja eh um pouquinho mais complexa, oh, eu tenho que passar alguns parametros, como name. Qual eh o nome do Servico? Eh o nome do Servico docker, que a gente acabou de instalar,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+    - name: Ensure Docker is started
+      service:
+        name: docker
+
+, ele eh executado na sequencia, entao, ele executa, primeiro, essa task,
+
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  >>> tasks:
+    >>> - name: Install Docker
+    >>>  yum: name=docker
+
+    - name: Ensure Docker is started
+      service:
+        name: docker
+
+, na hora que terminar, vem para essa task,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+    >>> - name: Ensure Docker is started
+    >>>   service:
+    >>>     name: docker
+
+45. Okay?
+
+46. Entao, qual que eh o estado dela?
+
+47. Qual que eh o estado do servico? started, tem que estar iniciado, e tem que estar ativo, enabled: yes,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+    - name: Ensure Docker is started and enabled
+      service:
+        name: docker
+        state: started
+        enable: yes
+
+48. Entao, o Docker tem que estar startado, habilitado, se a gente reiniciar a maquina, o Servico sempre vai estar startado.
+
+49. Isso que a gente esta falando.
+
+50. Okay?
+
+51. Bom, eh isso daqui. Esse eh o comeco da escrita de um Playbook, nao eh?, a gente tem a parte de configuracao, aqui, do cabecalho, vamos chamar assim, do cabecalho, 
+
+>>>
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+
+<<<
+
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+    - name: Ensure Docker is started and enabled
+      service:
+        name: docker
+        state: started
+        enable: yes
+
+, para as tasks que virao a seguir,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  become: true
+  
+>>>
+
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+    - name: Ensure Docker is started and enabled
+      service:
+        name: docker
+        state: started
+        enable: yes
+
+<<<
+
+52. Okay? A gente pode ter varias tasks, aqui, a gente pode ter outros blocos inteiros, eh tudo questao de organizacao, como que voce vai organizando o seu Playbook.
+
+53. Bom, por enquanto, eh isso daqui. Tenha esse arquivo escrito, muita atencao, aqui, com os dois pontos, com os espacos, senao, a gente vai ter problema.
+
+54. Beleza? Na proxima aula, faz mais algumas alteracoes, para a gente comecar a mandar isso executar la na AWS.
+
+55. Beleza?
+
+56. Fim da     Aula 07.004. Criando o Primeiro Playbook Ansible.
+
+-->

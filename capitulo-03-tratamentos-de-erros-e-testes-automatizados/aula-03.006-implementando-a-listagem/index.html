@@ -1,0 +1,67 @@
+<!--
+    Aula 03.006 - Implementando a Listagem
+
+1. Esta aula, aqui, vai ser muito rapida, porque, como a gente esta utilizando o Repositorio que o Spring Data ja nos prove, ele ja tem o metodo para a gente listar tudo o que tem, la, no banco de dados.
+
+2. Entao, ao inves de eu retornar esse ArrayList, aqui, fixo,
+
+@GetMapping
+public List<String> all() {
+    return Arrays.asList("Heineken", "Stella", ...);
+}
+
+, vamos buscar do Banco de dados, return this.beers.findAll(), ele ja vai listar todas as cervejas. Aqui, ao inves de retornar uma Lista de String's, vai ser uma Lista de Cervejas, agora,
+
+@GetMapping
+public List<Beer> all() {
+    return this.beers.findAll(); 
+}
+
+3. Certo?
+
+4. So isso, deixa eu dar o Build, aqui, Build / Build Project / CTRL+F9, na Messages, verifica se compilou sem erros.
+
+5. Inicia o Servidor, e vamos la no Postman, para a gente testar.
+
+6. Entao, para a gente Listar todas, vai ser a url http://localhost:8080/beers, metodo HTTP GET, entao, um GET em /beers, vamos mandar um Send...
+
+7. Retornou,
+
+[
+    {
+        "id": 1,
+        "name": "Heineken",
+        "type": "LAGER",
+        "volume": 355
+    },
+    {
+        "id": 2,
+        "name": "Colorado Indiga",
+        "type": "LAGER",
+        "volume": 500
+    },
+    {
+        "id": 3,
+        "name": "Stella Artois",
+        "type": "PILSEN",
+        "volume": 300
+    }
+]
+
+, Status HTTP: 200 OK.
+
+8. Entao, ele ja esta listando todas as Cervejas, aqui, para a gente.
+
+9. Entao, olha la, ele retorna uma Lista, com cada um dos objetos, la dentro, com todos os que a gente tinha salvado anteriormente.
+
+10. Okay?
+
+11. Isso por que?
+
+12. Porque ja esta pronto, a consulta para a gente, o Spring Data ja prove isso para a gente.
+
+13. Beleza?
+
+14. Fim da     Aula 03.006 - Implementando a Listagem.
+
+-->

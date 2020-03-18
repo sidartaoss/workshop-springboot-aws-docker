@@ -1,0 +1,64 @@
+<!--
+    Aula 02.005. Como o Devtools nos Ajuda
+
+1. Aqui, so para deixar claro, oh, eu coloquei o JDK 1.8, e aqueles warnings, ate sumiram, aqui. Se quiser adicionar no seu, mudar ai, eh em Project Structure... / Project / Project SDK, e, ai, no meu, aqui, estava selecionado no SDK 9.
+
+2. Bom, mas, e para esta aula, entao, o projeto esta iniciado, nao eh?, oh, se eu for atualizando, aqui, em localhost:8080/beers, ele esta trazendo aquelas tres cervejas, que a gente ja tinha visto, 
+
+["Heineken","Colorado Indiga","Stella Artois"]
+
+, e eu quero te mostrar como que o DevTools nos ajuda.
+
+3. O DevTools nos ajuda fazendo alteracoes, aqui, no Projeto, sem voce precisar reiniciar, toda hora, a Aplicacao.
+
+4. Entao, por exemplo, eu vou adicionar o Cadastro de mais Uma Cerveja, ai, vamos colocar, por exemplo, uma Bohemia,
+
+        @GetMapping
+        public List<String> all() {
+            return Arrays.asList("Heineken", "Colorado", "Stella", "Bohemia");   
+        }
+
+5. E, aqui, ele ja salvou o arquivo.
+
+6. Acontece que, no IntelliJ, o Build nao eh automatico.
+
+7. Entao, se eu der um Refresh, aqui, no Browser, em http://localhost:8080/beers, nao aconteceu nada, ainda,
+
+["Heineken","Colorado Indiga","Stella Artois"]
+
+8. Mas, se eu vier e mandar dar o Build no Projeto, entao, no IntelliJ, no menu, la, Build / e dar o Build Project, aqui, CTRL+F9, entao, da um Build, eh a opcao Build / Build Project.
+
+9. Vem aqui, mandei ele dar um Build no Projeto, ou, simplesmente, CTRL+F9.
+
+10. So de fazer isso, oh, ele esta recarregando, aqui, algumas coisas da Aplicacao, mas ele nao reiniciou tudo, ele so recarregou.
+
+11. Tanto que foi bem rapido, agora, oh, foi em 4 segundos.
+
+12. Quando ele levantou o Projeto, ele demorou um pouquinho mais para fazer, ele tinha demorado, aqui, oh, 8 segundos, ta vendo que, agora, ele foi mais rapido, em 4 segundos, a metade do tempo.
+
+13. So dele ter feito isso, oh, eu posso dar um Refresh em http://localhost:8080/beers, ele ja trouxe aquela nova cerveja para a gente. 
+
+14. Okay?
+
+15. No Eclipse, eh, simplesmente, automatico, voce, simplesmente, salvar, ja vai funcionar. Eh assim que o DevTools nos ajuda bastante, para voce nao precisar ter que parar.
+
+16. Imagina, assim, oh, eu quero testar, aqui, adicionar mais uma Cerveja, voce ter que vir, parar o Servidor e iniciar mais uma vez. 
+
+17. Nao, ai, voce consegue ir adicionando classes, voce pode adicionar classes, pode adicionar metodos, que o DevTools funciona.
+
+18. Quando que o DevTools nao funciona muito bem.
+
+19. Quando a gente trabalha com dependencias. Se a gente mexer nas dependencias, que a gente vai adicionar dependnecias, mais para a frente, ai, nesse caso, ele nao funciona legal. Ai, eu sempre paro e inicio, de novo, o Projeto.
+
+20. Mas, como dependencias eh algo que voce faz menos vezes, no Projeto, nao eh?, entao, nao eh tao ruim, assim, nao eh?
+
+21. Agora, adicionou classe, adicionou metodo, isso, ai, sempre, ele funciona na maioria das vezes.
+
+22. Okay? Mas, se der algum probleminha, pode ser que ele de uma travada, isso ja aconteceu, as vezes, eu estou programando muito tempo, ali, sem reiniciar, parece que ele nao consegue, passa um tempo, ele para de funcionar. Ai, eu paro e inicio de novo.
+
+23. Okay? Mas ele ja ajuda bastante a gente a ganhar tempo.
+
+24.     Aula 02.005. Como o Devtools nos Ajuda.
+
+
+-->

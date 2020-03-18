@@ -1,0 +1,259 @@
+<!-- 
+
+Aula 05.001. Infraestrutura como Codigo
+
+
+
+1. Chegamos no modulo do Terraform, que vai ser a Ferramenta que a gente vai usar para Provisionar toda a nossa Infraestrutura na AWS.
+
+
+
+2. Okay? 
+
+
+
+3. Ah, Normandes, mas por que que voce vai usar o Terraform, que eu ja vou falar mais um pouquinho sobre ele, ao inves de usar, aqui, a AWS, direto, por exemplo, em Instancias, eu posso vir aqui, oh, Launch Instances, e comecar a criar uma Instancia aqui, pelo Console, por que que voce vai usar uma outra ferramenta?
+
+
+
+4. Entao, vamos la, vamos conversar sobre isso daqui.
+
+
+
+5. Bom, o que que eh o Terraform?
+
+
+
+6. Entao, o Terraform eh uma ferramenta para a gente escrever uma Infraestrutura, a nossa Infraestrutura como Codigo.
+
+
+
+7. Como assim?
+
+
+
+8. Nos vamos escrever codigo assim, oh, como voce esta vendo, aqui, resource, a gente coloca algumas coisas, aqui, oh, por exemplo, resource, esse, aqui, eh o do aws, esse, aqui, do digital-ocean, mas sao bem parecidos.
+
+
+
+9. Entao, olha la, eu coloco, aqui, o recurso que eu quero usar, dou algumas configuracoes, e tal, entao, da para voce perceber que eh um codigo, nao eh? Eh um codigo simples, aqui, oh, eh um codigo mais de configuracao, mas eh um codigo.
+
+
+
+10. O que que isso significa, entao?
+
+
+
+11. Significa que eu vou escrever a minha Infraestrutura como Codigo. Escrever a minha Infraestrutura como codigo me possibilita Colaboracao.
+
+
+
+12. O que que significa Colaboracao?
+
+
+
+13. Eu estou num Projeto, com, sei la, 6 pessoas no meu Time.
+
+
+
+14. E, ai, eu estou fazendo a parte do Terraform, para colocar a minha Aplicacao no Ar. Mas, uma Aplicacao Profissional, sempre precisa de alguma coisa ou outra, uma coisa a mais, sempre precisa de um detalhe ou outro a mais. 
+
+
+
+15. E, ai, voce nao esta aqui, voce saiu de ferias, esta viajando, por algum motivo, e, ai, outra pessoa precisa dar manutencao naquilo la, ou precisa criar, precisa alterar um detalhe. Entao, eh so baixar o codigo do Repositorio, fazer a alteracao e mandar aplicar.
+
+
+
+16. Ou, estou trabalhando junto com algum amigo, eu vou fazer a parte do Banco de Dados RDS, o amigo vai fazer a parte de EC2, por exemplo. Entao, cada um pode fazer uma parte em um codigo. Entao, a gente consegue colaborar e compartilhar, tudo vai ficar no Repositorio.
+
+
+
+17. A nossa Infraestrutura, ela nao eh uma Infraestrutura criada e pronto. A gente consegue evoluir essa Infraestrutura, atraves de codigo.
+
+
+
+18. E eu consigo ver essa Evolucao no codigo, atraves do historico. Antes, estava assim, agora, eu criei mais essa outra coisa, entao, eu consigo ver o historico, como estava antes e como esta agora.
+
+
+
+19. Diferente de, se voce criar, aqui, diretamente, na AWS, voce pode perder isso, nao eh?
+
+
+
+20. E eh uma ferramenta de codificacao.
+
+
+
+21. Entao, voce codifica, voce escreve um codigo, como eu mostrei, aqui, um trecho de codigo, que a gente ainda vai aprender muitos detalhes sobre isso daqui, nos vamos fazer isso daqui, ta okay?
+
+
+
+22. Mas eh um codigo.
+
+
+
+23. Se eh um codigo, significa que voce pode automatizar.
+
+
+
+24. Entao, voce consegue criar ferramentas, nao eh?, usar ferramentas para automatizar mais ainda a sua criacao do seu ambiente, voce pode fazer coisas do tipo: ah, se chegar, se for criada uma Branch chamada Release-Alguma-Coisa, eu vou executar o Terraform para Provisionar o Ambiente de Teste dessa Release, algo assim.
+
+
+
+25. Okay? Entao, da para voce criar esses ambientes de forma muito facil, de forma colaborativa, de forma que a sua Infraestrutura, ela evolua, e voce consegue automatizar as coisas, nao eh?
+
+
+
+26. Entao, isso, para mim, eh uma vantagem enorme de voce ter a sua Infraestrutura como codigo.
+
+
+
+27. Se voce ficar criando as coisas, aqui, na mao, diretamente na AWS, uma vez, beleza.
+
+
+
+28. Se precisa dar manutencao numa coisinha, okay.
+
+
+
+29. Mas, um Projeto de verdade, nao da para voce fazer isso, aqui, ficar mexendo no Console, okay?
+
+
+
+30. Um Projeto profissinal nao da para voce ficar so ficar criando pelo Console da AWS, voce precisa de uma Ferramenta para Automatizar isso, e o Terraform eh um cara muito usado e extremamente simples e funciona legal, beleza?
+
+
+
+31. Por isso que nos vamos usa-lo.
+
+
+
+32. E eh o que eu uso, hoje, no meu trabalho.
+
+
+
+33. La, nessa Empresa, a gente esta utilizando o Terraform. Eu conheco varias outras que tambem utilizam.
+
+
+
+34. Okay?
+
+
+
+35. Uma coisa legal do Terraform, que eh o Plano de Execucao. Voce consegue o que ele vai executar, quais as mudancas, alteracoes que ele vai fazer, antes de aplicar de verdade.
+
+
+
+36. Entao, voce faz uma alteracao, nos seus Scripts, aqui, nos seus Arquivos Terraform, voce foi la, pegou esse cara, aqui, alterou alguma coisa.
+
+
+
+37. Ai, voce vai falar, 'Executa, ai, para mim.'
+
+
+
+38. Ele te mostra o que que ele vai fazer, se mostrar o que ele vai fazer eh: 'Eu vou criar isso, eu vou destruir isso, eu vou alterar esse outro recurso, entao, ele te fala isso antes de voce executar', o que eu acho bem legal.
+
+
+
+39. E outra coisa muito importante, principalmente, para a gente, aqui, durante o nosso Estudo, eh criar uma Infraestrutura Reproduzivel. Por que? O que que eh uma Infraestrutura que a gente consegue reproduzir, recriar a hora que a gente quiser?
+
+
+
+40. Entao, olha so.
+
+
+
+41. No meu caso, a minha conta ja nao eh Gratis ja tem um tempo, eu ja tenho a minha conta na AWS ja jazem alguns anos.
+
+
+
+42. Entao, o que que eu estou fazendo?
+
+
+
+43. Eu vou criando o Curso, na hora em que eu fui criando o Projeto do Curso, eu criava , eu nao criei ele todo num Dia, foram alguns dias, algumas semanas, para eu conseguir terminar a Criacao deste Projeto.
+
+
+
+44. Eu comecava a Provisionar com o Terraform, quando eu chegava a hora de eu dormir, eu falava, 'Ja esta bom, eu vou dormir, eu destruia tudo, com o Terraform, ia dormir. No dia seguinte, no final de semana seguinte, que eu fosse continuar o Desenvolvimento, eu recriava e, ai, continuava a Desenvolver, continuava a fazer os testes, aqui, okay?'.
+
+
+
+45. Entao, eu consigo, entao, reproduzir, recriar o ambiente na hora em que eu quiser, eu consigo destruir e recriar.
+
+
+
+46. Por que que eh importante para voce?
+
+
+
+47. Quando voce terminar de, na aula, vamos supor, 'Ah, vou terminar por hoje'. Voce vai la e destroi tudo que voce fez.
+
+
+
+48. Por que que eh importante voce fazer isso? 
+
+
+
+49, Por mais que voce ainda esteja, se voce estiver no modo Gratis, voce tem os Limites. Se voce destruir, voce economiza esses Limites, para voce nao estourar. Se voce nao esta no Periodo Gratis, como eu, eh melhor ainda voce destruir, nao eh?, porque voce nao vai ficar pagando coisa a toa. Enquanto voce esta dormindo, voce esta pagando uma Instancia EC2 ficar no ar? Para o que?
+
+
+
+50. Nao eh?
+
+
+
+51. Entao, destroi. No dia seguinte, quando voce voltar a estudar, voce recria.
+
+
+
+52. Eu vou te mostrar como voce faz isso tudo, passo-a-passo, devagarzinho, nas proximas aulas.
+
+
+
+53. Beleza?
+
+
+
+54. Entao, por isso que a gente vai usar o Terraform, todo esse beneficio que a gente tem, todos esses beneficios que a gente tem, e a gente vai comecar, nas proximas aulas, fazendo o Download, fazendo a instalacao, e aprendendo mais sobre Infraestrutura como codigo na AWS.
+
+
+
+55. A Documentacao dele eh bem legal, eu aprendi muita, muita coisa pela Documentacao, https://www.terraform.io/docs/index.html dele, okay? E uma coisa muito, muito boa, sao os Providers, https://www.terraform.io/docs/providers/index.html. Ele tem Provider para um monte de Cloud que existe por ai.
+
+
+
+56. Nos vamos usar o Provider da AWS, https://www.terraform.io/docs/providers/aws/index.html, obviamente, mas, ah, Normandes, mas sera que eu consigo usar codigo Terraform na Azure, da Microsoft?
+
+
+
+57. Consegue. 'Ah, consigo usar no Google Cloud?'
+
+
+
+58. Consegue tambem. Entao, voce consegue usar o Terraform em diversos Providers, olha a quantidade, aqui, que voce tem.
+
+
+
+59. Okay?
+
+
+
+60. Nos vamos usar, obviamente, o da AWS, e, aqui, tem a documentacao, https://www.terraform.io/docs/providers/aws/index.html.
+
+
+
+61. Uma documentacao simples, porem, efetiva. Da para a gente aprender muita coisa por ela, aqui. Mas eu vou te explicar tudo que a gente for usar, ainda, aqui, nas aulas.
+
+
+
+62. Fim da Aula 05.001. Infraestrutura como Codigo.
+
+
+
+
+
+
+
+-->​

@@ -1,0 +1,749 @@
+<!-- 
+
+Aula 03.016. Criando Teste para salvar Cerveja com Hamcrest
+
+
+
+1. Vamos, agora, tentar salvar uma Nova Cerveja.
+
+
+
+2. Entao, vamos criar, aqui, um metodo de Teste,
+
+
+
+public class BeerServiceTest {
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolumn(new BigDecimal("355"));
+
+
+
+beerService.save(newBeer);
+
+
+
+}
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+
+
+}
+
+
+
+}
+
+
+
+3. Entao, esse metodo, aqui, deve testar a criacao de uma nova Cerveja.
+
+
+
+4. Entao, eu vou precisar criar uma Cerveja, eu vou copiar esse cara, aqui, de cima, depois, a gente ainda vai melhorar essa parte toda, okay? Bom, a gente precisa, tambem, salvar a Cerveja, entao, a gente precisa fazer esse procedimento, aqui: BeerService beerService = new BeerService(); ... beerService.save(newBeer);
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+beerService.save(newBeer);
+
+}
+
+
+
+
+
+5. E, aqui, a gente ja pode, ate, melhorar um pouquinho, aqui, nos Testes, oh. Esse cara, aqui, BeerService beerService = new BeerService(), eu estou comecando a duplicar codigo, aqui, nao estou, dentro do Teste?
+
+
+
+6. E ele eh executado sempre dentro de cada teste, quando eu falo cada Teste, eh cada metodo de teste.
+
+
+
+7. Entao, eu posso colocar um @Before, crio o metodo, aqui, de configuracao,
+
+
+
+...
+
+
+
+import org.junit.Before;
+
+
+
+...
+
+
+
+@Before
+
+public void setup() {
+
+
+
+}
+
+
+
+, e crio, aqui, um atributo private BeerService beerService; Eu inicializo esse beerService aqui, dentro do metodo de configuracao, 
+
+
+
+public class BeerServiceTest {
+
+
+
+private BeerService beerService;
+
+
+
+@Before
+
+public void setUp() {
+
+beerService = new BeerService();
+
+}
+
+
+
+@Test(expected = BeerAlreadyExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+...
+
+}
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+...
+
+}
+
+}
+
+
+
+8. Agora, esse cara, beerService = new BeerService(), pode sumir daqui, dos metodos should_deny_creation_of_beer_that_exists() e should_create_new_beer();
+
+
+
+9. Pronto.
+
+
+
+10. Entao, esse @Befor, aqui, faz executar esse metodo setUp() antes de cada teste.
+
+
+
+11. Entao, antes de cada teste, eu tenho, sempre um novo BeerService, okay?
+
+
+
+12. Esse Beer, aqui,
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+, eu acho que nao faria muito sentido a gente colocar antes, ou seja, @Before, porque ele pode ter coisas diferentes, nao eh?, a preparacao da execucao do Teste. Entao, nos vamos deixar assim, por enquanto. Depois, a gente cria no Construtor, alguma coisa assim, para facilitar um pouco, aqui, pra gente.
+
+
+
+13. Bom, entao, aqui, 
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+, eu estou preparando a execucao. Executo, nao eh?, o teste,
+
+
+
+this.beerService.save(newBeer);
+
+
+
+, agora, eu preciso fazer as assercoes, eu preciso falar o que que deve ter quando uma Cerveja esta salva.
+
+
+
+14. E, aqui, o que que a gente pode fazer?
+
+
+
+15. Vamos pensar, aqui, um pouquinho, oh.
+
+
+
+16. Quando eu salvar uma nova Cerveja, o que que ela tem que ter depois de salva?
+
+
+
+17. Ela tem que ter, pelo menos, o ID.
+
+
+
+18. Porque ela foi no Banco de Dados, e o ID foi gerado.
+
+
+
+19. Entao, a gente pode garantir que a Cerveja, quando for salva, ela retorna com um ID.
+
+
+
+20. Okay?
+
+
+
+21. Entao, essa seria a ideia.
+
+
+
+22. E, ai, vamos la. O que que a gente pode pensar, aqui?
+
+
+
+23. Em BeerService.save(), a gente pode retornar, aqui, a Cerveja salva, nao eh?, depois, de salva, a gente retorna ela, aqui, no metodo save(),
+
+
+
+public class BeerService {
+
+
+
+public >>> Beer save(Beer beer) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+}
+
+
+
+24. Ou a gente alteraria esse Beer recebido,
+
+
+
+public Beer save(>>> Beer beer <<<) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+25. Eu prefiro muito mais a ideia de retornar uma Cerveja, ja com os dados alterados, aqui, com a cerveja Salva, okay?,
+
+
+
+public >>> Beer save(Beer beer) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+26. Esse, aqui, eu vou marcar, inclusive, como final, como uma boa pratica, aqui, 
+
+
+
+public Beer save(>>> final <<< Beer beer) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+, nao eh?, para a gente nao alterar esse objeto, aqui, 
+
+
+
+public Beer save(final >>> Beer <<< beer) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+, nao eh?, a referencia desse objeto,
+
+
+
+public Beer save(final Beer >>> beer <<<) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+27. Entao, eu vou retornar uma Cerveja, aqui.
+
+
+
+28. Alterei alguma coisa ali, eu posso executar o Teste, 
+
+
+
+@Test(expected = BeerAlreadExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+
+
+...
+
+}
+
+
+
+, so para garantir que eu nao quebrei, pelo menos esse Teste, aqui, 
+
+
+
+@Test(expected = BeerAlreadExistException.class)
+
+public void should_deny_creation_of_beer_that_exists() {
+
+
+
+...
+
+}
+
+
+
+, ele deve continuar funcionando, tem que continuar funcionando.
+
+
+
+29. Vamos ver, tem que ficar verdinho.
+
+
+
+30. Okay, retornou, no Console, Tests passed: 1.
+
+
+
+31. Beleza, esse continua funcionando.
+
+
+
+32. Esse, aqui, 
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+...
+
+}
+
+
+
+, eh que vai comecar a falhar, agora, nao eh?
+
+
+
+33. Bom, para a gente fazer a Assercao, 
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+this.beerService.save(newBeer);
+
+
+
+>>> // Assercao <<<
+
+}
+
+
+
+, a gente poderia utilizar o JUnit, mas eu prefiro usar o Hamcrest, https://hamcrest.org/JavaHamcrest
+
+
+
+34. E, ai, ele tem para algumas linguagens, entre elas, o Java, que eh uma biblioteca para a gente fazer Matcher. So que ele fica um Matcher mais organizadinho, mais bonito do que o do JUnit.
+
+
+
+35. Okay?
+
+
+
+36. Entao, vamos adicionar, aqui, nesta aula, o Hamcrest. A gente vem, aqui, em build.gradle, vamos adicionar no Escopo de Teste, testCompile, a gente vai adicionar 'org.hamcrest:hamcrest-all:1.3', okay? Essa eh a versao que a gente vai utilizar,
+
+
+
+... 
+
+
+
+dependencies {
+
+
+
+...
+
+testCompile 'org.hamcrest:hamcrest-all:1.3'
+
+
+
+}
+
+
+
+35. Vamos ver, ele esta baixando, oh, no meu Projeto, aqui, embaixo, ele fica mostrando, oh, o que que esta acontecendo, pelo menos, aqui, no IntelliJ.
+
+
+
+36. Okay, baixou. 
+
+
+
+37. Agora, eu ja posso utilizar ele, aqui, no meu Projeto de Teste.
+
+
+
+38. Okay?
+
+
+
+39. Entao, para a gente usar ele, aqui, oh, so para voce ver, o que que ele tem, a gente pode vir, aqui, em Getting Started, e a gente vai usar, principalmente, esse assertThat(), que eh o que a gente usa no Hamcrest, o inves de usar o asertEquals(), o JUnit.
+
+
+
+40. Okay? Entao, essa eh a ideia.
+
+
+
+41. assertThat, que esta ness import, aqui, oh, import static org.hamcrest.MatcherAsser.assertThat(), Eu vim, aqui, para a gente, justamente, eu vou copiar esses dois, aqui, esses dois imports estaticos, aqui, vamos colar aqui, em cima da classe BeerServiceTest,
+
+
+
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import static org.hamcrest.Matchers.*;
+
+
+
+42. Oh, agora, eu posso fazer assertThat(), ou seja, garanta que..., vamos criar, aqui, oh, Beer beerSaved = beerService.save(newBeer);, garanta que a beerSaved.getId(), eh igual, ou seja, equalTo(), do Matchers, por exemplo, a 10, seria um ID que seria gerado na hora de salvar a Cerveja,
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+Beer beerSaved = beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+
+
+
+
+}
+
+
+
+43. Garanta que o beerSaved, o nome tambem, retornou, equalTo(), teria que retornar, aqui, essa Cerveja que ele salvou, tem que retornar "Heineken".
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+Beer beerSaved = beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.getName(), equalTo("Heineken"));
+
+
+}
+
+
+
+44. Garanta que o beerSaved.getType(), equalTo(), seja igual a BeerType.LAGER,
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+Beer beerSaved = beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.geName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER));
+
+
+}
+
+
+
+45. Ta, vamos parar por aqui, okay?
+
+
+
+46. Entao, a gente pode, entao, fazer as assercoes para garantir que tudo que a gente quer que aconteca, nesse objeto salvo, 
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+>>> Beer beerSaved = beerService.save(newBeer); <<<
+
+
+
+assertThat(beerSaved.getId(), equalTo(10L));
+
+assertThat(beerSaved.geName(), equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), equalTo(BeerType.LAGER));
+
+
+}
+
+
+
+, esteja setado corretamente. Okay? Entao, a cerveja, aqui, que foi salva, tem que ter esses atributos, aqui,
+
+
+
+@Test
+
+public void should_create_new_beer() {
+
+BeerService beerService = new BeerService();
+
+
+
+Beer newBeer = new Beer();
+
+newBeer.setName("Heineken");
+
+newBeer.setType(BeerType.LAGER);
+
+newBeer.setVolume(new BigDecimal("355"));
+
+
+
+Beer beerSaved = beerService.save(newBeer);
+
+
+
+assertThat(beerSaved.getId(), >>> equalTo(10L));
+
+assertThat(beerSaved.geName(), >>> equalTo("Heineken"));
+
+assertThat(beerSaved.getType(), >>> equalTo(BeerType.LAGER));
+
+
+}
+
+
+
+47. Se eu mandar executar esse Teste, aqui, oh, ele vai falhar, obviamente.
+
+
+
+48. Por que que ele vai falhar?
+
+
+
+49. Da para a gente ja deduzir, nao eh?
+
+
+
+50. Ele vai lancar a excecao, oh,
+
+
+
+com.hibicode.beerstore.service.exception.BeerAlreadyExistException
+
+at com.hibicode.beerstore.service.BeerService.save(BeerService.java:13)
+
+at com.hibicode.beerstore.service.BeerServiceTest.should_create_new_beer(BeerServiceTest.java:45)
+
+
+
+51. Olha la, lancou excecao, ao inves de salvar a Cerveja.
+
+
+
+52. Nao eh? Isso esta muito claro, porque nosso metodo, em BeerService.save(), so esta lancando a excecao,
+
+
+
+public Beer save(Beer beer) {
+
+throw new BeerAlreadyExistException();
+
+}
+
+
+
+53. Entao, na proxima aula, a gente vai fazer esse Teste, aqui, should_create_new_beer(), passar.
+
+
+
+54. Fim da Aula 03.016. Criando Teste para salvar Cerveja com Hamcrest.
+
+
+
+
+
+
+
+-->

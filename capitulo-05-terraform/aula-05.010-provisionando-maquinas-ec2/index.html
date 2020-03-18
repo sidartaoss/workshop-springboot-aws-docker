@@ -1,0 +1,241 @@
+<!--
+    Aula 05.010. Provisionando Maquinas EC2
+
+1. Vamos, agora, colocar uma Instancia dentro da nossa Subnet Publica.
+
+2. Entao, vamos pegar, aqui, deixa eu apagar o Security Group, aqui, das Subnets Publicas.
+
+3. Okay. Deixa eu baixar esse Endereco desse IP, na Subnet Publica, aqui, beleza.
+
+4. Vamos pegar, aqui, oh, o que nos vamos fazer, agora, eh colocar as Instancias, uma Instancia dentro de cada Uma dessas Sub-redes.
+
+5. Okay?
+
+6. Entao, eh isso que nos vamos fazer. Nos vamos criar 3 Instancias, aqui dentro, 3 Instancias EC2, e voce vai ver que o IP, dessa Primeira Instancia, vai ser 192.168.20.alguma_coisa, esse, aqui, .21.alguma_coisa, e, esse, .22.alguma_coisa.
+
+7. Beleza?
+
+8. Entao, vamos la, vamos criar, aqui, um outro arquivo. Eu vou chamar esse arquivo de instances.tf, aqui, para continuar no nome do que a gente esta criando, nao eh?, um nome mais logico.
+
+9. Entao, sao as Instancias.
+
+10. Para criar, resource "" "" {}, aws_instance, esse eh o Recurso que a gente vai criar, e, aqui, qual que eh o nome, "instances", vamos chamar de instances,
+
+resource "aws_instance" "instances" {
+
+        ami = ""
+        instance_type = ""
+}
+
+11. Okay?
+
+12. Aqui, o IntelliJ ja fala, 'Oh, os atributos que eu preciso, que sao obrigatorios. Mas existem varios, como voce ja sabe.
+
+13. Nao eh? Entao, se a gente vier, aqui, no site do Terraform, em Providers, vamos, aqui, em Docs / Providers / AWS, vamos pesquisar, aqui, aws_instance, o primeiro, aqui, vai ser o do Data Source, o segundo, aqui, vai ser o Recurso, mesmo, aws_instance, https://www.terraform.io/docs/providers/aws/r/instance.html.
+
+14. Entao, olha so.
+
+15. Em Argument Reference, quais sao os Argumentos? O que que a gente pode passar, la, oh.
+
+16. O "ami", que eh usado para criar a Maquina, obrigatorio, availability_zone, ou seja, qual eh a Zona, qual eh, entre outras coias, o tipo da instancia, "instance_type", que tambem eh obrigatorio, por isso que o IntelliJ ja colocou, la, para a gente, e varias outras propriedades, aqui, oh.
+
+17. Tem muitas e muitas que voce pode colocar.
+
+18. Okay?
+
+19. Como eu ja disse, nao eh o escopo do curso a gente entrar em todos os detalhes.
+
+20. Vamos la. O "ami", entao como eu ja disse, eh,..., vamos pegar, aqui, oh, no Google, "aws ami", eh o Sistema Operacional, basicamente, eh o Sistema Operacional que a gente vai colocar, la, na nossa Maquina.
+
+21. Okay?
+
+22. Entao, ele define algumas coisas, ai, voce pode criar o seu, tambem, ta?, voce pode um AMI seu, customizado, e tal, e colocar la. Voce precisa criar a partir de um AMI existente, voce nao consegue colocar qualquer Sistema Operacional la, nao.
+
+23. Tem que ser um AMI homologado pela AWS.
+
+24. Aqui, na Internet, esta dificil encontrar.
+
+25. Uma outra forma que a gente pode fazer eh vir, aqui, em EC2, no Console da AWS, a gente comeca a criar uma Instancia, e, aqui, vai aparecer AMI's, as Imagens para voce selecionar. (Amazon Machine Image)
+
+26. Okay? Oh, repara so, Amazon Linux, Free Tier, ou seja, elegivel para entrar na sua Conta Gratis. Se voce escolher, por exemplo, essa daqui, do Ubuntu, nao entra na Conta Gratis. Essa daqui, Amazon Linux, tambem nao entra na Conta Gratis.
+
+27. Okay? Entao, nao pode ser qualquer uma nao.
+
+28. Beleza?
+
+29. Entao, olha so. Amazon Linux, que vem com um Volume, um HD, nao eh?, do tipo SSD, tambem, entao, ela vem com 5 anos de Suporte, nao eh?, vai sendo atualizada, tem o Linux 4.14, eh um Linux da propria Amazon, okay? Alguns softwares que ja vem instalados nela, e tal, beleza?
+
+30. Qual que eh o tipo do driver, eh o ebs, que eh um disco da propria AWS, o tipo de virtualizacao dela, okay?, entao, essa, aqui, pode ser uma candidata pra gente.
+
+31. Entao, a gente precisa desse codigo, aqui, ou seja, ami-04681a1db...
+
+32. Okay? Ela esta dentro da Conta Gratis, e eu vou pegar esse codigo, aqui. Voce pode pesquisar outras, aqui, se voce tiver as suas, oh, elas virao aparecer, aqui, em My AMI's. Voce pode olhar no Marketplace, AWS Marketplace, tem outras coisas que voce consegue,..., ah, sera que eu consigo buscar um outro AMI, de algum outro parceiro?
+
+33. Sim. E, as vezes, voce pode pagar por isso tambem.
+
+34. Okay?
+
+35. Mas, para a gente, vai ser suficiente a gente escolher essa, aqui, a Amazon Linux, mesmo. Copiar o codigo, ami-04681a1dbd...
+
+36. Entao, vamos voltar, aqui, em instances.tf, eu colo o codigo, em "ami". Qual eh o tipo da instancia?
+
+37. Vamos selecionar, aqui, no Console da AWS, e continuar.
+
+38. Olha so, o tipo da instancia, eh, a gente vai determinar: 1. Quantas CPU's tem dentro, Memoria, qual que eh..., principalmente a CPU e a Memoria, aqui.
+
+39. E, ai, muito importante, nao sao todas, eu acho que, na verdade, so t2.micro, que eh disponivel para a Conta Gratis, Okay?, para a sua Conta Gratis. Se voce escolher qualquer uma outra, voce ja vai comecar a pagar.
+
+40. Beleza?
+
+41. Tinha uma opcao, um tempo atras, aqui, oh, Free tier only, mostra, aqui, so coisas gratis.
+
+42. Poderia ter uma opcao, aqui, nao eh?, nessa outra tela, 'Mostrar so as gratis'. Mas, eu acho que nao tem essa opcao.
+
+43. Entao, a unica que a gente pode escolher, aqui, eh a t2.micro, para voce nao pagar nada. Ela vem com 1 CPU, um CPU virtual, aqui, para a sua Maquina, e 1 GB de Memoria.
+
+44. Para o que a gente vai fazer, esta mais do que suficiente.
+
+45. Beleza?
+
+46. Entao, vamos selecionar, aqui, e colocar t2.micro, em instance_type, em instances.tf.
+
+47. Beleza?
+
+48. Bom, o que mais que a gente precisa configurar?
+
+49. Se a gente olhar, aqui, uma coisa muito, muito importante, eh subnet_id, https://www.terraform.io/docs/providers/aws/r/instance.html#subnet_id-1.
+
+50. Para qual sub-rede essa instancia vai?
+
+51. Eu quero que cada uma delas, ou seja, das Instancias, va para uma Sub-rede especifica.
+
+52. Okay?
+
+53. Entao, eu preciso especificar. Eu quero que a Instancia 1 va para ca, em Subnet 192.168.20.0/24, a 2 va para ca, em Subnet 192.168.21.0/24, a Instancia 3 va para ca, em Subnet 192.168.22.0/24.
+
+54. Entao, aqui, em instances.tf, a gente poderia ficar duplicando codigo, ou usar os recursos que o Terraform ja nos fornece.
+
+55. Entao, vamos colocar count 3,
+
+resource "aws_instance" "instances" {
+    count = 3
+
+    ami = "ami-0468..."
+    instance_type = "t2.micro"
+}
+
+, e, agora, eu tenho que dar um jeito de, no subnet_id, selecionar as public_subnet's, o ID das public_subnet's, que estao estao definidos em network.tf, cada hora um,
+
+resource "aws_subnet" "public_subnet" {
+    count = 3
+
+    ...
+}
+
+56. Okay? Entao, para eu poder fazer isso, daqui, eu vou usar uma outra funcao, chamada de element(), aqui, do Terraform,
+
+resource "aws_instance" "instances" {
+    count = 3
+
+    ami = "ami-0468..."
+    instance_type = "t2.micro"
+
+    subnet_id = "${element(, )}"
+}
+
+57. Entao, eu vou querer pegar os IDs das Subnets, ${element(aws_subnet, )}, eu posso, inclusive, referenciar de outro arquivo, okay?
+
+58. Oh, aws_subnet.public_subnet., quais instancias que eu quero pegar?
+
+59. Todas, ou seja, *, e eu vou pegar o id,
+
+resource "aws_instance" "instances" {
+    count = 3
+
+    ami = "ami-0468..."
+    instance_type = "t2.micro"
+
+    subnet_id = "${element(aws_subnet.public_subnet.*.id, )}"
+}
+
+60. Mas, eu vou pegar todas, como assim?
+
+61. Eu vou pegar uma de cada vez, ou seja, count.index,
+
+resource "aws_instance" "instances" {
+    count = 3
+
+    ami = "ami-0468..."
+    instance_type = "t2.micro"
+
+    subnet_id = "${element(aws_subnet.public_subnet.*.id, count.index)}"
+}
+
+62. Entao, uma por vez, esse asterisco, aqui, vai ser substituido, entao, por uma por vez, aqui, nesse element.
+
+63. Entao, se voce,..., o que esse element faz eh, pega todas as instancias pega Um elemento de cada vez, pega o id, aqui, de cada vez, dessas subnets.
+
+64. Okay? Para ficar dentro, aqui, do count.
+
+65. Vamos colocar uma tag Name, aqui, para ficar bonito, la, no Console. Vamos colocar hibicode_instances, vamos chamar de instances, mesmo, e eu acho que eh so, para a gente comecar,
+
+resource "aws_instance" "instances" {
+    count = 3
+
+    ami = "ami-0468..."
+    instance_type = "t2.micro"
+
+    subnet_id = "${element(aws_subnet.public_subnet.*.id, count.index)}"
+
+    tags {
+        Name = "hibicode_instances"
+    }
+}
+
+, so para a gente ver a maquina sendo criada.
+
+66. Eh so isso. Vamos ver?
+
+67. Vamos mandar dar o apply, direto,
+
+> terraform apply
+
+, eh so a gente esperar para ver, ele vai pedir, primeiro, a regiao, okay, ele vai dar uma olhada la, no estado, ver o que que ele tem, vai ver que nao tem nenhuma Instancia rodando, agora, e vai falar que quer criar essas instancias, as 3 instancias, na verdade. 
+
+68. Entao, olha la, ele vai adicionar 3 instancias. Vamos dar uma conferida, aqui?
+
+69. Eh esse "ami-0468...", que ele vai utilizar, "t2.micro", subnet_id, vai ficar na ...e7, outra na ...6f, e outra na ...aa, final aa, aqui.
+
+70. Vamos dar um yes?
+
+71. Confiar que eles estao indo para as subnets corretas, e a gente confere, aqui, no Console da AWS.
+
+72. Vamos conferir aqui? Entao, a gente vem, agora, no Servico EC2, clicar em Running Instances.
+
+73. E, ai, quando o Terraform conseguir criar, ele demora, aqui, um pouquinho para criar, oh, elas ja comecaram a aparecer, aqui, oh, estao sendo criadas, ja estao sendo criadas, oh.
+
+74. Comecaram a aparecer. Cada uma esta em uma Zona diferente, oh, 1a, 1b e 1c. Entao, eh muito provavel que elas tenham ido para as subnets corretas.
+
+75. Para a gente ver para quais subnets elas foram, fica,..., Selecionar Uma Subnet, vamos ver, aqui, em Subnet ID, entao, esta na,..., vamos copiar, aqui, e vamos vir, aqui, no Servico de VPC, no AWS Console.
+
+76. Clicar em Subnets, vamos ver, ali, os IDs das Subnets? So para a gente confirmar que deu tudo certo.
+
+77. Eles tem que ir para as Subnet's publicas.
+
+78. Entao, verificamos que, cada Subnet ID esta em uma Subnet Publica, como eu gostaria que fosse. 
+
+79. Vamos so conferir os IP's privados delas, aqui, oh, das Instancias EC2, em Private IPs: 192.168.20.206, 192.168.21.61, 192.168.22.20. Esse, aqui, 
+
+192.168.20.>>> 206 
+192.168.21.>>> 61
+192.168.22.>>> 20
+
+, eh quem da eh a propria AWS pra gente. Repare que todas as Instancias tem um IP Publico, tambem, em IPv4 Public IP: 3.85.106.51, 18.215.189.195, 54.161.64.208, para a gente poder acessa-las daqui a pouco.
+
+80. Se a gente tentar acessar agora, a gente nao vai conseguir.
+
+81. Mas, eu vou deixar para falar isso na proxima aula.
+
+82. Fim da     Aula 05.010. Provisionando Maquinas EC2.
+
+-->

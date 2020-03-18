@@ -1,0 +1,534 @@
+<!--
+    Aula 03.009 - Codigo e Mensagem de Erro
+
+1. Baseado que a gente vai ter a nossa mensagem de respostas assim,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request"
+    "errors": [
+        {"code": "geeks-1", "message": "The first_name is mandatory"},
+        {"code": "geeks-2", "message": "The last_name is mandatory"}
+    ]
+}
+
+2. Vamos criar a classe que representa exatamente isso.
+
+3. Nao eh?
+
+4. Entao, vamos la.
+
+5. A gente nao vai fazer exatamente igual, nao, mas eh bem parecido aqui.
+
+6. Okay? Entao, vamos la.
+
+7. Vamos criar essa classe, aqui, representa isso, nos vamos colocar essa classe aqui, ela vai se chamar ErrorResponse, e a gente vai colocar ela dentro do pacote .error,
+
+package com.hibicode.beerstore.error;
+
+public class ErrorResponse {
+
+}
+
+8. Okay?
+
+9. O que que a gente vai ter nessa classe?
+
+10. Bom, ela eh esse JSON, aqui, de reposta,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request"
+    "errors": [
+        {"code": "geeks-1", "message": "The first_name is mandatory"},
+        {"code": "geeks-2", "message": "The last_name is mandatory"}
+    ]
+}
+
+11. Okay? Eu quero montar esse JSON, aqui, de resposta, baseado nessa classe, okay?
+
+12. Entao, o que que eu vou criar, aqui dentro?
+
+13. Vamos la. Vamos aos pouquinhos, aqui.
+
+14. Eu tenho que ter, private final int statusCode; que eh o codigo de resposta,
+
+{
+    >>> "status_code": 400,
+    "reason_phrase": "Bad request"
+    "errors": [
+        {"code": "geeks-1", "message": "The first_name is mandatory"},
+        {"code": "geeks-2", "message": "The last_name is mandatory"}
+    ]
+}
+
+, eu nao vou colocar esse reasonPhrase, aqui,
+
+{
+    "status_code": 400,
+    >>> "reason_phrase": "Bad request"
+    "errors": [
+        {"code": "geeks-1", "message": "The first_name is mandatory"},
+        {"code": "geeks-2", "message": "The last_name is mandatory"}
+    ]
+}
+
+, porque ele ja vai aqui no status_code, entao, isso, aqui, ja eh do HTTP, por isso que eu tirar esse cara, aqui, para ficar um pouquinho mais simples.
+
+15. Okay? E, depois, a gente tem uma lista de errors,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request"
+    >>> "errors": [
+        {"code": "geeks-1", "message": "The first_name is mandatory"},
+        {"code": "geeks-2", "message": "The last_name is mandatory"}
+    ]
+}
+
+16. Nao eh? Entao, aqui, vai ser um private List<>, e eu vou chamar aqueles caras, esses objetos, aqui,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request"
+    "errors": [
+        >>> {"code": "geeks-1", "message": "The first_name is mandatory"},
+        >>> {"code": "geeks-2", "message": "The last_name is mandatory"}
+    ]
+}
+
+, de ApiError, cada um desses, aqui, 
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request"
+    "errors": [
+        >>> {"code": "geeks-1", "message": "The first_name is mandatory"},
+        >>> {"code": "geeks-2", "message": "The last_name is mandatory"}
+    ]
+}
+
+, eh um ApiError,
+
+package com.hibicode.beerstore.error;
+
+public ErrorResponse {
+
+    private final int statusCode;
+    private List<ApiError> errors;
+}
+
+17. Okay? Esse ApiError nos vamos criar, aqui, dentro, mesmo, como uma classe Estatica. Por que?
+
+18. Porque ela nao eh usada fora. So teria sentido usar esse ApiError se ela for dentro de ErrorResponse, okay?
+
+package com.hibicode.beerstore.error;
+
+public class ErrorResponse {
+
+    private final int statusCode;
+    private List<ApiError> errors;
+
+    static class ApiError {
+        
+    }
+}
+
+19. E, aqui, o que que ApiError tem? Olha la, ele tem o codigo e ele tem uma mensagem,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request"
+    "errors": [
+        {>>> "code": "geeks-1", >>> "message": "The first_name is mandatory"},
+        {"code": "geeks-2", "message": "The last_name is mandatory"}
+    ]
+}
+
+20. Entao,
+
+package com.hibicode.beerstore.error;
+
+public class ErrorResponse {
+
+    private final int statusCode;
+    private final List<ApiError> errors;
+
+    static class ApiError {
+        private final String code;
+        private final String message;       
+    }
+}
+
+21. Por que final, aqui?
+
+package com.hibicode.beerstore.error;
+
+public class ErrorResponse {
+
+    private final int statusCode;
+    private final List<ApiError> errors;
+
+    static class ApiError {
+        private >>> final String code;
+        private final String message;       
+    }
+}
+
+22. Porque, depois que eu defini os valores, eu nao quero que esses valores mudem.
+
+23. Se eu ja defini um erro, eh esse erro para sempre.
+
+24. Okay? Nao precisa ficar mudando.
+
+25. Bom, para isso, daqui, ser um JSON, eu posso adicionar algumas coisas (anotações), aqui.
+
+26. Para eu nao ter que adcionar os Getters e Setters, mesmo que a gente ja use o Lombok para facilitar, para eu nao ter que ficar adicionando isso, eu posso adicionar uma outra anotacao, aqui, chamada de @JsonAutoDetect, do pacote com.fasterxml.jackson.annotation.JsouAutoDetect, e eu coloco aqui, oh, fieldVisibility, vai ser JsonAutoDetect.Visibility.ANY. Ai, eu gosto de fazer o import estatico desse camarada, ai, aqui, eu posso deixar assim, @JsonAutoDetct(fieldVisibility = ANY), para ficar mais simples,
+
+package com.hibicode.beerstore.error;
+
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+
+@JsonAutoDetct(fieldVisibility = ANY)
+public class ErrorResponse {
+
+    private final int statusCode;
+    private List<ApiError> errors;
+
+    static class ApiError {
+        private final String code;
+        private final String message;       
+    }
+}
+
+27. Entao, oh, @JsonAutoDetect, ou seja, Detect qualquer um dos atributos dessa classe.
+
+28. Entao, os atributos private's tambem serao usados para se converter em um JSON.
+
+29. E, aqui, tambem, a mesma coisa, dentro dessa classe estatica, ApiError, tambem,
+
+@JsonAutoDetct(fieldVisibility = ANY)
+public class ErrorResponse {
+
+    private final int statusCode;
+    private List<ApiError> errors;
+
+    @JsonAutoDetect(fieldVisibility = ANY)
+    static class ApiError {
+        private final String code;
+        private final String message;       
+    }
+}
+
+30. Bom, por que que aqui esta vermelhinho?
+
+@JsonAutoDetct(fieldVisibility = ANY)
+public class ErrorResponse {
+
+    >>> private final int statusCode;
+    >>> private List<ApiError> errors;
+
+    @JsonAutoDetect(fieldVisibility = ANY)
+    static class ApiError {
+        >>> private final String code;
+        >>> private final String message;       
+    }
+}
+
+31. Porque, se esses atributos sao finais, eles precisam ser inicializados.
+
+32. Para eles serem inicializados, eu posso criar um Construtor. Entao, com a anotacao @RequiredArgsConstructor, ele vai criar o Construtor para mim, ai. Isso, aqui, ja eh do Lombok, ele cria o Construtor de todos os atributos final que eu tenho,
+
+import lombok.RequiredArgsConstructor;
+
+@JsonAutoDetct(fieldVisibility = ANY)
+>>> @RequiredArgsConstructor
+public class ErrorResponse {
+
+    private final int statusCode;
+    private List<ApiError> errors;
+
+    @JsonAutoDetect(fieldVisibility = ANY)
+    @RequiredArgsConstructor
+    static class ApiError {
+        private final String code;
+        private final String message;       
+    }
+}
+
+33. So que eu quero que esse construtor, aqui, seja privado, porque eu vou criar os metodos construtores aqui.
+
+34. Entao, para esse Construtor ser privado, access vai ser AccessLevelPrivate,
+
+@JsonAutoDetct(fieldVisibility = ANY)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public class ErrorResponse {
+
+    private final int statusCode;
+    private List<ApiError> errors;
+
+    @JsonAutoDetect(fieldVisibility = ANY)
+    static class ApiError {
+        private final String code;
+        private final String message;       
+    }
+}
+
+35. E, aqui, eu tambem costumo fazer o import estatico, para a gente nao precisar declarar esse cara, assim,
+
+...
+
+import static lombok.AccessLevel.PRIVATE;
+
+...
+
+@JsonAutoDetct(fieldVisibility = ANY)
+@RequiredArgsConstructor(access = PRIVATE)
+public class ErrorResponse {
+
+    private final int statusCode;
+    private List<ApiError> errors;
+
+    @JsonAutoDetect(fieldVisibility = ANY)
+    static class ApiError {
+        private final String code;
+        private final String message;       
+    }
+}
+
+36. Bom, vamos criar, aqui, agora, os metodos construtores desse ErrorResponse.
+
+37. Entao, ele vai ser um static, ele vai criar um ErrorResponse, vamos chamar ele, aqui, de of(). Ele recebe, aqui, um HttpStatus, um status, e uma Lista de ApiError, errors, com todos os erros,
+
+@JsonAutoDetct(fieldVisibility = ANY)
+@RequiredArgsConstructor(access = PRIVATE)
+public class ErrorResponse {
+
+    private final int statusCode;
+    private List<ApiError> errors;
+
+    static ErrorResponse of(HttpStatus status, List<ApiError> errors) {
+
+        return null;    
+    }
+
+    @JsonAutoDetect(fieldVisibility = ANY)
+    static class ApiError {
+        private final String code;
+        private final String message;       
+    }
+}
+
+38. Ai, a gente vai retornar new ErrorResponse(), e eu passo status.value(), e o errors,
+
+@JsonAutoDetct(fieldVisibility = ANY)
+@RequiredArgsConstructor(access = PRIVATE)
+public class ErrorResponse {
+
+    private final int statusCode;
+    private List<ApiError> errors;
+
+    static ErrorResponse of(HttpStatus status, List<ApiError> errors) {
+        return new ErrorResponse(HttpStatus.value(), errors);
+    }
+
+    @JsonAutoDetect(fieldVisibility = ANY)
+    static class ApiError {
+        private final String code;
+        private final String message;       
+    }
+}
+
+39. Pronto, ai, eu ja pego, aqui, ai, eu ja pego, aqui, ele nao vai ficar passando o codigo inteiro,
+
+    static ErrorResponse of(>>> HttpStatus status <<< , List<ApiError> errors) {
+        return new ErrorResponse(HttpStatus.value(), errors);    
+    }
+
+, eu passo o objeto HttpStatus, 
+
+    static ErrorResponse of(>>> HttpStatus status <<< , List<ApiError> errors) {
+        return new ErrorResponse(HttpStatus.value(), errors);    
+    }
+
+, daqui, eu transformo ele para inteiro,
+
+public class ErrorResponse {
+
+    >>> private final int statusCode;
+    private List<ApiError> errors;
+
+        ...
+
+40. Vamos criar mais um Construtor, aqui?
+
+41. Se eu tivesse somente Um Erro, eu nao tenho varios erros, pode ser que a gente tenha esse tipo de situacao.
+
+42. Entao, static ErrorResponse of(HttpStatus status, ), e, aqui, eu so recebo Um ApiError error,
+
+        static ErrorResponse of(HttpStatus status, List<ApiError> errors) {
+            return new ErrorResponse(status.value(), errors);    
+        }
+
+        static ErrorResponse of(HttpStatus status, ApiError error) {
+
+        }
+
+43. Ai, eu posso usar o Construtor, ali, de cima, passando o status e, aqui, eu passo um Collections.singletonList(), passando error,
+
+        static ErrorResponse of(HttpStatus statis, List<ApiError> errors) {
+            return new ErrorResponse(status.value(), errors);
+        }
+
+        static ErrorResponse of(HttpStatus status, ApiError error) {
+            return of(status, Collections.singletonList(error));
+        }
+
+44. Ai, ja vai facilitar um pouquinho a minha vida, aqui, ha nora de criar esse objeto ErrorResponse, aqui.
+
+45. Simles?
+
+46. Acho que sim, nao eh?
+
+47. Bom, vamos la. Vamos criar os codigos de erro. Esses codigos de erro que serao esses codigos, aqui, oh,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request"
+    "errors": [
+        {"code": >>> "geeks-1" <<< , "message": "The first_name is mandatory"},
+        {"code": >>> "geeks-2" <<< , "message": "The last_name is mandatory"}
+    ]
+}
+
+, que estao em cada uma das Entidades.
+
+48. Entao, onde que eu vou colocar esses caras?
+
+49. Na propria entidade Beer, mesmo.
+
+50. Entao, @NotBlank(), message = "beers-1", por exemplo,
+
+public class Beer {
+
+    ...
+
+    @NotBlank(message = "beers-1")
+    private String name;
+
+
+}
+
+51. Aqui, em type, @NotNull(message = "beers-2"),
+
+    @NotNull(message = "beers-2")
+    private BeerType type;
+
+52. E, em volume, @NotNull, aqui, vai ser "beers-3",
+
+    @NotNull(message = "beers-3")
+    @DecimalMin("0")
+    private BigDecimal volume;
+
+53. E, aqui, em @DecimalMin(), eu vou precisar colocar o value e message, com "beers-4",
+
+    @NotNull(message = "beers-3")
+    @DecimalMin(value = "0", message = "beers-4")
+    private BigDecimal volume;
+
+54. Okay?
+
+55. Bom, defini esses codigos de erro,
+
+    @NotBlank(message = >>> "beers-1")
+    private String name;
+
+    @NotNull(message = >>> "beers-2")
+    private BeerType type;
+
+    @NotNull(message = >>> "beers-3")
+    @DecimalMin(value = "0", message = >>> "beers-4")
+    private BigDecimal volume;
+
+56. Agora, a gente pode fazer mais duas coisas para terminar.
+
+57. Primeiro, criar o recurso, aqui, dentro de src/main/resources, que eh o arquivo api_errors.properties. Aqui, eu vou colocar so uma mensagem, para a gente ver uma estrategia de a gente gerar la,
+
+beers-1=Name is mandatory and cannot be blank
+
+, por exemplo.
+
+58. Okay? Que eh responsavel por essa mensagem, aqui, oh, do "beers-1", do name,
+
+    @NotBlank(message = "beers-1")
+    private String name;
+
+59. Okay?
+
+60. Para finalizar, vamos so carregar esse arquivo, api_errors.properties, aqui, em uma classe de configuracao.
+
+61. Entao, vamos criar, aqui, uma classe, dentro do pacote config, vamos chamar ela de ApiErrorConfig,
+
+package com.hibicode.beerstore.config;
+
+public class ApiErrorConfig {
+
+}
+
+62. E essa classe precisa ser anotada com @Configuration, para ela ser uma classe de Configuracao do Spring,
+
+package com.hibicode.beerstore.config;
+
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ApiErrorConfig {
+
+}
+
+63. E a gente vai criar, aqui, um Bean que cria um MessageSource, apiErrorMessageSource(), 
+
+import org.springframework.context.MessageSource;
+
+@Configuration
+public class ApiErrorConfig {
+
+    public MessageSource apiErrorMessageSource() {
+
+    }
+}
+
+64. Como que eu crio esse cara?
+
+65. Eu preciso criar esse ReloadableResourceBundleMessageResource, vamos chamar, aqui, de messageSource,
+
+import org.springframework.context.support.ReloadableResourceBundleMessageResource;
+
+@Configuration
+public class ApiErrorConfig {
+
+    public MessageSource apiErrorMessageSource() {
+        ReloadableResourceBundleMessageResource messageSource = new ReloadableResourceBundleMessageResource();
+    }
+}
+
+66. Agora, eu passo, nele, messageSource.setBaseName(), eh onde esta o arquivo, esta no classpath:/api_errors, nao precisa colocar a extensao .properties. messageSource.setDefaultEncoding(), passando UTF-8, que tem que estar la dentro. Agora, eh os retornar esse messageSource, aqui,
+
+    public MessageSource apiErrorMessageSource() {
+        ReloadableResourceBundleMessageResource messageSource = new ReloadableResourceBundleMessageResource();
+        messageSource.setBaseName("classpath:/api_errors");
+        messageSource.setDefaultEncoding("UTF-8");
+        return messageSource;
+    }
+
+67. Okay?
+
+68. Mexi muita coisa, entao, eu vou parar essa aplicacao, subir novamente, vamos ver se tem algum probleminha, se nao deu nenhum probleminha, a gente para, aqui, nesta aula, e continua na proxima.
+
+69. Okay, a aplicacao subiu, a gente, ainda, nao esta tratando nada, a mensagem continua a mesma, aqui, no Postman, de erro, continua a mesma coisa, mas, nos estamos no caminho.
+
+70. Beleza?
+
+71. Fim da     Aula 03.009 - Codigo e Mensagem de Erro.
+
+-->

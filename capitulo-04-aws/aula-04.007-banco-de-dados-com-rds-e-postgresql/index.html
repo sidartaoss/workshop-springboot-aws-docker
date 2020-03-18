@@ -1,0 +1,175 @@
+<!-- 
+
+Aula 04.007. Banco de Dados com RDS e PostgreSQL
+
+
+
+1. Um outro Servico que a gente vai usar, que eh muito util, muito usado no mundo, eh o RDS, que eh o Servico de Banco de Dados Relacional da AWS.
+
+
+
+2. Entao, como o proprio nome diz, eh para a gente usar o Banco de dados Relacional. 
+
+
+
+3. Quais Bancos de Dados Relacionais?
+
+
+
+4. Entao, a gente tem, comcando, aqui, oh, no PostgreSQL, MySQL, MariaDB, Oracle, SQLServer.
+
+
+
+5. O Postgres eh o que a gente vai utilizar, durante este Curso.
+
+
+
+6. E tem esse, aqui, tambem, o Amazon Aurora, que eh um Banco de dados que a Amazon desenvolveu, eu ainda nao tive a oportunidade de usa-lo, em nenhum Projeto, mas, o que eu ja li dele, parece ser um Banco de Dados bem legal, espero poder utiliza-lo em breve.
+
+
+
+7. Okay? Mas, nos vamos utilizar o Postgres, porque eh um dos mais famosos bancos Open-Source, nao eh?, free, que voce pode utilizar.
+
+
+
+8. Okay? Entao, nos vamos utilizar ele, aqui, no RDS.
+
+
+
+9. Mas, o que que o RDS faz para a gente, em relacao ao Postgres?
+
+
+
+10. Ele gerencia toda a instalacao do Postgres, toda a manutencao pra gente.
+
+
+
+11. Como assim?
+
+
+
+12. Ele vai fazer Backup, se voce precisar fazer alguma atualizacao, o RDS faz, ou seja, nao eh voce que precisa fazer isso, voce nao precisa saber instalar um Postgres. So de eu pensar isso, eu ja fico muito feliz, nao eh?, so de voce nao ter que se preocupar em instalar e configurar a maquina, servidor, para que o Postgres esteja rodando, ja eh uma mao na roda sensacional, ja te facilita, te salva muito, muito trabalho.
+
+
+
+13. E eh isso que o RDS faz para todos esses bancos, aqui, que voce esta vendo.
+
+
+
+14. Okay?
+
+
+
+15. E um outro Recurso muito legal que a gente pode ter, aqui, no RDS, eh a Alta Disponibilidade do Banco.
+
+
+
+16. Entao, olha so. 
+
+
+
+17. Dentro, aqui, de uma Regiao, ai, o desenho da Regiao eh essa linha preta, aqui, tracejada, okay? Entao, dentro de uma Regiao, por exemplo, em Sao Paulo, ai, eu tenho uma AZ, nao eh?, uma Zona de Disponibilidade, e outra Zona de Disponibilidade, ou seja, eu tenho Duas Zonas, aqui, diferentes.
+
+
+
+18. Eu posso colocar, em Uma Zona, em Uma Instancia RDS, o Postgres, como Banco Principal, e eu coloco em outra Zona, uma Instancia RDS em Espera, ou seja, a Instancia RDS em Espera esta paradinha. 
+
+
+
+19. Se, por um acaso, essa Instancia RDS der algum problema, cair, essa Zona inteira, aqui, cair, esse cara, aqui, na outra Zona, ou seja, a Instancia RDS em Espera, assume.
+
+
+
+20. E o RDS faz tudo isso para voce de forma assim, transparente, voce nao precisa fazer nada, so precisa habilitar a opcao de criar um Banco em Espera. Quando voce faz isso, olha so, vamos so entender, a nossa aplicacao vai conectar aqui, oh, no Banco da Instancia RDS, nessa Zona. Quando voce escreve um dado aqui, nessa Instancia RDS, o RDS, automaticamente, vem aqui, na outra Zona, sincroniza na Instancia RDS em Espera, beleza, esta sincronizado, entao, aqui, tem sempre os mesmos dados, ou seja, na Instancia RDS e na Instancia RDS em Espera.
+
+
+
+21. Okay?
+
+
+
+22. A gente esta com os mesmos dados aqui.
+
+
+
+23. Caso esse daqui, caia, ou seja a Instancia RDS caia, a Aplicacao conecta aqui, na Instancia RDS, atraves de um DNS que o RDS fornece, a gente vai ver isso. Se essa Zona, aqui, da Instancia RDS, cair, esse DNS vai passar a resolver para outra Banco, para outro IP, que vai estar em outra Zona.
+
+
+
+24. Entao, assim, voce aumenta a disponibilidade do Banco de Dados, consequentemente, a sua aplicacao vai ficar menos tempo fora do ar, caso algum problema aconteca com o Banco.
+
+
+
+25. Entao, como eu estava dizendo, tambem, outro Servico que o RDS fornece como atualizacao. Vamos supor que voce esta, aqui, com a versao 10.4 do Postgres, e, ai, lancou a versao 10.5, com uma correcao de bug importante para o seu projeto.
+
+
+
+26. Voce pode falar, 'RDS, eu quero que voce atualize para mim.'. Ele vai atualizar para voce, voce define os horarios em que isso vai acontecer. Por exemplo, eu quero que a manutencao aconteca entre 3 e 5 da manha, por exemplo, e, ai, entre 3 e 5 da manha, vai acontecer essa atualizacao do banco para voce enquanto voce esta dormindo.
+
+
+
+27. Okay? Voce nao precisa fazer isso. Entao, eh uma mao na roda, muito, muito boa, facilita muito a sua vida nao ter que instalar Banco de Dados, nao eh?
+
+
+
+28. Definicao de Preco, tambem, no RDS.
+
+
+
+29. Depende de muitas coisas, do Tipo do Banco, vamos pegar, aqui, o Postgres. Depende da Regiao, tambem, depende do tipo, oh, Single-AZ, ou seja, eu nao quero, vamos supor que voce nao quer essa opcao de colocar um Banco em Espera em Outra Zona de Disponibilidade. Isso eh um Preco. Se voce colocar Multi-AZ, que eh essa opcao de colocar em Mais de Uma Zona de Disponibilidade, eh outro Preco.
+
+
+
+30. Entao, olha so, se a gente pegar, aqui, um db.t2.micro, uma Maquina db.t2.micro, custa 0.018 centavos Por Dolar, enquanto, em Muti-AZ, custa 0,036 centavos Por Dolar, ou seja, eh o Dobro do Preco.
+
+
+
+31. Se voce colocar, isso, aqui, no Norte da Virginia, vamos ver em Sao Paulo, quanto custa?
+
+
+
+32. Oh, de 18 centavos de Dolar, vai para 38 centavos de Dolar.
+
+
+
+33. Nao eh? Sobe bem, mais do Dobro do Preco, nesse tipo de Instancia, aqui, db.t2.micro. Por que essas Instancias?
+
+
+
+34. Depende muito do acesso, se voce nao tem quase nada de acesso, beleza, voce pode colocar uma maquina para o Banco mais simples. 
+
+
+
+35. Nao, Normandes, o meu Banco, ele tem muito acesso. Ai, voce comeca a escolher outras maquinas, o preco, tambem, vai subir bastante.
+
+
+
+36. Okay?
+
+
+
+37. E, tambem, existe,..., se voce esta dentro da Conta Gratis, nao sao todas as Instancias, voce nao pode pegar essa daqui, por exemplo, db.m4.16xlarge (7,632 USD), para usar no Plano Gratis, porque ela nao vai estar.
+
+
+
+38. Okay?
+
+
+
+39. Entao, eh isso daqui, depende muito da Regiao, depende das Instancias, se voce vai colocar em Single-AZ, que eh sem a Instancia RDS em Espera, ou nao.
+
+
+
+40. Beleza?
+
+
+
+41. Entao, nos vamos usar, quando a gente chegar la no Terraform, para Provisionar, a gente ainda vai ver mais detalhes do RDS. 
+
+
+
+42. Fim da Aula 04.007. Banco de Dados com RDS e PostgreSQL.
+
+
+
+-->​

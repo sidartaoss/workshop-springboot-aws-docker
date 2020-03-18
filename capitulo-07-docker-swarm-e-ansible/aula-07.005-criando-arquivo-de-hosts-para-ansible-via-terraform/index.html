@@ -1,0 +1,309 @@
+<!--
+    Aula 07.005. Criando Arquivo de Hosts para Ansible via Terraform
+
+1. Para a gente poder executar esse arquivo, beerstore-playbook.yml, nas nossas Instancias, qual eh a coisa principal que a gente precisa saber para chegar la nessas Instancias?
+
+2. O IP.
+
+3. Nao eh? A gente precisa dos IPs Publicos dessas Instancias, para a gente chegar la.
+
+4. Aqui, a gente vai pelo IP Publico, mas, so para reforcar, se voce estiver trabalhando numa grande empresa, provavelmente, vai existir uma VPN, entre a AWS e a rede da sua empresa, e, ai, voce vai poder ir pelo IP Privado das Instancias, nao precisa ser o IP Publico, okay?
+
+5. Entao, eu vou colocar o IP Publico, aqui, porque a gente nao tem VPN, mas, mais uma vez, se voce estiver trabalhando numa empresa muito grande, eh bem provavel que exista essa VPN, e vai poder acessar o IP Privado, que vai ser bem mais seguro. Okay?
+
+6. Mas, vamos la. Da para a gente fazer pelo IP Publico tambem.
+
+7. Bom, entao, a gente precisa do IP Publico para chegar la.
+
+8. Aqui, o meu ambiente ja subiu. Ja subiu o Banco, aqui, demorou 21 minutos, agora, para subir, okay?, eu acho que eh porque ele esta com multi-az habilitado, deve ser bem provavel que isso esteja fazendo demorar. Vamos conferir, aqui, dababese.tf, multi-az = "true", extamente, entao, eh por isso que ele esta demorando bastante para subir.
+
+9. Se voce colocar multi-az = "false", vai subir um pouco mais rapido.
+
+10. Bom, ja subiu, a gente ja tem os IPs Publicos, aqui.
+
+11. Mas, olha so, existe um outro conceito, aqui, que eu vou te mostrar, agora, do Terraform, que eh o Template para a gente criar um arquivo que ja tenha todos esses IPs la dentro. E, ai, o Ansible vai ler exatamente esse arquivo para poder fazer o provisionamento.
+
+12. Vamos fazer assim?
+
+13. Eu acho que fica melhor do que ficar copiando esses IPs na mao, nao eh?
+
+14. Se voce destruir o seu ambiente e criar de novo, esses IPs vao mudar.
+
+15. Entao, seria interessante ficar ja automatizado.
+
+16. Entao, vamos, aqui, na pasta terraform, eu vou criar um novo Diretorio, aqui, eu vou chamar ele de template, para voce saber, exatamente, que a gente esta usando um Template, e eu vou criar um arquivo chamado de hosts.tpl. .tpl seria a sigla para template. Eh um arquivo de Texto, puro.
+
+17. Okay?
+
+18. Bom, eu estou, aqui, com hosts.tpl, e eu vou criar, aqui, variaveis que serao preenchidas pelo Terraform.
+
+19. Okay?
+
+20. Entao, quais sao as variaveis?
+
+21. Eu vou colocar, aqui, oh, ${PUBLIC_IP_0}, da Instancia 0, vamos copiar esse cara, vai ter a 1 e a 2,
+
+${PUBLIC_IP_0}
+${PUBLIC_IP_1}
+${PUBLIC_IP_2}
+
+22. A gente tem 3 Servidores, la, nao eh?, entao, PUBLIC_IP_0, 1, e 2. Beleza?
+
+23. Agora, a gente vem, aqui, no Terraform, eu acho que a gente pode colocar em instances.tf, porque eh ele que esta criando as nossas Instancias, olha, ja tem o output, aqui, dos IPs Publicos. O que que a gente vai fazer, aqui?
+
+24. Vamos colocar um pouquinho antes, aqui, do output, eu vou colocar um data "template_file", esse eh o data que a gente vai estar usando, a gente esta criando, "hosts", okay?
+
+data "template_file" "hosts" {
+
+}
+
+25. Entao, esse data "template_file" preenche um arquivo de template.
+
+26. Okay?
+
+27. Entao, eu preciso, agora, preencher as informacoes para esse data, aqui, do Terraform.
+
+28. template, onde que esta o arquivo de template?
+
+29. template = "${}"
+
+30. Entao, eu vou colocar ${file("")}, aqui, vai aspas duplas de novo, okay?, apesar de ficar meio estranho, mas coloque aspas duplas. Bom, se eu estou, aqui, em instances.tf, ./template/hosts.tpl. Cuidado, ai, na grafia, para nao ficar errado, hosts.tpl,
+
+data "template_file" "hosts" {
+    template = "${file("./template/hosts.tpl")}"
+
+}
+
+31. Okay?
+
+32. Beleza.
+
+33. Quais sao as variaveis que eu vou preencher desse arquivo?
+
+34. PUBLIC_IP_0, 1, 2
+
+35. Entao, PUBLIC_IP_0 tem que ser preenchida com o valor do IP Publico da Instancia 0. Entao, como que a gente pode fazer, oh?
+
+data "template_file" "hosts" {
+    template = "${file("./template/hosts.tpl")}"
+
+    vars {
+        PUBLIC_IP_0 = 
+    }
+}
+
+36. Eu posso vir, aqui, vamos escrever aqui, direto, oh, "${}", entao, vai ser aws_instance, que eh esse resource, aqui,
+
+resource "aws_instance" "instances" {
+    ...
+}
+
+, "aws_instance.instances.*", ou seja, todas elas, porque eu estou dentro de um COUNT, entao, .*
+
+37. ., qual o atributo que eu quero pegar de la de dentro? public_ip[0],
+
+38. Okay?
+
+data "template_file" "hosts" {
+    template = "${file("./template/hosts.tpl")}"
+
+    vars {
+        PUBLIC_IP_0 = "aws_instance.instances.*.public_ip[0]"
+    }
+}
+
+39. Vamos repetir esse cara, aqui, 1, 2,
+
+data "template_file" "hosts" {
+    template = "${file("./template/hosts.tpl")}"
+
+    vars {
+        PUBLIC_IP_0 = "aws_instance.instances.*.public_ip[0]"
+        PUBLIC_IP_1 = "aws_instance.instances.*.public_ip[1]"
+        PUBLIC_IP_2 = "aws_instance.instances.*.public_ip[2]"
+    }
+}
+
+40. Okay?
+
+41. Toma cuidado, ai, so nessa,..., nos dados, aqui, das variaveis, okay?
+
+42. 0, 1, 2,...
+
+43. E, ai, a gente pode criar, agora, um resource, "local_file", ""
+
+resource "local_file" "" {
+    filename = ""
+}
+
+44. Entao, a gente vai criar um arquivo local, agora, que vai ser baseado no hosts.tpl, preenchido por esses dados, aqui, ou seja, de template_file hosts.
+
+45. Entao, aqui, eu posso chamar de hosts, de novo,
+
+resource "local_file" "hosts" {
+    content = ""
+}
+
+46. Qual que eh o filename?
+
+47. Qual que eh o nome do arquivo?
+
+48. Vamos colocar aqui, oh, ${data.template_file.hosts.rendered},
+
+resource "local_file" "hosts" {
+    content = "${data.template_file.hosts.rendered}"
+}
+
+49. Quando eu coloco isso daqui, o rendered, eu estou falando o seguinte: espera isso, daqui, terminar,
+
+data "template_file" "hosts" {
+    template = "${file("./template/hosts.tpl")}"
+
+    vars {
+        PUBLIC_IP_0 = "aws_instance.instances.*.public_ip[0]"
+        PUBLIC_IP_1 = "aws_instance.instances.*.public_ip[1]"
+        PUBLIC_IP_2 = "aws_instance.instances.*.public_ip[2]"
+    }
+}
+
+, nao eh?, preencha esse arquivo de template com essas variaveis,
+
+data "template_file" "hosts" {
+    template = "${file("./template/hosts.tpl")}"
+
+    >>> vars {
+        >>> PUBLIC_IP_0 = "aws_instance.instances.*.public_ip[0]"
+        >>> PUBLIC_IP_1 = "aws_instance.instances.*.public_ip[1]"
+        >>> PUBLIC_IP_2 = "aws_instance.instances.*.public_ip[2]"
+    }
+}
+
+50. O conteudo vai ser baseado no template,
+
+data "template_file" "hosts" {
+    >>> template = "${file("./template/hosts.tpl")}"
+
+    vars {
+        PUBLIC_IP_0 = "aws_instance.instances.*.public_ip[0]"
+        PUBLIC_IP_1 = "aws_instance.instances.*.public_ip[1]"
+        PUBLIC_IP_2 = "aws_instance.instances.*.public_ip[2]"
+    }
+}
+
+, com os valores dessas variaveis,
+
+data "template_file" "hosts" {
+    template = "${file("./template/hosts.tpl")}"
+
+    >>> vars {
+        >>> PUBLIC_IP_0 = "aws_instance.instances.*.public_ip[0]"
+        >>> PUBLIC_IP_1 = "aws_instance.instances.*.public_ip[1]"
+        >>> PUBLIC_IP_2 = "aws_instance.instances.*.public_ip[2]"
+    }
+}
+
+51. Entao, esse rendered eh para garantir: faz a renderizacao desse template, aqui, com essas variaveis, faz esse desenho, ai.
+
+52. E, agora, sim, escreva isso onde? Em ./template/hosts, sem o .tpl. Pronto, ai, ele vai criar um arquivo, aqui, dentro da pasta template, chamado hosts,
+
+resource "local_file" "hosts" {
+    content = "${data.template_file.hosts.rendered}"
+    filename = "./template/hosts"
+}
+
+53. Okay?
+
+54. Dentro, ali, da pasta template.
+
+55. Ou, se voce quiser colocar do lado de fora, aqui, assim, como hosts, tambem, porque, dentro da pasta template, ficaria somente os templates, pode ser tambem, nao eh?
+
+resource "local_file" "hosts" {
+    content = "${data.template_file.hosts.rendered}"
+    filename = "./hosts"
+}
+
+55. E a gente cria um arquivo hosts, aqui, do lado de fora
+
+56. Beleza?
+
+57. Pronto, so isso.
+
+58. Agora, a gente pode vir, aqui, na pastinha do terraform, por linha de comando, atencao, ai, para a pastinha do terraform, oh, e, ai, voce pode fazer um terraform apply. Ele vai dar aquela atualizada, mas vai ser rapido, e, ai, ele ja vai criar esse arquivo para a gente. Faltou um terraform init, entao, para iniciar aquelas partes, nao eh? Entao,
+
+> terraform init
+
+> terraform apply
+
+59. Ele esta pedindo, aqui, alguma alteracao nas Instancias, que eh baseado no Security Group, por que?
+
+60. Porque, vamos dar uma olhada aqui, a gente ja havia criado, por conta do IP Publico, nao eh?
+
+61. O meu IP Publico esta mudando, entao, ele esta pedindo, aqui, para faze alguma alteracao de Security Group, que a gente deve ter liberado na mao, um pouco mais para frente.
+
+62. Mas, o importante, eh que ele vai criar, aqui, o arquivo de hosts. Entao, vamos dar o yes, aqui, ele vai destruir as nossas instancias, e criar novamente.
+
+63. Ele esta destruindo, aqui, e criando, eu estou olhando, aqui, oh, no security.tf, eu tinha colocado, aqui, o meu IP Publico, fixo, na mao, nao eh?, e isso nao fica muito legal, nao ta legal, a gente vai ter, inclusive, que alterar isso, aqui, para ficar de uma forma automatizada.
+
+64. Vamos fazer isso, agora, tambem, para melhorar, nao eh?
+
+65. Entao, vamos so esperar ele acabar, aqui, para a gente so ver o arquivo de template, e, ai, a gente ja automatiza essa parte tambem.
+
+66. Okay, ele subiu, vamos dar uma olhada, aqui, se criou o arquivo de hosts.
+
+67. Tem um arquivo chamado hosts, aqui, vamos dar um cat hosts, aqui. Beleza. Entao, ele criou esse arquivo de hosts, com os IPs Publicos, baseado, aqui, no template, ou seja, hosts.tpl.
+
+68. Entao, bem legal, essa eh uma forma de voce gerar, entao, um arquivo via Terraform. Entao, se voce precisa de algum arquivo de algum formato, de alguma coisa, voce pode criar um template, 
+
+data >>> "template_file" "hosts" {
+    template = "${file("./template/hosts.tpl")}"
+
+    vars {
+        PUBLIC_IP_0 = "aws_instance.instances.*.public_ip[0]"
+        PUBLIC_IP_1 = "aws_instance.instances.*.public_ip[1]"
+        PUBLIC_IP_2 = "aws_instance.instances.*.public_ip[2]"
+    }
+}
+
+, nao eh?, algum arquivo com algumas variaveis, nao eh?, das suas instancias, de algum recurso seu da AWS, voce pode criar um arquivo de template, colocar as variaveis, nao eh?, que voce quer preencher,
+
+${PUBLIC_IP_0}
+${PUBLIC_IP_1}
+${PUBLIC_IP_2}
+
+, nesse arquivo, cria o data,
+
+data "template_file" "hosts" {
+    template = "${file("./template/hosts.tpl")}"
+
+    vars {
+        PUBLIC_IP_0 = "aws_instance.instances.*.public_ip[0]"
+        PUBLIC_IP_1 = "aws_instance.instances.*.public_ip[1]"
+        PUBLIC_IP_2 = "aws_instance.instances.*.public_ip[2]"
+    }
+}
+
+, e manda o resource preencher esse arquivo,
+
+resource "local_file" "hosts" {
+    content = "${data.template_file.hosts.rendered}"
+    filename = "./hosts"
+}
+
+, okay?
+
+69. Vamos fazer o seguinte. Para a gente nao ficar nesta aula muito tempo, agora que a gente ja criou o arquivo de hosts, na proxima aula, a gente automatiza a busca, aqui, no secuity.tf, do meu IP Publico, aqui, 
+
+ingress {
+    ...
+    cidr_blocks = ["186.223.228.197/32"]
+}
+
+, para eu nao ter que ficar fazendo isso na mao, nao eh?
+
+70. Porque eu vou esquecer, como eu esqueci agora.
+
+71. Entao, nao fica legal, de jeito nenhu, a gente vai fazer assim, vamos automatizar na proxima aula.
+
+72. Fim da     Aula 07.005. Criando Arquivo de Hosts para Ansible via Terraform.
+
+-->

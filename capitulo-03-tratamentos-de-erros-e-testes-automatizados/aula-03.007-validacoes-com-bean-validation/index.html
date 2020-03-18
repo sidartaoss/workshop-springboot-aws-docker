@@ -1,0 +1,297 @@
+<!--
+    Aula 03.007 - Validacoes com Bean Validation
+
+1. Do jeito que o Projeto esta, ate, agora, a gente consegue salvar uma Cerveja sem o nome, sem o Tipo, nao eh? Nao fica legal fazer assim.
+
+2. Entao, o que que a gente pode fazer?
+
+3. Usar o Bean Validation.
+
+4. E o legal eh que, quando a gente usou o Spring Data Starter, aqui, oh, em build.gradle,
+
+dependencies {
+
+    ...
+
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+}
+
+, do Spring Data JPA, o que que vai acontecer?
+
+5. A gente ja tem, dentro do nosso Classpath, o Bean Validation, que vai nos ajudar a validar o Bean, antes dele ser salvo.
+
+6. Okay?
+
+7. Entao, vamos la.
+
+8. Vamos validar, aqui.
+
+9. No nome, eu vou adicionar, aqui, a anotacao @NotBlank, 
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import javax.validation.constraints.NotBlank;
+
+@Data
+@Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Beer {
+
+    @Id
+    @SequenceGenerator(name = "beer_seq", sequenceName = "beer_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beer_seq")
+    @EqualsAndHashCode.Include
+    private Long id;
+
+    @NotBlank
+    private String name;
+
+    private BeerType type;
+    private BigDecimal volume;
+}
+
+10. A anotacao @NotBlank nao deixa salvar um espaco vazio, por exemplo, uma String vazia.
+
+11. Se eu colocar so @NotNull, se eu mandar uma String vazia, se eu mandar espaco em branco, ele vai deixar salvar.
+
+12. Entao, @NotBlank nao deixa nem isso.
+
+13. Okay?
+
+14. No BeerType, @NotNull, mesmo. Ai, o @NotNull funciona bem, porque, ou a gente tem um Enum, aqui, ou esta um valor Null,
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import javax.validation.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+
+@Data
+@Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Beer {
+
+    @Id
+    @SequenceGenerator(name = "beer_seq", sequenceName = "beer_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beer_seq")
+    @EqualsAndHashCode.Include
+    private Long id;
+
+    @NotBlank
+    private String name;
+
+    @NotNull
+    private BeerType type;
+    private BigDecimal volume;
+}
+
+15. E, atencao para os pacotes que voce esta importando.
+
+16. Okay? Toma cuidado, ai.
+
+17. E, aqui, no BigDecimal, a mesma coisa, eu anoto com @NotNull,
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+@Data
+@Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Beer {
+
+    @Id
+    @SequenceGenerator(name = "beer_seq", sequenceName = "beer_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beer_seq")
+    @EqualsAndHashCode.Include
+    private Long id;
+
+    @NotBlank
+    private String name;
+
+    @NotNull
+    private BeerType type;
+
+    @NotNull
+    private BigDecimal volume;
+}
+
+18. Vamos adicionar outro, aqui, um @DecimalMin, com o value,..., eu posso colocar, aqui, ja, direto, 0,
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.DecimalMin;
+
+@Data
+@Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Beer {
+
+    @Id
+    @SequenceGenerator(name = "beer_seq", sequenceName = "beer_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beer_seq")
+    @EqualsAndHashCode.Include
+    private Long id;
+
+    @NotBlank
+    private String name;
+
+    @NotNull
+    private BeerType type;
+
+    @NotNull
+    @DecimalMin("0")
+    private BigDecimal volume;
+}
+
+19. Entao, o minimo que eu aceito para o volume eh "0".
+
+20. Okay?
+
+21. Eu nao vou aceitar valores negativos, porque nao existe um volume negativo. O volume 0, ate, aqui, ja eh, ate, meio estranho, nao eh?, voce vai salvar uma Cerveja de volume 0, mas, enfim, talvez, quer salvar so o rotulo da Cerveja, nao eh?, algo nesse sentido.
+
+22. Entao, por enquanto, a gente pode aceitar volume zero. Mas, negativo nao. Nao tem jeito de ter um volume negativo, nao eh verdade?
+
+23. Entao, eu adicionei essas anotacoes, para que esses atributos seja validados.
+
+24. Validados quando?
+
+25. Quando estiver chegando aqui, oh, no nosso Controlador,
+
+@PostMapping
+@ResponseStatus(HttpStatus.CREATED)
+public Beer create( >>> @RequestBody Beer beer) {
+    return this.beers.save(beer);
+}
+
+26. Entao, aqui, eu vou adicionar mais uma anotacao, para falar o seguinte, "Olha, eu quero que voce valide essa Requisicao, esses atributos,"
+
+...
+
+import javax.validation.Valid;
+
+...
+
+@PostMapping
+@ResponseStatus(HttpStatus.CREATED)
+public Beer create(@Valid >>> @RequestBody Beer beer) {
+    return this.beers.save(beer);
+}
+
+, que estao sendo recebidos, aqui, nessa Requisicao.
+
+27. E pronto. So isso.
+
+28. Vamos mandar dar um Build, aqui, a gente vai tentar, agora, Salvar uma Cerveja, tentar fazer alguma coisa e invalido, baseado no que a gente adicionou, aqui, nessas anotacoes, em Beer.java.
+
+29. Vamos la?
+
+30. Entao, a gente vem, aqui, no Postman, na hora de Salvar, esta faltando o nome e o tipo,
+
+{
+    "volume" : "250"
+}
+
+31. So estou tentando mandar o volume, vamos ver o que que vai acontecer?
+
+32. Aqui, ele deu Status HTTP 404 Not Found, entao, provavelmente, o DevTools nao funcionou legal.
+
+33. Entao, neste caso, vamos parar, parou, aqui, todas estao paradas, e vamos iniciar novamente.
+
+34. Eh aquilo que eu falei. O DevTools funciona legal, nao eh 100%.
+
+35. Entao, vamos ver se era so isso, mesmo.
+
+36. 404 nao faz sentido, nao eh?
+
+37. Entao, subiu. Agora, sim, oh, Status HTTP 400 Bad Request, ou seja, eh uma Requisicao invalida. E, quando eu vejo 400, uma Requisiao 4 e alguma coisa, significa que o usuario, aqui, que esta chamando a API, aqui, oh, no Postman, por exemplo, errou.
+
+38. Normalmente, vai ser isso.
+
+39. Entao, Bad Request, ou seja, a sua Requisicao esta mal feita.
+
+40. Nao eh?
+
+41. Entao, olha so o que que ele retornou.
+
+42. Ele retorna, aqui, nao eh?, a hora, o Bad Request, e, ai, ele retorna um array de erros. Entao, ele fala, oh, tem o BeerType, que deveria ser NotNull, entao, esta errado.
+
+43. Vamos ver outra, aqui, oh. Ele, ainda, esta falando do Type, que nao deve ser nulo. O nome, nao deve estar em Branco, "NotBlank", nao pode ser, estar em branco. Entao, olha la, o nome nao pode estar em branco,
+
+    "timestamp": "2019-03-23T17:24:01.767+0000",
+    "status": 400,
+    "error": "Bad Request",
+    "errors": [
+        {
+            "codes": [
+                "NotNull.beer.type",
+                "NotNull.type",
+                "NotNull.com.hibicode.beerstore.model.BeerType",
+                "NotNull"
+            ],
+            "arguments": [
+                {
+                    "codes": [
+                        "beer.type",
+                        "type"
+                    ],
+                    "arguments": null,
+                    "defaultMessage": "type",
+                    "code": "type"
+                }
+            ],
+            "defaultMessage": "não pode ser nulo",
+            "objectName": "beer",
+            "field": "type",
+            "rejectedValue": null,
+            "bindingFailure": false,
+            "code": "NotNull"
+        },
+        {
+            "codes": [
+                "NotBlank.beer.name",
+                "NotBlank.name",
+                "NotBlank.java.lang.String",
+                "NotBlank"
+            ],
+            "arguments": [
+                {
+                    "codes": [
+                        "beer.name",
+                        "name"
+                    ],
+                    "arguments": null,
+                    "defaultMessage": "name",
+                    "code": "name"
+                }
+            ],
+            "defaultMessage": "não pode estar em branco",
+            "objectName": "beer",
+            "field": "name",
+            "rejectedValue": null,
+            "bindingFailure": false,
+            "code": "NotBlank"
+        }
+    ],
+
+44. Okay? Entao, ele da essas mensagens, aqui, para a gente, falando que esta errado. Eu sei, tem muita informacao, aqui, esta meio feio, nao eh?, esse tipo de mensagem, apesar de a gente conseguir ver o que que esta acontecendo, nao esta legal.
+
+45. Concordo com voce.
+
+46. E nos vamos melhorar isso.
+
+47. Fica tranquilo.
+
+48. Nos vamos usar um padrao, aqui, para tratar essa mensagem de erro. Esse, aqui, eh o padrao que o Spring Data, na verdade, traz para a gente.
+
+49. Fim da     Aula 03.007 - Validacoes com Bean Validation.
+
+
+-->

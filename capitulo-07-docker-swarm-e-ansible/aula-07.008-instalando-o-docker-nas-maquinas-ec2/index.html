@@ -1,0 +1,158 @@
+<!--
+    Aula 07.008. Instalando o Docker nas Maquinas EC2
+
+1. Vamos, agora, executar, o Playbook do Ansible, nas nossas Instancias, que vai fazer o que?
+
+2. Que vai instalar o Docker nas Maquinas.
+
+3. Okay?
+
+4. Entao, vamos la.
+
+5. Para a gente executar o comando, aqui, a gente teria que ir la na pasta ansible, certo?, e, aqui, o comando eh ansible-playbook, a gente vai executar um playbook, entao, eh ansible-playbook,
+
+ansible> ansible-playbook
+
+6. E, ai, eu tenho que falar para ele qual eh o arquivo de hosts, entao, -i hosts, aqui, eu tenho que passar aquele arquivo de hosts, que esta, aqui, em ../terraform/hosts, eu tambem tenho que passar a private-key, para ele poder fazer o login, a private-key esta aqui, dentro de terraform/key/beerstore_key, tem que passar a chave privada para ele conseguir fazer ssh la, depois, eu tenho que passar o Playbook e tenho que passar o -v, aqui, para ele fazer em debug,
+
+> ansible-playbook -i ../terraform/hosts --private-key ../terraform/key/beerstore_key -v
+
+7. Ficar escrevendo isso, aqui, toda hora, vai dar a maior trabalheira, nao eh? Eu vou dar CTRL+C, aqui, e vamos executar esse comando criando um shell.
+
+8. Entao, vamos vir, aqui, onde esta a pastinha ansible, vamos criar um arquivo run-ansible.sh, entao, eu vou colocar, aqui, o #!/bin/bash, e vamos la.
+
+9. Vamos mandar dar um echo, aqui, "Starting ansible...", alguma coisa assim,
+
+#!/bin/bash
+
+echo "Starting ansible..."
+
+10. E, ai, qual o comando que a gente vai executar?
+
+11. Eh esse comando, aqui,
+
+ansible-playbook -i ../terraform/hosts --private-key ../terraform/key/beerstore_key beerstore-playbook.yml -v
+
+12. Porem, a gente vai passar um outro parametro, aqui.
+
+13. Sabe quando a gente faz SSH na maquina? Entao, vamos la, vamos fazer aqui, oh, vamos voltar, aqui, na pasta terraform, para eu te mostrar certinho.
+
+14. Entao, cat em hosts, aqui, 
+
+34.207.232.247
+18.234.255.110
+3.93.215.161
+
+
+, ssh -i key/beerstore_key ec2-user@, esse IP Publico, aqui, 34.207.232.247
+
+
+
+terraform> ssh -i key/beerstore_key ec2-user@34.207.232.247
+
+
+
+15. Quando eu vou fazer um ssh assim, eu tenho que dar um yes, aqui, para aceitar a chave, oh, 'Voce confia nessa chave, e tal, e tal, e tal?'
+
+16. Ai, eu dou um 'yes' e eu consigo fazer ssh nessa maquina. Okay?
+
+17. Bom, eu vou sair. Para eu nao ter que ficar dando esse yes, aqui, toda hora, la, no ansible, eu vou mandar ignorar. Entao, eu vou colocar, aqui, ANSIBLE_HOST_KEY_CHECKING, oh, nao precisa verificar, =false,
+
+ANSIBLE_HOST_KEY_CHECKING=false
+
+18. Eu declaro essa variavel, aqui, pode ser um pouquinho antes, oh, ANSIBLE_HOST_KEY_CHECKING, confere, ai, se nao esta escrito nada errado, coloca false, e, ai, pode mandar executar o comando do Ansible.
+
+10. Okay? Entao, seria algo assim. Vamos voltar, la, na pastinha do Ansible, chmod  a+x run-ansible.sh, para ter permissao de execucao, ./run-ansible.sh, ai, voce vai ver que ele nao vai pedir a confirmacao, yes, ... Opa, pediu, vamos fazer o seguinte, eu acho que eu preciso colocar esse cara aqui, na frente,
+
+ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook -i ../terraform/hosts --private-key ../terraform/key/beerstore_key beerstore-playbook.yml -v, antes da execucao.
+
+11. Vamos la,
+
+> ./run-ansible.sh
+
+12. Agora, sim, ele nao vai pedir, oh, nao vai pedir o yes or no. Entao, ele vai comecar a instalar o Docker nas Instancias, naqueles hosts que a gente passou.
+
+13. E, ai, eh so esperar ele terminar.
+
+14. Esta avancando, oh, ele fez a instalacao, pode ser que demore um pouquinho, okay? Se der errado, ele vai falar para voce, oh, que deu errado alguma coisa. 
+
+15. Aqui, deu 3 errados para mim, vamos ver, aqui, "Unsupported parameters for (sytemd) module: ..."
+
+16. Tem a ver com o que a gente passou, aqui, no beerstore-playbook.yml, desse started,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+    - name: Ensure docker service is started and enabled
+      service:
+        name: docker
+        >>> state: started
+        enable: yes
+
+17. Acho que tem muito sentido ser aqui. Ou a gente passou algum parametro errado, deixa eu confirmar, aqui, vamos olhar na documentacao.
+
+18. Vamos olhar la, service, vamos investigar junto, aqui, vamos, aqui, no Ansible, vamos procurar a task service, https://docs.ansible.com/ansible/latest/search.html?q=service+task&check_keywords=yes&area=default#, nao esta aqui, vamos pesquisar direto no Google: service task ansible
+
+19. Oh, Service Module, eh aqui mesmo que eu queria cair. 
+
+20. enabled, acho que eu escrevi errado, enabled: yes,
+
+---
+- name: Ensure Docker is installed
+  hosts: all
+  remote_user: ec2-user
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Install Docker
+      yum: name=docker
+
+    - name: Ensure docker service is started and enabled
+      service:
+        name: docker
+        state: started
+        >>> enabled: yes
+
+, a gente aprendeu, aqui, na documentacao. Vamos mandar mais uma vez, vou dar o ansible. O ansible eh legal, porque ele funciona tambem atraves de estado, se voce usar esses modulos prontos dele. Entao, ele vai verificar: se ele ja instalou o Docker, ele nao instala novamente.
+
+21. Entao, aqui, oh, ele ja esta verificando, que ja esta instalado, entao, ele nao vai instalar novamente. Mas, se o Servico esta startado e habilitado, eu acho que ele vai executar, porque eu tinha escrito errado, nao eh?
+
+22. Agora, sim, ele executou com sucesso, oh. Entao, ele saiu, agora, com sucesso, esta tudo certo, oh, fez a instalacao do Docker naquelas maquinas com sucesso. Se eu mandar rodar de novo o ansible, voce vai ver que ele nao vai instalar nada, nao vai fazer nada, oh, vai falar, 'Olha, nao tive que fazer alteracao nenhuma, porque ele ja sabe que ele fez aquilo antes'. Isso eh muito legal, nao eh?
+
+23. Entao, olha la, nao precisou instalar o docker, e vamos ver o que que ele vai fazer, aqui, no started e enabled do Servico.
+
+24. Tambem nao precisou fazer nada. Como eh que eu sei que nao precisou fazer nada? changed=0, aqui, ele executou duas Tasks, 0k=2, com sucesso, nao precisou fazer mudanca nenhuma (changed=0), nas maquinas, todas as maquinas foram alcancaveis, unreachable=0, e nenhuma falhou, failed=0.
+
+25. Entao, eh assim que voce le o arquivo do Ansible.
+
+26. Okay?
+
+27. Quando ele da erro, ele gera esse arquivo, aqui, de retry. Okay?
+
+28. Entao, ele gera esse arquivo, para falar, 'Olha, esses hosts, aqui, deram errado, voce pode retentar neles.'. Eu vou, simplesmente, apagar esse arquivo, porque foi um erro, ali, de digitacao.
+
+29. Okay?
+
+30. Bom, entao, eh isso, a gente ja esta com o Docker instalado na maquina, se voce quiser conferir, oh, ssh -i, vamos voltar um diretorio, ../terraform/key/beerstore_key ec2-user@, qualquer uma das maquinas, aqui, que voce fizer o ssh, se voce der um docker ps, aqui, tem que dar o sudo antes,
+
+> sudo docker ps
+
+CONTAINER ID        NAME        COMMAND         CREATED         STATUS      PORTS       NAMES
+
+
+, vemos que esta instalado, aqui, o docker, nao eh?, porque nao tem nenhum Container rodando.
+
+31. Beleza? 
+
+32. Fim da     Aula 07.008. Instalando o Docker nas Maquinas EC2
+
+
+
+-->

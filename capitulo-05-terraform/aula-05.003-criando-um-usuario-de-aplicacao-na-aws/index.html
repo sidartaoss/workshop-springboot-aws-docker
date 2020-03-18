@@ -1,0 +1,391 @@
+<!-- 
+
+Aula 05.003. Criando um Usuario de Aplicacao na AWS
+
+
+
+1. Para o Terraform rodar, a gente precisa de um Usuario que tenha permissoes para fazer coisas na AWS.
+
+
+
+2. Okay?
+
+
+
+3. E, ai, ao inves de voce dar o Usuario Root, nao eh?, que eh o Usuario Principal, da sua conta, a gente vai criar um Usuario para fazer isso.
+
+
+
+4. Entao, onde a gente consegue criar esse Usuario?
+
+
+
+5. Eh no Servico de IAM.
+
+
+
+6. Entao, a gente vem, aqui, em IAM, https://console.aws.amazon.com/iam/home?region=us-east-1#, eh um Servico, IAM eh um Servico Global, ele independe de Regiao.
+
+
+
+7. Olha so, entao, IAM, ele nao, eu nao consigo selecionar qual Regiao.
+
+
+
+8. E, aproveitando, falar que eh aqui, no Menu Superior Direito anterior a Support, que a gente seleciona as Regioes que a gente quer trabalhar, no Servico.
+
+
+
+9. Mas, alguns Servicos, como IAM, sao globais, eu nao preciso falar qual Regiao que eh.
+
+
+
+10. Okay?
+
+
+
+11. Entao, eu venho, aqui, em Usuarios, eu ja devo ter algum, aqui, criado, eu vou apagar, para a gente criar do zero, okay? Vou deixar esse app, aqui, porque eu estou usando em algumas outras coisas. Mas o usuario terraform eu vou deletar.
+
+
+
+12. Entao, vamos la. Eu vou criar esse Usuario, Clicar em Add user, aqui. Entao, IAM / Users / Add user.
+
+
+
+13. Vamos dar um nome, aqui, para ele, em User name*. terraform, voce pode dar o nome de terraform, que eh o nome que eu vou dar para eu saber qual que eh o usuario que eu estou utilizando, quando eu estiver utilizando o Terraform.
+
+
+
+14. Okay?
+
+
+
+15. Bom, aqui, importantissimo. Qual que eh o tipo de acesso que o Usuario terraform tera, em Access type*?
+
+
+
+16. Ele tera um Acesso Programatico, ou seja, Programmatic access.
+
+
+
+17. Ele nao tem o acesso ao Console, que seria esse daqui, oh, ou seja, AWS Management Console Access.
+
+
+
+18. Eu quero que ele acesso o Console, ou seja, essa Interface Web?
+
+
+
+19. Nao. Esse Usuario nao precisa disso.
+
+
+
+20. Ele precisa ter acesso Apenas Programaticamente, atraves da API da AWS.
+
+
+
+21. Eh assim que o Terraform funciona.
+
+
+
+22. Ele acessa a AWS atraves da API dela.
+
+
+
+23. Entao, eu so preciso das credenciais dele, Access Key, Secret Key, aqui, para a gente configurar la no Terraform.
+
+
+
+24. Okay?
+
+
+
+25. Entao, eh um cara de acesso programatico. Vamos para as Permissoes, ou seja, clicar em Next: Permissions.
+
+
+
+26. Bom, quando chegar, aqui, nas Permissoes, eu posso dar Permissoes para o Usuario, nos mais,..., como eu posso dizer,..., o mais fino possivel, eu quero dizer o seguinte, eu consigo dar Permissoes, assim, bem detalhadas, nao e?, a granularidade eh bem, bem pequena, aqui, dentro das Permissoes da AWS.
+
+
+
+27. Okay?
+
+
+
+28. Entao, oh, nas Permissoes, eu venho, aqui, em Attach existing policies directly, eu posso adicionar Policies diretamente, em Copy permissions from existing user, eu posso copiar Permissoes de outros Usuarios, aqui, no caso, app eh um Usuario que eu ja tenho, eu poderia copiar as Permissoes dele, ou posso adicionar atraves de Grupos, em Add User to Group, okay?, atraves de algum Grupo que eu possa criar.
+
+
+
+29. Entao, eu crio um grupo, nesse Grupo, eu vou adicionando as Policies que eu quero.
+
+
+
+30. Okay?
+
+
+
+31. Bom, para a gente, aqui, no nosso curso, a gente vai dar a Permissao de Administrador, ou seja, o Terraform vai conseguir fazer qualquer coisa aqui dentro da AWS.
+
+
+
+32. Se voce estiver trabalhando para uma empresa grande, o que que vai acontecer?
+
+
+
+33. Eles vao criar Policies, nao e?, vao criar Policies especificas, deixando voce fazer determinadas coisas, como, por exemplo, o seu Usuario do terraform pode criar Instancias EC2 apenas na Virginia, mas ele nao vai conseguir criar em Sao Paulo, por exemplo, que eh mais caro.
+
+
+
+34. Ele vai conseguir apagar somente as Instancias EC2 que tenha determinada String, que, as vezes, eh o nome do Usuario, por exemplo, nao eh?, consegue criar e apagar so dentro desse Universo.
+
+
+
+35. Entao, voce consegue dar Permissoes e limitar muitos Usuarios ao que eles conseguem fazer.
+
+
+
+36. Por que?
+
+
+
+37. Por exemplo, dando o exemplo do que eu faco hoje.
+
+
+
+38. Existem varias pessoas, la, na Empresa, eu ja disse, eh uma empresa muito, muito grande.
+
+
+
+39. Entao, existem varias pessoas que mexem na AWS, em varios, varios projetos.
+
+
+
+40. Entao, imagina se eu apagar sem querer o Projeto de alguem.
+
+
+
+41. Nao eh? Entao, atraves de Permissoes, eu consigo limitar isso.
+
+
+
+42. E, ai, eu vou conseguir apagar apenas os meus Recursos, mas, eu nao consigo apagar de outros.
+
+
+
+43. Eh tudo possivel voce fazer isso atraves das Policies, aqui, da AWS.
+
+
+
+44. Nos nao vamos entrar em muitos detalhes sobre isso, porque foge o escopo deste curso, eu so estou falando que eh possivel, okay?
+
+
+
+45. Entao, aqui, nas Policies, a gente pode procurar, aqui, oh, AdministratorAccess, que eh essa daqui. Entao, ele pode fazer qualquer coisa, aqui, ele vai ser o Usuario Administrador. Na AWS, ele pode fazer tudo, repare-se os asteriscos,
+
+
+
+{
+
+"Version": "2012-10-17",
+
+"Statement": [
+
+{
+
+"Effect": "Allow",
+
+"Action": "*",
+
+"Resource": "*"
+
+}
+
+]
+
+}
+
+
+
+, entao, pode fazer qualquer coisa, aqui dentro.
+
+
+
+46. Beleza?
+
+
+
+47. Se voce pegar uma outra qualquer, aqui, vamos pegar uma outra qualquer, AmazonCognitoReadOnly, voce vai ver que ja existem limitacoes,
+
+
+
+{
+
+"Version": "2012-10-17",
+
+"Statement": [
+
+{
+
+"Effect": "Allow",
+
+"Action": [
+
+"cognito-identity:Describe*",
+
+"cognito-identity:Get*",
+
+"cognito-identity:List*",
+
+"cognito-idp:Describe*",
+
+"cognito-idp:AdminGetUser",
+
+"cognito-idp:AdminList*",
+
+"cognito-idp:List*",
+
+"cognito-sync:Describe*",
+
+"cognito-sync:Get*",
+
+"cognito-sync:List*",
+
+"iam:ListOpenIdConnectProviders",
+
+"iam:ListRoles",
+
+"sns:ListPlatformApplications"
+
+],
+
+"Resource": "*"
+
+}
+
+]
+
+}
+
+
+
+48. Okay?
+
+
+
+49. Mas, isso, como eu ja disse, foge o Escopo do Curso, vamos colocar o nosso Usuario terraform como Administrador, ou seja, checar o checkbox de AdministratorAccess.
+
+
+
+50. Clicar em Next: Tags, Clicar em Next: Review
+
+
+
+51. Vamos fazer uma Revisao. Entao, 1. Eh o Usuario terraform; 2. Tem acesso Programatico; 3. E a Permissao dele eh de nivel de Aministrador.
+
+
+
+52. Beleza?
+
+
+
+53. Eu posso mandar criar o Usuario, clicando em Create user.
+
+
+
+54. E, agora, eh um Passo muito, muito importante.
+
+
+
+55. Por que?
+
+
+
+56. Esse Usuario, terraform, ele tem um Access key, e um Secret access key.
+
+
+
+57. Isso eh muito importante. Por que?
+
+
+
+58. Eu vou, ate, mostrar, aqui, esse Secret access key, porque eh atraves desse desse Access key ID e desse Secret Access key, que voce vai conseguir criar os Recursos dentro da AWS.
+
+
+
+59. Okay?
+
+
+
+60. Voce, se voce perder esse cara, aqui, Access Key ID e/ou Secret Access Key, ja era, voce nao consegue recuperar de novo o Secret access key, so criando um novo.
+
+
+
+61. Entao, ate por isso que aparece esse Download .csv, que eh para voce baixar ele, eu vou ate baixar ele, aqui, oh, deixar as credenciais salvas.
+
+
+
+62. E, ai, as vezes, eu coloco em alguma pasta minha, algum local secreto, para mim nao esquecer, nao perder esse usuario, senao, eu tenho que regerar essa Secret access key.
+
+
+
+63. Nao eh que eh dificil regerar. Eh facinho, vai la e clica no botao e regera essa senha para voce. O problema eh voce ter que configurar isso depois, nao eh?, na sua maquina, voce vai esquecer, enfim.
+
+
+
+64. E o principal.
+
+
+
+65. Nao divulgue isso de forma alguma.
+
+
+
+66. Nao coloque essas informacoes no GitHub, por exemplo.
+
+
+
+67. Nao mostre essas informacoes num video, como eu estou fazendo aqui. Eu so estou mostrando, aqui, mas logo que acabar esta gravacao, eu vou invalidar esses valores, aqui, eu vou apagar essas credenciais, obviamente.
+
+
+
+68. Mas eu quero te dar esse toque, porque, se voce tiver essas duas informacoes, aqui, o Access Key ID e o Secret Access Key, voce consegue criar qualquer Instancia, nao eh?, ainda mais em um Perfil, desse aqui, de Administrador. Voce consegue criar, la, 100 Instancias EC2, criar Banco RDS, consegue fazer um monte de coisas.
+
+
+
+69. Entao, tome muito cuidado na divulgacao disso.
+
+
+
+70. Existe, ate, um Robo que fica varrendo o GitHub, e, caso essas Senhas, essas Credenciais aparecam no GitHub, a AWS, eu acho, eu nao tenho certeza absoluta, mas, eu acho que ela, ate, invalida automaticamente. Mas, ela consegue identificar e, as vezes, ate te notificar: "Olha, eu encontrei essa Access Key ID e Secret Access Key, aqui, publico no GitHub. Entao, cuidado". Nao eh?, entao, pelo menos, essa notificacao eu acho que ela faz, se nao invalida, ja, automaticamente.
+
+
+
+71. Beleza? Entao, isso, aqui, eh seu, nao divulgue para ninguem, baixa, ai, mantenha em um local seguro. Se voce perder, voce vai ter que regerar. Okay?
+
+
+
+72. Bom, eh isso dai. O Usuario esta criado, esta, aqui, o terraform, em Users, clicando nele, na Guia Security Credentials, se voce quiser Regerar, clicar em Create access key, e voce vai criar novamente.
+
+
+
+73. Quando eu terminar de gravar esta aula, eu vou clicar aqui, oh, em Make inactive, e, ai, infelizmente, voce nao vai conseguir usar a minha Conta na AWS.
+
+
+
+74. Beleza?
+
+
+
+75. Fim da Aula 05.003. Criando um Usuario de Aplicacao na AWS.
+
+
+
+
+
+
+
+
+
+
+
+-->​

@@ -1,0 +1,242 @@
+<!--
+    Aula 03.008 - Tratamento de Erros
+
+1. Fazer o tratamento de erro da sua aplicacao eh muito importante.
+
+2. E nos vamos estudar, aqui, como a gente pode fazer o design, nao eh?, do tratamento de erros para uma API Rest.
+
+3. Okay?
+
+4. Entao, vamos la, https://alidg.me/blog/2016/9/24/rest-api-error-handling, vamos mostrar algumas coisas, aqui, de que nao eh legal, de que nao eh legal fazer.
+
+5. Por exemplo.
+
+6. Isso, para que? Para a gente tratar, so para a gente contextualizar um pouquinho mais, isso, aqui, eh um tratamento de erros, quando a gente mandou salvar uma Cerveja sem o nome e sem o tipo, a gente recebeu um erro dessa forma, aqui,
+
+{
+    "timestamp": "2019-03-23T17:24:01.767+0000",
+    "status": 400,
+    "error": "Bad Request",
+    "errors": [
+        {
+            "codes": [
+                "NotNull.beer.type",
+                "NotNull.type",
+                "NotNull.com.hibicode.beerstore.model.BeerType",
+                "NotNull"
+            ],
+            "arguments": [
+                {
+                    "codes": [
+                        "beer.type",
+                        "type"
+                    ],
+                    "arguments": null,
+                    "defaultMessage": "type",
+                    "code": "type"
+                }
+            ],
+            "defaultMessage": "não pode ser nulo",
+            "objectName": "beer",
+            "field": "type",
+            "rejectedValue": null,
+            "bindingFailure": false,
+            "code": "NotNull"
+        },
+        {
+            "codes": [
+                "NotBlank.beer.name",
+                "NotBlank.name",
+                "NotBlank.java.lang.String",
+                "NotBlank"
+            ],
+            "arguments": [
+                {
+                    "codes": [
+                        "beer.name",
+                        "name"
+                    ],
+                    "arguments": null,
+                    "defaultMessage": "name",
+                    "code": "name"
+                }
+            ],
+            "defaultMessage": "não pode estar em branco",
+            "objectName": "beer",
+            "field": "name",
+            "rejectedValue": null,
+            "bindingFailure": false,
+            "code": "NotBlank"
+        }
+    ],
+    "message": "Validation failed for object='beer'. Error count: 2",
+    "trace": "org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public com.hibicode.beerstore.model.Beer com.hibicode.beerstore.resource.BeerResource.create(com.hibicode.beerstore.model.Beer) with 2 errors: [Field error in object 'beer' on field 'type': rejected value [null]; codes [NotNull.beer.type,NotNull.type,NotNull.com.hibicode.beerstore.model.BeerType,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [beer.type,type]; arguments []; default message [type]]; default message [não pode ser nulo]] [Field error in object 'beer' on field 'name': rejected value [null]; codes [NotBlank.beer.name,NotBlank.name,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [beer.name,name]; arguments []; default message [name]]; default message [não pode estar em branco]] \r\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.resolveArgument(RequestResponseBodyMethodProcessor.java:138)\r\n\tat org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:126)\r\n\tat org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:166)\r\n\tat org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:134)\r\n\tat org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:102)\r\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\r\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:800)\r\n\tat org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\r\n\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1038)\r\n\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:942)\r\n\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1005)\r\n\tat org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:908)\r\n\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:660)\r\n\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:882)\r\n\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:741)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.boot.actuate.web.trace.servlet.HttpTraceFilter.doFilterInternal(HttpTraceFilter.java:90)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:92)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:93)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.filterAndRecordMetrics(WebMvcMetricsFilter.java:117)\r\n\tat org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:106)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:200)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\r\n\tat org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:200)\r\n\tat org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)\r\n\tat org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:490)\r\n\tat org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)\r\n\tat org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)\r\n\tat org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\r\n\tat org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)\r\n\tat org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:408)\r\n\tat org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:66)\r\n\tat org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:834)\r\n\tat org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1415)\r\n\tat org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)\r\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)\r\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)\r\n\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\r\n\tat java.lang.Thread.run(Thread.java:748)\r\n",
+    "path": "/beers"
+}
+
+7. Entao, como que a gente pode tratar?
+
+8. Eh isso, daqui, que a gente esta falando, agora.
+
+9. Okay?
+
+10. Entao, vamos la. Se voce retornar algo assim, oh, HTTP 200 OK, e um Status de falha,
+
+HTTP/1.1 200 OK
+
+{"status": "failed"}
+
+, isso nao eh legal.
+
+11. Porque o 200 OK fala que as coisas deram certo, mas, no texto, fala que nao.
+
+12. Entao, fica meio incoerente, nao eh?, nao fica muito legal fazer isso.
+
+13. Okay?
+
+14. Dependendo do tipo de erro, por exemplo, 500 Internal Server Error, nao eh?, e voce mandar esse tipo de mensagem, aqui, para um erro de validacao, ou um erro que o usuario cometeu, tambem nao fica legal.
+
+15. E outra coisa, aqui, tambem, que ele esta mostrando, nesse exemplo, eh voce mandar o Erro HTTP, ou seja, 500 Internal Server Error, e, aqui, no texto, mandar o Stack Trace, nao eh?, mandar os detalhes da implementacao.
+
+16. Tambem nao eh legal voce mandar os detalhes da implementacao.
+
+17. Se eu estou usando a sua API, eu nao quero saber como ela foi implementada, nao eh?
+
+18. Entao, isso, tambem, nao eh legal voce mandar dessa forma, assim, todos esses detalhes.
+
+19. Okay?
+
+20. Bom, ai, existem algumas formas de a gente tratar esse Erro.
+
+21. Uma, que eh chamada de Application Level Error Codes, e uma outra, e uma outra, que eu prefiro mais, e que o autor, aqui, tambem, que eh essa Resource Based Error Codes.
+
+22. A Application Level Error Codes, voce tem codigo de erro para a aplicacao inteira. Por isso que eh Application Level.
+
+23. Entao, codigo de erro em nivel de aplicacao.
+
+24. Entao, por exemplo, 42, o erro 42 significa alguma coisa dentro da aplicacao. Agora, no Resource Based Error Codes, ou seja, o Codigo de Erro Baseado no Recurso, eh para aquele Recurso, entao, por exemplo, "geeks-1" eh um codigo de erro do Resource "geeks", okay?,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request",
+    "error_code": "geeks-1"
+}
+
+25. Eh diferente.
+
+26. E voce pode, inclusive, colocar uma mensagem,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request",
+    "error_code": "geeks-1",
+    "error_message": "The geek already exists"
+}
+
+, entao, por exemplo, "geeks-1", significa "The geek already exists", ou seja, eu estou tentando salvar um geek e esse geek, aqui, ja existe no banco de dados.
+
+27. Okay?
+
+28. Entao, essa eh uma forma, voce cria um codigo de erro por Recurso,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request",
+    "error_code": >>> "geeks-1", <<<
+    "error_message": "The geek already exists"
+}
+
+
+29. Por que que esse Codigo de Erro, aqui, 
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request",
+    "error_code": >>> "geeks-1", <<<
+    "error_message": "The geek already exists"
+}
+
+, eh interessante?
+
+30. Porque a pessoa que esta usando a sua API, imagina que tenha algum Desenvolvedor Front-End, usando a sua API. Ele pode usar esse error_code, aqui, 
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request",
+    "error_code": >>> "geeks-1", <<<
+    "error_message": "The geek already exists"
+}
+
+, "geeks-1", para mostrar uma mensagem na tela mais amigavel.
+
+31. Essa aqui, 
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request",
+    "error_code": "geeks-1",
+    "error_message": >>> "The geek already exists" <<<
+}
+
+error_message: "The geek already exists", tem essa opcao, mas ele pode mostrar alguma outra, nao eh?, ele nao eh obrigado a usar essa mensagem sua: "The geek already exists".
+
+32. Okay?
+
+33. E, se eu tiver mais de uma, nao eh?, no caso de validacao de erro?
+
+34. Nao eh?
+
+35. Eu poderia fazer o seguinte, oh, 
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request",
+    "errors" : [
+            {"code": "geek-2", "message": "The first_name is mandatory"},
+            {"code": "geek-3", "message": "The last_name is mandatory"},
+    ]
+}
+
+, eu retorno um array de errors, onde eu tenho os varios codigos, 
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request",
+    "errors" : [
+            {"code": >>> "geek-2", "message": "The first_name is mandatory"},
+            {"code": >>> "geek-3", "message": "The last_name is mandatory"},
+    ]
+}
+
+, e, ai, eu tenho a mensagem para cada um deles,
+
+{
+    "status_code": 400,
+    "reason_phrase": "Bad request",
+    "errors" : [
+            {"code": "geek-2", >>> "message": "The first_name is mandatory"},
+            {"code": "geek-3", >>> "message": "The last_name is mandatory"},
+    ]
+}
+
+36. E eh exatamente dessa forma que a gente vai implementar.
+
+37. O nosso erro vai aparecer exatamente desse jeito, la no nosso codigo.
+
+38. Okay?
+
+39. Entao, isso que a gente vai comecar a fazer, nas proximas aulas, de uma forma centralizada.
+
+40. O Spring nos prove um carinha que se chama ControllerAdvice, que a gente consegue capturar esses erros de uma forma centralizada. Significa que, imagina, voce pode ter varios Resources.
+
+41. Porque a nossa Aplicacao so tem 1.
+
+42. Mas, voce poderia ter varios Resources desse aqui. Imagina voce colocando try/catch, aqui, em cada um deles.
+
+43. Ficaria bem ruim, nao eh?
+
+44. Entao, a gente pode fazer isso de uma forma centralizada, ter um local so que a gente trata essas Excecoes.
+
+45. Fim da     Aula 03.008 - Tratamento de Erros.
+
+-->

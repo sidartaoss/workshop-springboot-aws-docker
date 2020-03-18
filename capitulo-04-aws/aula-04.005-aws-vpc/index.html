@@ -1,0 +1,163 @@
+<!-- 
+
+Aula 04.005. AWS VPC
+
+
+
+1. Vamos so fazer uma introducao, agora, aqui, na VPC, da AWS, e, depois, a gente vai ver isso na pratica, quando a gente for Provisionar.
+
+
+
+2. Beleza?
+
+
+
+3. Bom, VPC, eh a sigla, ai, para Virtual Private Cloud, https://aws.amazon.com/pt/vpc
+
+
+
+4. Ela te proporciona criar uma Rede isolada na Nuvem.
+
+
+
+5. Isso eh muito legal, porque uma Rede isolada te aumenta a seguranca, muita, muita seguranca.
+
+
+
+6. E facilita muito a sua vida na hora de configurar questoes de seguranca, tambem.
+
+
+
+7. Se voce nao tiver uma VPC, se voce nao tiver uma Rede Privada sua, o que que vai acontecer?
+
+
+
+8. A sua Instancia, na Nuvem, esta na Internet.
+
+
+
+9. As suas maquinas, estariam na Internet, e, ai, voce precisa, em todas elas, configurar Firewall, voce tem que configurar um monte de coisas para que o acesso a essas maquinas seja mais seguro.
+
+
+
+10. Okay? Porque elas estariam expostas, diretamente, na Internet, estariam facilmente disponiveis para serem atacadas.
+
+
+
+11. Enquanto, numa VPC, eh uma Rede Privada, entao, voce nao consegue acessar. A nao ser que voce permita.
+
+
+
+12. Okay? Entao, a gente consegue permitir o acesso tambem. A gente vai fazer aqui, mas voce vai ver que a gente vai fazer de uma forma mais segura, e, depois, eu vou te passando outras dicas que a gente pode fazer quando a gente esta trabalhando em alguma empresa maior, que eh coisas relacionadas a VPN, por exemplo.
+
+
+
+13. Okay? 
+
+
+
+14. Entao, a VPC eh isso. 
+
+
+
+15. Te da um ambiente isolado, logicamente, dentro da Cloud.
+
+
+
+16. Okay?
+
+
+
+17. E, ai, eu quero te passar, aqui, uma imagem.
+
+
+
+18. Essa imagem, aqui, a gente vai ver essa imagem, a evolucao dessa imagem ao decorrer do curso.
+
+
+
+19. Mas, o que eu quero falar eh por que existem diagramas, existem icones, inclusive, eu estou deixando, aqui, o material para voce poder fazer o download, eu vou deixar o link, na verdade, do site da AWS, para voce poder baixar, que tem varios icones ja padrao, de como voce pode desenhar o que voce tem feito na AWS. Os Servicos, os Recursos da AWS, voce tem icones default para desenhar.
+
+
+
+20. E esse, daqui, mais externo, aqui, eh o da VPC. Eh essa Linha preta, solida, aqui, sem nenhum tracinho, linha preta, solida, com o desenho da Nuvem VPC, dentro.
+
+
+
+21. Entao, aqui, eh uma VPC, eu tenho uma VPC desenhada, e, dentro dessa VPC, esse tracejado laranja, sao Zonas de Disponibilidade.
+
+
+
+22. Lembra la das AZ's (Availability Zones)? 
+
+
+
+23. Entao, aqui, eh uma Zona de Disponibilidade. Aqui, abaixo, seria outra.
+
+
+
+24. Entao, eu poderia criar essa VPC, por exemplo, na Regiao de Sao Paulo, e, essa aqui, seria uma Zona dentro da Regiao de Sao Paulo, e aqui, abaixo, outra Zona, dentro da Regiao de Sao Paulo.
+
+
+
+25. Okay?
+
+
+
+26. E, dentro, ainda, essa Linha Preta, com cadeadinho, seriam as Sub-Redes, as Sub-Nets, que a gente consegue criar dentro da VPC.
+
+
+
+27. Okay?
+
+
+
+28. Entao, a gente vai criar essa infra-estrutura, aqui, do Zero, eu vou comecar a criar isso, daqui, logo, logo, a gente comeca a desenvolver isso, aqui, devagarzinho, passo-a-passo, okay?
+
+
+
+29. Mas, eu queria, ja, te mostrar o desenho.
+
+
+
+30. VCP, as Zonas de Disponibilidade, e as Sub-Redes.
+
+
+
+31. Entao, dentro de uma Zona, eu consigo colocar varias Sub-Redes.
+
+
+
+32. Nao eh?
+
+
+
+33. E, quando a gente for definir uma VPC, voce vai ver quando a gente for criar a VPC, valar: "Cria uma Nova VPC para mim.", eu preciso especificar o endereco, aqui, CIDR, da Rede, da VPC,
+
+
+
+192.168.0.0/16
+
+
+
+34. Eu vou colocar 192.168.0.0/16. Por que que eu vou colocar 192.168., comecar assim? Porque eh a rede que muita gente esta acostumada, nao eh? Essa Rede, essa faixa de endereco de IP's, normalmente, eh o que os Roteadores tem, nao eh? Entao, a rede da sua casa, bem provavel que seja 192.168., e alguma coisa.
+
+
+
+35. Entao, por isso que eu resolvi criar a VPC dentro dessa rede, para, talvez, ficar um pouco mais familiarizado, voce, com essa Rede, okay?
+
+
+
+36. Entao, eh isso, aqui, que eu queria falar da VPC. Eh bem introdutorio, mesmo, eh so te falar que ela eh uma Rede Isolada, nao eh?, que voce consegue, entao, definir Regras de Seguranca de formas melhores dentro de uma Rede Privada, do que se suas Instancias, suas maquinas, estivessem expostas, diretamente, na Internet.
+
+
+
+37. Okay? Entao, eh isso. Quando a gente for criar, a gente entra em muitos mais detalhes.
+
+
+
+38. Fim da Aula 04.005. AWS VPC.
+
+
+
+-->​

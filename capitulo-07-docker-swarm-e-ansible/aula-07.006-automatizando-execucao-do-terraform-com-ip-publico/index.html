@@ -1,0 +1,169 @@
+<!--
+    Aula 07.006. Automatizando Execucao do Terraform com IP Publico
+
+1. Entao, vamos automatizar essa parte, aqui, do IP fixo, aqui, sendo o meu IP Publico, okay?
+
+2. Entao, vamos la. A primeira coisa que eu vou fazer eh, aqui, em variables.tf, e vamos criar, aqui, uma variavel, e eu vou chamar essa variavel de "my_public_ip",
+
+variable "my_public_ip" {
+
+}
+
+3.  Okay?
+
+4. E qual que vai ser o valor dela?
+
+5. Opa, perai.
+
+6. Se voce colocar o valor do seu IP Publico aqui, em variables.tf, voce so esta trocando de lugar.
+
+7. Ao inves de colocar em security.tf, voce colocou em variables.tf.
+
+8. Eh verdade, entao, nao faz sentido.
+
+9. Entao, o que que a gente vai fazer, oh?
+
+10. A gente vai deixar essa variavel, "my_public_id", aqui, sem valor nenhum.
+
+11. Eh isso mesmo. Voce vai deixar a variavel sem valor nenhum.
+
+12. Quando voce deixa uma variavel sem valor nenhum, significa que, quando voce for executar o Terraform, voce precisa passar essa variavel para ele executar.
+
+13. Okay?
+
+14. Voce precisa passar usando a opcao -var, no Terraform.
+
+15. Entao, 
+
+> terraform apply -var
+
+, voce coloca os valores das variaveis, okay?
+
+16. Entao, my_public_ip vai vir para ca, ou seja, security.tf,
+
+resource "aws_security_group" "allow_ssh" {
+
+    ...
+
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = ["${var.my_public_ip}"]
+    }
+
+}
+
+17. Entao, vai ficar, assim, dessa forma.
+
+18. Entao, na hora que eu for executar, agora, o Terraform, eu vou ser obrigado a informar esse my_public_ip. Inclusive, se voce fizer um terraform apply, agora, oh, voce vai ver que ele vai ter perguntar qual o valor dessa variavel.
+
+19. Ou voce pode passar na hora de executar, ou voce informa, aqui, o valor do IP. Okay?
+
+20. Ou, entao, voce poderia fazer assim, oh, -var, que eh como a gente vai fazer,
+
+> terraform apply -var 
+
+, ai, voce vai passar, aqui, entre aspas, vai passar, aqui, entre aspas, "my_public_ip=", e passa, aqui, o valor do IP.
+
+21. Entao, vamos la. Como eh que eu faco para pegar o meu IP Publico?
+
+22. Existe o site, ipinfo.io/ip. Entao, se a gente fizer um curl -s ipinfo.io/ip, ele vai mostrar o meu IP Publico, que, inclusive, nao mudou, nao eh? Esta o mesmo de sempre la.
+
+23. Eu acho que aquela alteracao que foi feita, quando a gente mandou executar o Terraform, aqui, foi alguma outra coisa que eu tinha alterado, direto, eu tinha alterado, por algum motivo, nao lembro mais qual eh, mas eu tinha alterado alguma coisa que o estado nao estava consistente.
+
+24. Okay?
+
+25. Por isso que ele pediu aquela alteracao.
+
+26. Mas, enfim.
+
+27. Entao, eu estou com o meu IP, aqui, eu acho que ele nao tinha alterado, vamos ver, aqui, eh, nao chegou a alterar.
+
+28. Entao, esta ai, eu estou, aqui, com o meu IP Publico, e eu, usando esse comando.
+
+29. Entao, o que que eu vou fazer?
+
+30. Ao inves de eu ter que ficar fazendo isso toda hora, nao eh?, executando esse comando curl, e pegando esse IP, vamos criar um arquivo, aqui, dentro da pasta do terraform, eu vou chamar ele de run-terraform.sh, okay? Vamos criar um shell para executar esse camarada, para a gente. Okay?
+
+31. Entao, o IntelliJ tentou me ajudar, aqui, mas eu vou fazer um pouquinho diferente, eu vou colocar, aqui, /bin/bash, eu vou deixar dessa forma, assim, eh a forma que eu estou mais acostumado, e vamos la, echo "Provisioning infrastructure..."
+
+#!/bin/bash
+
+echo "Provisioning infrastructure..."
+
+, vamos fazer assim para mostrar, esta comecando o provisionamento da infra-estrutura, okay, echo "Finding my public ip address..."
+
+32. E, ai, como que a gente acha? Com o comando curl. Entao, eu vou criar uma variavel, aqui, MY_PUBLIC_IP, que vai ser o resultado daquele curl, entao, eu coloco no shell script, para a gente pegar o resultado de uma expressao, voce pode colocar o dolar, abre/fecha parenteses, agora, neste caso, e escreve o comando, curl -s ipinfo.io/ip,
+
+echo "Provisioning infrastructure..."
+
+echo "Finding my public ip address..."
+
+MY_PUBLIC_IP="${curl -s ipinfo.io/ip}"
+
+33. Ele vai executar esse comando e o resultado ele vai armazenar nessa variavel, aqui, MY_PUBLIC_IP.
+
+34. Vamos mostrar o valor dessa variavel? Vamos colocar aqui ... your public ip is, ai, a gente pode mostrar o valor dessa variavel,
+
+echo "Provisioning infrastructure..."
+
+echo "Finding my public ip address..."
+
+
+echo "Provisioning infrastructure..."
+
+echo "Finding my public ip address..."
+
+MY_PUBLIC_IP="${curl -s ipinfo.io/ip}"
+
+echo "... your public ip is $MY_PUBLIC_IP"
+
+
+35. Okay?
+
+36. Nao esquece de fechar aspas duplas.
+
+37. Agora, a gente pode iniciar o Terraform.
+
+38. Entao, echo "Starting Terraform...", terraform, a gente pode, agora, manda o terraform apply -var "my_public_ip", que eh o nome da variavel la de dentro, esse nome dessa variavel, $MY_PUBLIC_IP, vai ser o valor, aqui, oh, $MY_PUBLIC_IPÇ/32,
+
+terraform apply -var "my_public_ip=$MY_PUBLIC_IP/32"
+
+39. Okay? /32, nao podemos esquecer desse /32, importantissimo, porque, aqui, eh o cidr, a gente precisa, sempre, informar em um bloco cidr. Entao, por isso, tem o /32. Lembra que, em security.tf, tinha o /32, no IP? Entao, tem que colocar esse /32, aqui, em run-terraform.sh, tambem.
+
+40. Beleza?
+
+41. Fechou. Acho que eh isso. Acho que, agora,..., vamos testar?
+
+42. Para mandar executar esse meu arquivo, aqui, ele tem que ter permissao de escrita, tem que ter um x, aqui, oh, entao, tem que mandar um x para todo mundo, chmod a+x, ou seja, all, para todo mundo, eu quero adicionar x, ou seja, a permissao de execucao, run-terraform.sh,
+
+> chmod a+x run-terraform.sh
+
+> ls -l run-terraform.sh
+
+43. Agora, se eu der um ./run-terraform.sh, tem permissao de execucao, ele vai buscar o IP e vai startar o Terraform, agora, ele vai fazer toda aquela execucao, vai atualizar o estado, e tal, continua, entao, a gente, agora, para executar o Terraform, tem um pequeno atalho, ai, para ficar mais facil, nao e? Se o nosso IP Publico mudar, vai ficar mais facil as coisas para a gente, tambem, nao eh verdade?
+
+44. Entao, vamos so esperar ele atualizar, aqui, ele esta querendo mudar alguma coisa, ele vai adicionar/destruir 4, esta me dando alguma coisa no Security Group, toda vez ele esta pedindo para recriar o Security Group.
+
+45. Bom, eu voltei, aqui, a gente nao tinha mudado nada, ele estava pedindo para recriar todas as vezes as nossas maquinas, eu achei o problema. E foi la atras esse problema.
+
+46. Entao, nos temos que prestar atencao, aqui, na hora de escolher a propriedade correta.
+
+47. Entao, voltando, aqui, em instances.tf, na nossa maquina, aqui, estava security_groups = ["${aws_security_group.allow_sh.id}"]
+
+48. E nao eh security_groups. Eh vpc_security_group_ids.
+
+49. Eh diferente.
+
+50. Se voce olhar na documentacao, terraform docs, vamos dar uma olhada aqui, oh, ja vamos direto, aqui, no Provider da AWS, vamos procurar, aqui, aws_instance, se a gente olhar, aqui, nas propriedades, oh, tem a proprieade security_groups, entao, oh, a gente estava criando, e tem a propriedade vpc_security_group_ids. Entao, oh, se a gente esta criando uma Instancia dentro de uma VPC, que eh o nosso caso, use vpc_security_group_ids, e eu usei security_groups.
+
+51. Entao, esse foi o problema, por isso que isso deu problema.
+
+52. Bom, ja voltei na aula que isso ja aconteceu, eu so descobri isso agora, e editei la, colocando um warning, na hora que eu escrevei security_group, vai aparecer para voce colocar vpc_security_group_ids. Entao, voce ja deve ter passado por essa aula, mas so agora que eu descobri.
+
+53. Beleza?
+
+54. Fim da      Aula 07.006. Automatizando Execucao do Terraform com IP Publico.
+
+-->

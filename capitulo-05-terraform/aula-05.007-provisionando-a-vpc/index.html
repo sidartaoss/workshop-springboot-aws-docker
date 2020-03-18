@@ -1,0 +1,705 @@
+<!-- 
+
+Aula 05.007. Provisionando a VPC
+
+
+
+1. Bom, eu costumo usar essa ferramenta, aqui, oh, draw.io, para fazer os Diagramas.
+
+
+
+2. Por que que eu uso ela?
+
+
+
+3. Porque ela tem um monte de ferramentas, aqui, para poder trabalhar, aqui, oh, os More Shapes, para trabalhar na AWS. Se eu clicar, aqui, na AWS / Apply, aparece, aqui, um monte das coisas que a gente consegue trabalhar na AWS.
+
+
+
+4. Okay?
+
+
+
+5. Bom, entao, o que que a gente vai provisionar na VPC?
+
+
+
+6. Nos vamos provisionar, entao, uma VPC. Esse, aqui, vai ser o CIDR, dela, 192.168.0.0/16, para, depois, a gente dividir isso dentro das sub-nets, ou sub-redes, que a gente for criar, aqui dentro. Okay?
+
+
+
+7. Entao, vai ser Uma VPC, com 6 sub-redes, que a gente vai criar. 
+
+
+
+8. Entao, vai ter essa sub-rede, aqui, e essa outra, oh, repare que sao Duas sub-redes por Zona de Disponibilidade.
+
+
+
+9. Por que?
+
+
+
+10. Uma dessas sub-redes, eu vou colocar o Banco de Dados, e, na Outra, eu vou colocar a Aplicacao, as Instancias EC2.
+
+
+
+11. Okay?
+
+
+
+12. Entao, por isso que eu estou separando assim, Uma para Banco, e outra para Aplicacao.
+
+
+
+13. Beleza?
+
+
+
+14. Entao, eu vou usar tres Zonas de Disponibilidade, entao, por isso que eu vou colocar 6 sub-redes, Duas em Cada Zona de Disponibilidade.
+
+
+
+15. Beleza?
+
+
+
+16. Assim, a nossa Aplicacao vai ser bem dificil ficar fora do ar, nao eh? Imagina, tem que cair muita coisa, aqui, para ela poder ficar fora do ar.
+
+
+
+17. Beleza?
+
+
+
+18. Bom, a primeira coisa que a gente tem que Provisionar, entao, eh a VPC.
+
+
+
+19. Eh essa primeira etapa, aqui, e eu preciso saber qual que vai ser o CIDR dela. Eu ja disse que eu vou usar esse 192.168.0.0/16.
+
+
+
+20. Entao, vamos la, eu vou criar um Arquivo, chamado network.tf, porque faz parte da Rede, nao eh?, a gente esta provisionando a Rede, aqui, neste momento.
+
+
+
+21. Bom, qual que eh o Recurso, como que a gente Provisiona uma VPC no Terraform?
+
+
+
+22. Bom, vamos la. Quando eu preciso fazer isso, eu nao lembro de cabeca tudo, obviamente, ainda mais uma VPC que eh algo que voce faz menos, nao eh?, voce faz uma vez e, depois, sai provisionando os demais.
+
+
+
+23. Entao, aqui, na documentacao, eu vou la em docs, seleciona, aqui, Providers, AWS, https://www.terraform.io/docs/providers/aws/index.html, tem, aqui, uma Parte inicial, que eh de Data Sources, okay? O que sao Data Sources?
+
+
+
+24. A gente ainda vai ver mais detalhes, mas, os Data Sources eh quando voce ja tem algo criado e voce quer so referenciar ele, para poder pegar variaveis de dentro de Um Data Source.
+
+
+
+25. Okay?
+
+
+
+26. Nos vamos chegar la quando formos usar alguma coisa relacionada a Data Source. Mas, o que a gente quer, agora, sao os Recursos, mesmo.
+
+
+
+27. Entao, os Recursos e nao os Data Sources.
+
+
+
+28. Entao, a gente pode ir descendo e, nos que comecarem a aparecer, aqui, para baixo, ja sao os Recursos de verdade.
+
+
+
+29. Okay?
+
+
+
+30. Entao, a VPC, eu vou dar um CTRL+F, aqui, para ser mais facil.
+
+
+
+31. aws_vpc
+
+
+
+32. Esse primeiro, aqui, oh, vai estar dentro da Secao Data Sources. Entao, nao eh Data Source que a gente vai usar. Entao, oh, a gente tem que continuar pesquisando.
+
+
+
+33. Esse outro, aqui, esta dentro de VPC Resources, olha so, tem uns aqui. A gente vai usar o aws_vpc, https://www.terraform.io/docs/providers/aws/r/vpc.html.
+
+
+
+34. Entao, ele Prove um Recurso de VPC, para a gente.
+
+
+
+35. Como ele funciona?
+
+
+
+36. Muito simples.
+
+
+
+37. Muito simples.
+
+
+
+38. resource, coloca, aqui, "aws_vpc",
+
+
+
+resource >>> "aws_vpc" "main" {
+
+cidr_block = 10.0.0.0/16
+
+}
+
+
+
+, eh o nome do Recurso que a gente quer usar, olha la, oh,
+
+
+
+https://www.terraform.io/docs/providers/aws/r/vpc.html
+
+
+
+, eh o resource, "aws_vpc", porque eu estou usando este,
+
+
+
+aws_vpc
+
+
+
+, e a segunda string, aqui, que a gente coloca,
+
+
+
+resource "aws_vpc" >>> "main" {
+
+cidr_block = 10.0.0.0/16
+
+}
+
+
+
+, eh o nome para ser util para a gente dentro dos arquivos do Terraform.
+
+
+
+39. Voce vai entender por que.
+
+
+
+40. Oh, quando a gente cria um Recurso, 
+
+
+
+resource "aws_vpc" >>> "main" {
+
+cidr_block = 10.0.0.0/16
+
+}
+
+
+
+, isso, aqui, eh como se fosse um objeto que vai ser criado. Por que que eh um objeto? 
+
+
+
+41. Porque ele tem variaveis de entrada, ai, poderiam ser os atributos, olha so, os argumentos que a gente tem para criar, https://www.terraform.io/docs/providers/aws/r/vpc.html#argument-reference, e ele tem variaveis de saida, tambem, que sao, aqui, os atributos de referencia.
+
+
+
+42. Entao, por exemplo, o id. Entao, o id eh o ID da VPC. Voce concorda comigo que o ID so existe depois que a VPC for criada?
+
+
+
+43. Entao, por isso que eh uma variavel, eh como se fosse uma variavel de saida.
+
+
+
+44. Okay?
+
+
+
+45. Isso, aqui, ele consegue entregar para a gente na saida, https://www.terraform.io/docs/providers/aws/r/vpc.html#attributes-reference. 
+
+
+
+46. Voce vai ver quando a gente for criar a sub-rede, que a gente vai precisar referenciar o ID desse recurso,
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = 10.0.0.0/16
+
+} 47. Okay?
+
+
+
+48. Nos vamos criar um Recurso "aws_vpc" "main", com CIDR, com o "cidr_block". Quando a gente ve, aqui, oh, https://www.terraform.io/docs/providers/aws/r/vpc.html#argument-reference, a gente consegue ver o que eh obrigatorio, required. O "cidr_block" eh Required.
+
+
+
+49. Se ele eh Required, eu tenho que colocar. Os que sao opcionais, nao.
+
+
+
+50. Okay?
+
+
+
+51. Entao, eu vou usar o cidr_block, https://www.terraform.io/docs/providers/aws/r/vpc.html#cidr_block, e vou usar tags, https://www.terraform.io/docs/providers/aws/r/vpc.html#tags, tambem, e ja falo para voce o que que seriam essas tags.
+
+
+
+52. Okay?
+
+
+
+53. Entao, vamos la.
+
+
+
+54. Vamos colocar, aqui, oh, em network.tf,
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = "10.0.0.0/16"
+
+}
+
+
+
+, e vamos pegar, aqui, um exemplo, oh, da tag, como eh que a gente utilizaria as tags,
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = "10.0.0.0/16"
+
+
+
+tags {
+
+Name = "main"
+
+}
+
+}
+
+
+
+, beleza? E a gente vai ver como a gente quando isso, aqui, for criado la,
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = ">>> 10.0.0.0/16"
+
+
+
+tags {
+
+Name = "main"
+
+}
+
+}
+
+
+
+55. Bom, cidr_block, 192.168.0.0/16, 
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = "192.168.0.0/16"
+
+
+
+tags {
+
+Name = "main"
+
+}
+
+}
+
+
+
+56. Okay?
+
+
+
+57. E vamos colocar a tag, aqui, eu vou chamar, aqui, de hibicode,
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = "192.168.0.0/16"
+
+
+
+tags {
+
+Name = "hibicode"
+
+}
+
+}
+
+
+
+58. Okay?
+
+
+
+59. Eu, com certeza, ja apaguei la, da minha AWS. Vamos dar uma olhada, aqui, se eu realmente apaguei.
+
+
+
+60. Vamos procurar o Servico de VPC, aqui, so para confirmar, nao eh?
+
+
+
+61. VPC, quais sao as minhas VPC's, so tem Uma, eh so a Default. Essa, aqui, eh a VPC que vem por Padrao, quando voce cria a sua conta, ja vem uma VPC para a gente.
+
+
+
+62. Entao, a gente nao vai usar essa.
+
+
+
+63. Nos vamos criar a nossa.
+
+
+
+64. Okay?
+
+
+
+65. Entao, vamos la, okay. tags, Name, com N maiusculo. Olha so, voltando, aqui, no Console da Amazon.
+
+
+
+66. Em Your VPCs, em Name, com N maiusculo, ta vendo que nao tem nada?
+
+
+
+67. Porque a default nao vem com nada.
+
+
+
+68. Essa tag, Name, eh a tag que vai aparecer aqui. Entao, colocando hibicode, aqui,
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = "192.168.0.0/16"
+
+
+
+tags {
+
+Name = ">>> hibicode"
+
+}
+
+}
+
+
+
+, vai ser esse nome que vai aparecer aqui, na VPC, quando for criada a nova, nao eh?
+
+
+
+69. Nao nesta aqui, mas na nova que a gente criar.
+
+
+
+70. Okay?
+
+
+
+71. Entao, tags servem para adicionar valores para voce, dentro de Um Recurso.
+
+
+
+72. E nao eh so, necessariamente, a tag Name.
+
+
+
+73. Voce pode colocar quantas tags voce quiser, e pode criar as suas tags, tambem.
+
+
+
+74. Voce poderia ter uma tag, aqui, tambem, do tipo departamento, e, ai, voce poderia ter o departamento de "compras", por exemplo,
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = "192.168.0.0/16"
+
+
+
+tags {
+
+Name = "hibicode"
+
+departamento = "compras"
+
+}
+
+}
+
+
+
+75. Eh ele que esta usando essa VPC, por exemplo. Aqui, departamento, talvez, nao faz tanto sentido, no Recurso de vpc,
+
+
+
+resource ">>> aws_vpc" "main" {
+
+cidr_block = "192.168.0.0/16"
+
+
+
+tags {
+
+Name = "hibicode"
+
+departamento = "compras"
+
+}
+
+}
+
+
+
+, mas faria, por exemplo, no EC2.
+
+
+
+76. Isso, aqui, seria util para que?
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = "192.168.0.0/16"
+
+
+
+tags {
+
+Name = "hibicode"
+
+>>> departamento = "compras"
+
+}
+
+}
+
+
+
+77. Para, depois, fazer filtros e sabe quanto que o departamento de Compras esta gastando na AWS.
+
+
+
+78. Okay?
+
+
+
+79. Entao, atraves das tags, voce consegue fazer isso.
+
+
+
+80. A gente, tambem, nao vai entrar em detalhes, isso foge do escopo do curso, mas, fique atento as tags, elas sao muito uteis, principalmente, nessa questao de Cobrancas, okay? Na hora de saber o que que esta gastando, qual area esta gastando o qu, dentro da empresa.
+
+
+
+81. Okay? Qual Projeto esta gastando o que.
+
+
+
+82. Bom. Eh so isso daqui,
+
+
+
+resource "aws_vpc" "main" {
+
+cidr_block = "192.168.0.0/16"
+
+
+
+tags {
+
+Name = "hibicode"
+
+}
+
+}
+
+
+
+83. Nao tem o que fazer mais nada, aqui, para Provisionar uma VPC, vamos la no Terminal, dentro da pasta /terraform,
+
+
+
+> %userprofile%\terraform apply
+
+
+
+84. E, ai, quando eu mandar o terraform apply, ele vai mostrar o que ele vai criar na AWS, e a gente tem a opcao de falar, 'Sim', ou 'Nao', eu quero que voce crie ou nao, nao quero que voce crie, nao quero que voce faca as alteracoes que voce esta propondo.
+
+
+
+84. Okay?
+
+
+
+85. Entao, eh isso dai.
+
+
+
+86. Eh so a gente esperar um pouquinho, que ele ja vai comecar a aplicar.
+
+
+
+87. Bom, ele vai perguntar: 'Qual eh a Regiao que ele vai fazer isso?' A default eh us-east-1, eu posso, simplesmente, dar um <enter>, aqui, e, ai, continuamos esperando,...
+
+
+
+88. Pronto. Ele vai te falar, oh, o que que ele vai fazer.
+
+
+
+89. E, aqui, voce pode escrever 'no', ou 'yes'.
+
+
+
+90. Tem que ser 'yes'. Se voce colocar 'y', nao funciona, tem que ser 'yes'.
+
+
+
+91. Okay?
+
+
+
+92. Mas, vamos dar uma olhada, aqui, antes, o que que ele esta falando.
+
+
+
+93. Oh, ele, com esse maiszinho, aqui, ele esta falando, que eh Recurso de Criacao. Ele vai criar uma VPC, que a gente deu o nome de main, no nosso Terraform. Qual que eh o id? Vai ser computado.
+
+
+
+94. Nao eh? Algumas coisas vao ser computadas, la dentro.
+
+
+
+95. Mas, cidr_block, "192.168.0.0/16", algumas coisas voce ja confere, aqui, para ver se esta certo.
+
+
+
+96. Eh, realmente, esse CIDR que a gente quer?
+
+
+
+97. Eh. Okay?
+
+
+
+98. Olhe isso, daqui, quais as tags? Tem tag?
+
+
+
+99. Tem uma Tag.
+
+
+
+100. Tag Name, chamada de "hibicode".
+
+
+
+101. Okay?
+
+
+
+102. Entre outras configuracoes.
+
+
+
+103. A gente nao vai entrar em detalhes em cada uma dessas propriedades, porque nao da tempo.
+
+
+
+104. Okay? Nao da tempo de a gente fazer tudo, aqui.
+
+
+
+105. Mas, para a gente comecar, esta essa esta bem suficiente.
+
+
+
+106. Entao, sim, vamos, pode criar essa VPC na AWS para mim, Terraform, por favor.
+
+
+
+107. Ele vai criar e vai salvar o arquivo de estado la no S3, nao vai salvar local, aqui, mais, na minha maquina. Ta vendo? Eh so a gente esperar, ele vai demorar um pouquinho, depende da velocidade da sua Internet. Pronto, criou. A gente da um dir, aqui, na linha de comando, so para a gente ver que nao tem nenhum arquivo novo, aqui, de estado, ta okay? O arquivo de estado vai la para o S3.
+
+
+
+108. Okay?
+
+
+
+109. Vamos dar uma olhada, aqui, na VPC, dar um Refresh, olha so a nossa VPC hibicode, criada, 192.168.0.0/16, como IPv4 CIDR, okay?
+
+
+
+110. Legal demais, nao eh?
+
+
+
+111. Entao, a gente ja comecou a Provisionar coisas na AWS.
+
+
+
+112. Esses arquivos, aqui, ja podem ir para o Git, nao eh?, eu ja posso comecar a colocar essas coisas no Git.
+
+
+
+113. Eu vou colocar, agora, aqui, para voce poder olhar, tambem, se voce quiser, a partir desta aula.
+
+
+
+114. Na proxima aula, a gente vai Provisionar as Sub-Redes.
+
+
+
+115. Fim da Aula 05.007. Provisionando a VPC.
+
+
+
+-->​

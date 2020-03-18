@@ -1,0 +1,187 @@
+<!-- 
+
+Aula 04.004. Entendendo o Protocolo IPV4
+
+
+
+1. Eh muito importante voce entender como Protocolo IPV4 funciona, como que a gente consegue fazer calculos de sub-rede,
+
+
+
+https://www.todoespacoonline.com/w/2015/06/calculo-de-sub-redes-ipv4/
+
+
+
+2. Por que?
+
+
+
+3. Primeiro, porque voce precisa para conseguir criar a sua VPC, a sua sub-rede, sub-nets, dentro da AWS.
+
+
+
+4. A gente via criar o Ambiente do Zero. Eu nao vou usar a VPC Padrao, que vem na AWS, nos vamos criar VPC's novas, sub-redes novas, ta okay? 
+
+
+
+5. E, tambem, se voce estiver trabalhando em uma empresa grande, muito, muito grande, como eh o meu caso, hoje, em que eu presto servico para uma empresa muito grande do Brasil, la tem varias e varias sub-redes.
+
+
+
+6. Entao, eu preciso entender como elas funcionam, para poder fazer liberacoes de seguranca, enfim.
+
+
+
+7. Entao, eh bom voce entender como isso funciona.
+
+
+
+8. E esse site, aqui, eu gostei da explicacao dele, por isso que eu estou mostrando ele, aqui, para voce, deixando o link, para voce ler. Devagarzinho, ai, fazer os seus testes, sobre o protocolo IPV4, e, claro, ficando com duvida, pode falar comigo. Eu so quero passar, aqui, algumas partes.
+
+
+
+9. Primeiro, por exemplo, quando voce ve um IP assim, oh, 192.168.100.2, e ve uma mascara de sub-rede 255.255.255.0, eu sei que essa parte, aqui, 192,168.100 eh o endereco da rede, e esse 2 eh o IP de uma maquina.
+
+
+
+10. Porque toda essa parte, aqui, 255.255.255, que, transformado em binario, por isso que tem esse 11111111 11111111 11111111, aqui, embaixo, fala que os binarios, aqui, ou seja, os bits, aqui, de cada um desses numeros, 192, 168, 100,..., esse numero 255, se eu colocar em 8 bits, assim, na sequencia, eh o 255, eh o numero maximo que da. Okay? Entao, o 192, vai ter algum zero perdido por algum lugar, aqui. 
+
+
+
+11. Entao, aqui, eu estou falando que nenhum dos bits, aqui, do 192, mudam. Entao, todos os IP's, aqui, dessa rede, vai ser 192,168.100, ai, tem o 2, tem o 3, tem 4, tem o 5, tem o 6,..., okay?
+
+
+
+12. Tem alguns IP's, aqui, que a gente pode usar. Neste caso, a gente vai conseguir usar 253 IP's, 254 IP's. Por que nao 255, se vai de 0 a 255?
+
+
+
+13. Porque Um eh IP para Broadcast, ou seja, para Comunicacao de Rede, e Um eh o IP da Rede, ou o IP do Gateway, entao, tem alguns IP's que sao reservados.
+
+
+
+14. E, na AWS, ela pega, as vezes, ate mais de Um, okay?
+
+
+
+15. E tem, ate, um Programinha, que eu quero te mostrar, oh, vamos fazer esse teste, oh, que eh o ipcalc. Se eu colocar 192.168.100.2, falando que a mascara eh 255.255.255.0,
+
+
+
+> ipcalc 192.168.100.2 255.255.255.0
+
+
+
+, ele vai fazer os calculos para mim, e vai me falar, oh, voce consegue ter 254 IPs, nessa Rede.
+
+
+
+16. O minimo eh 1, ou seja, 192.168.100.1, e o maximo eh 254, ou seja, 192.168.100.254.
+
+
+
+17. O de Broadcast vai ser sempre o ultimo, o 255, ou seja, 192.168.100.255.
+
+
+
+18. Okay?
+
+
+
+19. O IP da rede, 192.168.100.0/24, na verdade, nao eh o IP da Rede, nao eh? Eh uma outra forma de identificar uma Rede eh assim. Eh chamado de CIDR, eh essa forma de notacao, aqui, oh, 192.168.100.0/24, onde eu coloco 192.168.100.0/24, ai, eu sei, esse /24, sao os 24 primeiros bits, que sao os que estao mostrados, aqui, oh, 
+
+
+
+Netmask: 255.255.255.0 = 24 11111111. 11111111. 11111111. 00000000
+
+
+
+20. Aqui, eu tenho 8, 16, 24. Entao, os 24 primeiros bits desse numero,
+
+
+
+Network: >>> 192.168.100 <<<.0/24 ...
+
+
+
+, nao mudam.
+
+
+
+21. Okay?
+
+
+
+22. E, ai, depois, a gente consegue ir incrementando a criacao de Hosts:
+
+
+
+HostMin: ...
+
+HostMax: ...
+
+Broadcast: ...
+
+
+
+23. Okay? Essa eh a forma mais simples. Eu posso complicar isso daqui,
+
+
+
+Network: 192.168.100.0/ >>> 24
+
+
+
+24. Se eu colocar /25, por exemplo, ja, o primeiro bit, ali, nao pode mudar dessa ultima parte, ali, desse ultimo octeto, aqui,
+
+
+
+Network: 192.168.100.>>> 0 <<</25
+
+
+
+
+
+25. Entao, eh importante voce entender essa parte, tambem. Oh, um exemplo um pouco mais complexo, que ele criou, aqui, oh. Por exemplo, /28. Esse /28 significa que eu estou pegando 4 bits, aqui, oh, esses 4 ultimos bits finais, aqui. Entao, essa rede, aqui, ela nao consegue me dar 254 IP's, ela vai me dar bem menos, ela vai me dar, aqui, vao ter 14 enderecos disponiveis. Essa formulazinha, aqui, 2^b-2, que ele faz, para voce entender.
+
+
+
+26. Okay? Entao, le devagarzinho, como eh que ele explica, isso, daqui. Usa o ipcalc, ele nao vem instalado por default, voce precisa instlar, voce pode instalar, ai, para voce ir aprendendo.
+
+
+
+27. Outra forma de voce colocar, aqui, o ipcalc, 
+
+
+
+> ipcalc 192.168.100.0/24, ele tambem vai resolver para voce.
+
+
+
+28. Entao, se voce colocar ipcalc 192.168.100.0/28, olha como muda, agora.
+
+
+
+29. Eu so posso ter 14 Hosts. Okay? Eu so consigo variar esses 4 ultimos bits, aqui, da criacao de maquinas,
+
+
+
+Netmask: 255.255.255.240 = 28 11111111. 11111111. 11111111. 1111 >>> 0000
+
+
+
+30. Okay? Entao, le devagarzinho esse link. Ficando com duvida, pode conversar comigo, e a gente vai fazer isso na pratica, quando a gente estiver fazendo as VPC's, e subnets.
+
+
+
+31. Beleza?
+
+
+
+32. Fim da Aula 04.004. Entendendo o Protocolo IPV4.
+
+
+
+-->​
+
+

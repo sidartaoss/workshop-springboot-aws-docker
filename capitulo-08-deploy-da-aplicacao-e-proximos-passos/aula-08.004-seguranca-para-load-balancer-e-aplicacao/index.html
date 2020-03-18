@@ -1,0 +1,819 @@
+<!-- 
+
+Aula 08.004. Seguranca para Load Balancer e Aplicacao
+
+
+
+1. Bom, para o nosso Load Balancer funcionar, a gente precisa de Security Group.
+
+
+
+2. Normal.
+
+
+
+3. Sempre que voce estiver trabalhando na AWS, qualquer recurso, voce vai sempre precisar pensar em Seguranca.
+
+
+
+4. Entao, tem a seguranca do Security Group e sempre tem as permissoes, la no IAM, do usuario, que okay?, isso sempre vai estar, voce vai estar passando por isso.
+
+
+
+5. Okay?
+
+
+
+6. Entao, vamos la. Em security.tf,
+
+
+
+7. resource "" "" {
+
+
+
+}
+
+
+
+, vamos criar, aqui, o Security Group que permite a gente chegar no Load Balancer. "aws_security_group", vamos colocar, aqui, "allow_load_balancer", okay?
+
+
+
+resource "aws_security_group" "allow_load_balancer" {
+
+
+
+}
+
+
+
+, entao, vamos la, vpc_id = "${aws_vpc.main.id}", vamos dar um nome para ele, aqui, name = "hibicode_allow_loadbalancer",
+
+
+
+resource "aws_security_group" "allow_load_balancer" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_allow_loadbalancer"
+
+
+
+
+
+}
+
+
+
+8. Vamos la, ingress.
+
+
+
+resource "aws_security_group" "allow_load_balancer" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_allow_loadbalancer"
+
+
+
+ingress {
+
+from_port = 0
+
+to_port = 0
+
+protocol = ""
+
+}
+
+
+
+}
+
+
+
+
+
+9. Entao, ele vai, da porta 80, ate a porta 80, do nosso load balancer, protocolo tcp. Como eh um load balancer para serem recebidas as requisicoes da Internet, essa API nossa, entao, o CIDR Block dela vai ser 0.0.0.0/0, ou seja, permite vir de qualquer lugar,
+
+
+
+resource "aws_security_group" "allow_load_balancer" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_allow_loadbalancer"
+
+
+
+ingress {
+
+from_port = 80
+
+to_port = 80
+
+protocol = "tcp"
+
+cidr_blocks = ["0.0.0.0/0"]
+
+}
+
+
+
+}
+
+
+
+10. E importantissimo. O egress. O egress eh a saida. O ingress eh para entrar no load balancer. E o egress eh para onde o load balancer pode chamar. Okay? Isso, aqui, eh muito importante, muita gente esquece, e, as vezes, confunde o que que eh o egress. O egress nao eh para voltar, aqui, do ingress, nao. Okay? Lembre-se que o Security Group eh Stateful, ou seja, se ele entrou, aqui, na porta 80, ele vai poder sair para quem chamou. Nao eh esse o problema e nao eh por isso que a gente tem que por o egress. A gente tem que por o egress para falar, 'Para onde que esse load balancer pode fazer requisicao?'
+
+
+
+resource "aws_security_group" "allow_load_balancer" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_allow_loadbalancer"
+
+
+
+ingress {
+
+from_port = 80
+
+to_port = 80
+
+protocol = "tcp"
+
+cidr_blocks = ["0.0.0.0/0"]
+
+}
+
+
+
+egress {
+
+from_port = 0
+
+to_port = 0
+
+protocol = ""
+
+}
+
+
+
+}
+
+
+
+11. Okay? Entao, ele pode fazer requisicoes para quem? Para a nossa Aplicacao.
+
+
+
+12. Por isso, porta 8080,
+
+
+
+resource "aws_security_group" "allow_load_balancer" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_allow_loadbalancer"
+
+
+
+ingress {
+
+from_port = 80
+
+to_port = 80
+
+protocol = "tcp"
+
+cidr_blocks = ["0.0.0.0/0"]
+
+}
+
+
+
+egress {
+
+from_port = 8080
+
+to_port = 8080
+
+protocol = ""
+
+}
+
+
+
+}
+
+
+
+13. Okay?
+
+
+
+14. Via tcp,
+
+
+
+resource "aws_security_group" "allow_load_balancer" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_allow_loadbalancer"
+
+
+
+ingress {
+
+from_port = 80
+
+to_port = 80
+
+protocol = "tcp"
+
+cidr_blocks = ["0.0.0.0/0"]
+
+}
+
+
+
+egress {
+
+from_port = 8080
+
+to_port = 8080
+
+protocol = "tcp"
+
+}
+
+
+
+}
+
+
+
+15. Okay?
+
+
+
+16. Bom, a nossa Aplicacao esta onde? Na Subnet Publica, nao eh?
+
+
+
+17. Entao, o cidr_block, aqui, que a gente vai colocar, vai ter que ser das subredes publicas, das subnets publicas.
+
+
+
+18. Entao, vai ficar, aqui, "aws_subnet.public_subnet", que esta aqui, dentro, de network.tf, okay?
+
+
+
+19. So que ele eh um count, nao eh? E, ai, para a gente poder, entao, recuperar todos os cidr_blocks, vai ser .*.cidr_block,
+
+
+
+resource "aws_security_group" "allow_load_balancer" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_allow_loadbalancer"
+
+
+
+ingress {
+
+from_port = 80
+
+to_port = 80
+
+protocol = "tcp"
+
+cidr_blocks = ["0.0.0.0/0"]
+
+}
+
+
+
+egress {
+
+from_port = 8080
+
+to_port = 8080
+
+protocol = "tcp"
+
+cidr_blocks = [
+
+"${aws_subnet.public_subnet.*.cidr_block}"
+
+]
+
+}
+
+}
+
+
+
+20. So que, dessa forma, aqui, nao funciona.
+
+
+
+21. A gente tem que colocar, ..., isso vai ser uma lista, a gente tem que pegar e separar essa lista, entao, nos temos que usar aquele recurso do terraform, ou seja, as funcoes flatter(chunklist()). Agora, sim, a gente vai conseguir,
+
+
+
+resource "aws_security_group" "allow_load_balancer" {
+
+vpc_id = "${aws_vpc.main.id}"
+
+name = "hibicode_allow_loadbalancer"
+
+
+
+ingress {
+
+from_port = 80
+
+to_port = 80
+
+protocol = "tcp"
+
+cidr_blocks = ["0.0.0.0/0"]
+
+}
+
+
+
+egress {
+
+from_port = 8080
+
+to_port = 8080
+
+protocol = "tcp"
+
+cidr_blocks = [
+
+"${flatten(chunklist(aws_subnet.public_subnet.*.cidr_block, 1))}"
+
+]
+
+}
+
+}
+
+
+
+22. Okay?
+
+
+
+23. Entao, a gente consegue sair.
+
+
+
+24. E a Aplicacao precisa receber, tambem, da porta 8080.
+
+
+
+25. Ah, antes, muito importante, eu estava esquecendo. Vamos associar este Security Group aqui, loadbalancer,
+
+
+
+resource "aws_lb" "alb" {
+
+name = "hibicode-beerstore-alb"
+
+security-group = ["${aws_security_group.allow_load_balancer}"]
+
+
+
+...
+
+}
+
+
+
+26. Beleza?
+
+
+
+27. Entao, agora sim.
+
+
+
+28. E vamos voltar, aqui, em security.tf.
+
+
+
+29. A Aplicacao, para ela receber na porta 8080, a gente tambem precisa autorizar.
+
+
+
+30. Entao, a gente tinha feito, nao eh?, uma especie de gambiarra, nao eh?, para ela poder aceitar, vamos olhar la, como eh que esta?
+
+
+
+31. Aqui, provavelmente, ela deve ter perdido a sessao, deixa eu logar, aqui, de novo no Console da AWS.
+
+
+
+32. Vamos, aqui, em EC2, a gente ja havia liberado o 0.0.0.0/0, nao eh?, para a gente conseguir chegar la, vamos ver, aqui, oh, view inbound rules, ah,..., ja nem tem mais, aqui, beleza.
+
+
+
+33. Entao, a gente nao esta conseguindo chegar na porta 8080, aqui, da nossa Aplicacao.
+
+
+
+34. Nao eh? Porque nao esta liberado, nao eh? nos ja tiramos em algum momento. Entao, vamos la.
+
+
+
+35. Vamos permitir, entao, a Requisicao na Aplicacao, na porta 8080.
+
+
+
+36. Existe um limite de Security Groups.
+
+
+
+37. Vamos criar mais um, aqui, em security.tf. Se ele reclamar, a gente coloca em outro. Entao, "aws_security_group", "allow_app", vpc_id, name = "hibicode_allow_app", ingress {}, vai ser exatamente como esta aqui, oh, from_port e to_port 8080, protocol tcp, cidr_blocks = ["${flatten(chunklist(aws_subnet.public_subnet.*.cidr_block, 1))}"]
+
+
+
+38. Certo?
+
+
+
+39. Por que?
+
+
+
+40. A gente precisa permitir entrar na porta 8080, com o protocolo tcp, da rede publica.
+
+
+
+41. Porque o load balancer esta vindo da rede publica.
+
+
+
+42. O load balancer esta na subrede publica, entao, eu preciso receber requisicoes, eu so aceito requisicoes na minha aplicacao, vindos da rede public tambem.
+
+
+
+43. okay?
+
+
+
+44. Entao, vamos la em insances.tf, em vpc_security_group_ids, e vamos adicionar o security group allow_app.
+
+
+
+45. Okay.
+
+
+
+46. Okay, salvou todo mundo, vamos mandar executar.
+
+
+
+terraform> run-terraform.bat
+
+
+
+47. Entao, ele esta querendo, ele quer atualizar as Instancias, atualizar o load balancer, criar o allow_app.
+
+
+
+48. Eh, realmente, a gente nao pode colocar um numero maior de security groups. Entao, vamos editar, aqui, ao inves de a gente colocar esse ingress, aqui, em security.tf, e vamos colocar, aqui, dentro do security group allow_portainer, ai, a gente troca o nome, aqui, de allow_portainer por allow_app.
+
+
+
+49. Ai, a gente ja esta atualizando a Aplicacao. Entao, nos podemos tirar o security group portainer em instances.tf.
+
+
+
+50. Entao, a gente pode ter apenas 5 vpc_security_group_ids.
+
+
+
+51. Vamos la, vamos tentar mais uma vez.
+
+
+
+52. Rodar o run-terraform.bat.
+
+
+
+53. Por algum motivo estranho, esta demorando muito, aqui, o terraform matar, destruir esses security groups. Entao, o que que eu vou fazer?
+
+
+
+54. Eu vou tentar apagar, aqui, pelo Console da AWS.
+
+
+
+55. Em EC2 / Security Groups. Bom, ele esta tentando apagar o allow_portainer. Entao, vamos tentar apagar o portainer.
+
+
+
+56. Nao foi possivel deletar. Deu a mensagem de que 'These security groups are associated with one or more instances.'.
+
+
+
+57. Vamos pensar o que que a gente pode fazer.
+
+
+
+58. Vamos, aqui, nas Instancias, em Instances, deixa eu ver se a gente consegue, em Actions / Networking / Change Security Groups. hibocode_allow_portainer eu vou tirar, clicar em Assign Security Groups.
+
+
+
+59. Vamos fazer isso para todas as Instancias.
+
+
+
+60. Isso so para a gente acelerar aquele processo la, nao eh?
+
+
+
+61. Deixa so eu confirmar se eu fiz certo.
+
+
+
+62. O allow_load_balancer tambem esta demorando.
+
+
+
+63. O allow_load_balancer, deixa eu ver aqui, vamos em loadbalancer.tf. O Terraform fica meio doido, em algumas vezes, e ele, do nada, resolve destruir alguma coisa para recriar.
+
+
+
+64. Vamos em Security Groups.
+
+
+
+65. Vamos apagar esse hibocode_load_balancer. Vamos so ver se ele esta associado ja com algum load balancer. Vamos ver, aqui, em Security groups. Esta aqui, hibicode_allow_loadbalancer. Edit security groups, eu vou tirar, tambem, salvar. Nao pode ter null, eu vou colocar ele em um default, aqui, e tirei daquele security group.
+
+
+
+66. Vamos voltar, aqui, em Security Groups, vamos ver se a gente encontra, aqui, ja, o hibicode_allow_loadbalancer. Nao, eu acho que ja conseguiu, ate, sair. Okay? Okay, removemos. Agora, vamos executar de novo o terraform, para ver se ele consegue se encontrar, ai, nesse caminho.
+
+
+
+68. Agora, nao vai destruir nada, entao, eu imagino que vai ser mais rapido, aqui.
+
+
+
+69. Okay. Terminou tudo, agora, imagino que esteja certo. Vamos dar uma conferida, no Console da AWS, aqui, agora.
+
+
+
+70. E te mostrar o load balancer, aqui, no console da aws.
+
+
+
+71. Entao, em EC2, debaixo do Servico EC2, a gente tem os Load Balancers, que a gente provisionou pelo Terraform.
+
+
+
+72. Aqui, o hibicode-beerstore-alb.
+
+
+
+73. Entao, este eh o Load Balancer, e a gente tem os Listeners, nesse Load Balancer.
+
+
+
+74. A gente adicionou um Listener na porta 80.
+
+
+
+75. Esse Listener encaminha as Requisicoes para o Target Group hibicode-beerstore, baseado em Regras.
+
+
+
+76. Entao, a gente consegue adicionar Regras, aqui, tambem.
+
+
+
+77. Entao, voce pode ter regras, do tipo /api, encaminha para a sua Aplicacao Java, por exemplo.
+
+
+
+78. /*, sem ser no /api, encaminharia para o frontend no S3, algo assim, ou em algum outro lugar.
+
+
+
+79. Okay?
+
+
+
+80. Entao, essa eh a ideia.
+
+
+
+81. E, aqui, tem a Regra na guia Listener.
+
+
+
+82. Ai, do Listener, a gente encaminha para um Target Group.
+
+
+
+83. Eh aquele Target Group que fica logo embaixo, aqui, no menu, do lado esquerdo, em Load Balancers.
+
+
+
+84. Esta ele aqui.
+
+
+
+85. Esse Target Group, hibicode-beerstore, tem os Target's, que sao as Instancias, que estao associadas a ele. E essas Instancias, elas tem que estar healthy. Aqui, o Health Check esta failed. Vamos entender por que que ele esta failed.
+
+
+
+86. Vamos ver, aqui, na Guia Health checks, a gente consegue ver, aqui, ele chama em /actuator/health, e espera um 200 OK, para ver se esta Healthy.
+
+
+
+87. Se isso, aqui, der certo, a Instancia, aqui, em Targets, aqui, vai ficar healthy.
+
+
+
+88. Bom, vamos descobrir por que que nao esta. Pode ser pelo tempo, aqui, ainda nao deu tempo dele avaliar todas. Um teste que a gente pode fazer, aqui, agora, vamos so ver se o GET, aqui, esta funcionando, no Postman,
+
+
+
+
+
+GET, http://hibicode-beerstore-alb-440707112.us-east-1.elb.amazonaws.com/beers
+
+
+
+
+
+89. Okay, esta funcionando, retornou 200 OK, pelo Load Balancer.
+
+
+
+90. Entao, eh bem provavel que ainda nao deu tempo dele checar, ali, tudo, se esta healthy ou nao.
+
+
+
+91. Vamos dar mais uma olhada, aqui, vamos voltar no Load Balancer, no Console da AWS, so para pegar o ID, aqui, a URL, aqui, de novo, em Descripton / DNS name.
+
+
+
+92. Esta funcionando, aqui, pelo Postamn.
+
+
+
+93. Okay?
+
+
+
+94. Entao, vamos voltar, aqui, no Load Balancers, la no Target Groups, no Console da AWS, na Guia Targets, vamos esperar essas Instancias ficarem healthy.
+
+
+
+95. Ou existe a possibilidade desse Health Check estar errado, por exemplo, em Path, /actuator/health.
+
+
+
+96. Vamos subir a aplicacao, aqui, para a gente ver.
+
+
+
+97. Entao, vamos subir, aqui, a aplicacao, local, e ver o mapeamento que ele faz. Aparece, nos logs, Mapped "{ [/actuator/health] }". Esta certo, vamos chamar localhost:8080/actuator/health, para a gente ver, esta retornando: {"status": "UP"}, ou seja, esta retornando 200 OK.
+
+
+
+98. Vamos analisar, no Load Balancer, as configuracoes de seguranca. Vamos ver esse Security Group.
+
+
+
+99. No Security Group do Load Balancer, esta permitindo sair, no Outbound, para as redes onde estao as nossas aplicacoes, na porta 8080. Okay.
+
+
+
+100. Nas nossas Instancias, a gente tem a regra do inbound rule, vamos pegar, aqui, na porta 8080, aceita receber requisicoes dessa rede, tambem.
+
+
+
+101. Por que que a instancia nao esta healthy no Load Balancer?
+
+
+
+102. Vamos voltar la, no Target Group.
+
+
+
+103. Status unhealthy.
+
+
+
+104. Talvez, seja o tempo, aqui, oh, Healthy threshold, ele esta falando que, para estar healthy, tem que ter 5 requisicoes consecutivas, no intervalo de 120 segundos, para ele considerar a instancia healthy. Entao, 120 segundos sao 2 minutos. Entao, daria uns 10 minutos, aqui, para ficar healthy. Ele nao vai ficar esperando esses 10 minutos, aqui, comigo.
+
+
+
+105. Entao, eu vou dar um pause, aqui, no video, vamos esperar esse tempo, para a gente ver. Ou melhor, eu vou, ate, editar esse health check, vamos colocar, aqui, em health threshold, 2, e, em unhealthy threshold, 2, so para a gente ver o que que vai acontecer.
+
+
+
+106. Era exatamente isso.
+
+
+
+107. A gente estava procurando problema, e, na verdade, nao tinha.
+
+
+
+108. Entao, as instancias estao healthy, agora, so foi pelo tempo, por conta do health check. Vamos, ate, editar isso, entao.
+
+
+
+109. Em security.tf, vamos renomear, em "allow_app", o name, para hibicode_allow_app, e, em loadbalancer.tf, em "alb_tg", em healthy_threshold, ao inves de ficar 5 chamadas consecutivas, se ele responder 2 consecutivas, esta legal, e, tambem, se nao responder 2 consecutivas, esta errado, num intervalo de 60 segundos, 1 minuto, okay?
+
+
+
+110. Vamos fazer assim, que fica mais legal.
+
+
+
+111. Vamos mandar aplicar de novo o terraform.
+
+
+
+112. Agora, ele esta querendo alterar algumas coisas, aqui, vamos ver, esta alterando as instancias, o allow_app, eu acho que ele vai criar um novo, porque eu renomeei.
+
+
+
+113. Vou mandar um yes, aqui, e vamos ver se isso vai dar problema, se vai demorar muito.
+
+
+
+114. Esta demorando muito para destruir, entao, vamos vir, aqui, no Console da AWS, em EC2, nas Instancias, e vamos tirar esse hibicode_allow_portainer, em Networking / Change Security Groups.
+
+
+
+115. Okay.
+
+
+
+116. Vamos tentar mais uma vez, agora, rodar run-terraform.bat.
+
+
+
+117. Agora, nao vai destruir mais nada, vamos dar um yes, acho que, agora, vai ser mais rapido.
+
+
+
+118. Okay, o terraform terminou de processar. 
+
+
+
+119. Entao, fica como uma dica, para a gente fazer assim. Provavelmente, aqui, no nosso Security Group, vamos ver, aqui, se ja estao healthy as nossas Instancias. Okay, estao.
+
+
+
+120. Vamos la no Postman, fazer um GET, 
+
+
+
+GET, http://hibicode-beerstore-alb-440707112.us-east-1.elb.amazonaws.com/beers
+
+
+
+121. Retornou 200 OK, beleza. Aqui, o legal eh que o Load Balancer esta distribuindo a Requisicao nessas 3 maquinas para a gente. E a gente tem, oh, cada uma em uma Zona de Disponibilidade diferente. Entao, se uma Zona falhar, o nosso Load Balancer vai tirar essa Instancia de healthy, se a aplicacao, aqui, falhar, tira, nao manda para ela, e fica mandando as Requisicoes para as outras duas Zonas de Disponibilidade.
+
+
+
+122. Talvez, voce nao tenha percebido, quando estava unhealthy, ele verifica, oh, se todas estao unhealthy, ai, ele manda para todas as Zonas de Disponibilidade. Ai, ele pode pensar assim, oh, 'Eh algum problema do Health Check', e, ai, ele fica mandando a Requisicao para todas as Zonas de Disponibilidade, por isso que tinha funcionado quando estava unhealthy aqui.
+
+
+
+123. Se essa Zona de Disponibilidade ficar unhealthy, ai, ele nao manda a Requisicao para ela, ele fica mandando so nas outras duas Zonas, aqui.
+
+
+
+124. Beleza? Entao, eh isso, a gente esta chegando ao fim da codificacao, a gente ja nao tem nenhum codigo para escrever.
+
+
+
+125. Fim da Aula 08.004. Seguranca para Load Balancer e Aplicacao.
+
+
+
+
+
+-->

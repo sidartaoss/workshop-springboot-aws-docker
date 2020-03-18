@@ -1,0 +1,529 @@
+<!-- 
+
+Aula 06.002. Dockerizando a Aplicacao
+
+
+
+1. Bom, esse, aqui, 
+
+
+
+FROM ubuntu:18.04
+
+
+
+RUN apt-get update
+
+
+
+RUN apt-get install -y nginx
+
+
+
+ADD index.html /var/www/html/index.html
+
+
+
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+
+
+
+CMD service nginx start
+
+
+
+
+
+, ja deu para a gente aprender como que funciona, nao eh?, uma imagem, como eh que a gente coloca a nossa aplicacao la.
+
+
+
+2. Bom, vamos continuar e fazer isso no Beerstore, vamos fazer isso na nossa Aplicacao.
+
+
+
+3. Beleza? Bom, o que que a gente precisa para criar uma Imagem?
+
+
+
+4. Dockerfile.
+
+
+
+5. Entao, para fazer aqui, nao eh nada diferente.
+
+
+
+6. Eu vou criar, aqui, na raiz do projeto entao, um novo arquivo, Dockerfile.
+
+
+
+7. Ai, eu ja vou usar, aqui, o IntelliJ, okay?, o IntelliJ tem plugin para o Dockerfile, aqui, tambem, okay? E vamos la.
+
+
+
+8. Eu vou comecar a partir de uma Imagem.
+
+
+
+9. A gente sempre comeca a partir de uma Imagem.
+
+
+
+10. Aqui, a gente pegou um Linux comum,
+
+
+
+
+
+FROM ubuntu:18.04
+
+
+
+RUN apt-get update
+
+
+
+RUN apt-get install -y nginx
+
+
+
+ADD index.html /var/www/html/index.html
+
+
+
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+
+
+
+CMD service nginx start
+
+
+
+11. Para esta aplicacao, pode ser?
+
+
+
+12. Poderia. 
+
+
+
+13. Porem, eu ja posso buscar uma Imagem um pouco mais pronta.
+
+
+
+14. Se voce for no dockerhub, hub.docker.com, para pesquisar as imagens, se voce pesquisar, la, openjdk, ja eh uma imagem que vem com o Java instalado pra gente. Entao, eu nao vou precisar ficar instalando Java no meu Dockerfile.
+
+
+
+15. E, ai, eu posso comecar a partir dela.
+
+
+
+16. E, olha so. Tem ate a versao 13 do Java, ja, disponivel, aqui, para voce.
+
+
+
+17. Mas, nos estamos trabalhando na versao 8, entao, a gente vai escolher uma dessas tags, aqui, para trabalhar na versao 8.
+
+
+
+18. Como ser o mais especifico eh bom, nao eh?, entao, vamos pegar, aqui, a imagem, a mais nova da versao 8, o que eu quero pegar eh uma com o alpine, essa daqui, oh, entao, vamos pegar a 8u201-jdk-alpine3.9.
+
+
+
+19. Nos vamos pegar essa, daqui, entao.
+
+
+
+20. Okay?
+
+
+
+21. Essa tag: 8u201-jdk-alpine3.9
+
+
+
+22. Entao, vamos la.
+
+
+
+23. Entao, voltando aqui, FROM openjdk:8u201-jdk-alpine3.9, vai ser uma Imagem bem pequena.
+
+
+
+FROM openjdk:8u201-jdk-alpine3.9
+
+
+
+24. Okay?
+
+
+
+25. A gente pode adicionar, aqui, oh, um LABEL, para falar quem que eh o mantenedor, quem que eh o que mantem esse arquivo, entao, eu vou colocar, aqui, o meu email, por exemplo,
+
+
+
+
+
+FROM openjdk:8u201-jdk-alpine3.9
+
+
+
+LABEL maintainer="semprebono@gmail.com"
+
+
+
+
+
+26. Pronto.
+
+
+
+27. Vamos garantir, aqui, que a gente tem, esta trabalhando com UTF-8, nao eh?, dentro da Imagem, dentro do arquivo,
+
+
+
+
+
+FROM openjdk:8u201-jdk-alpine3.9
+
+
+
+LABEL maintainer="semprebono@gmail.com"
+
+
+
+ENV LANG C.UTF-8
+
+
+
+RUN apk add --update bash
+
+
+
+
+
+28. RUN apk add --update bash, eh assim que a gente atualiza o alpine,
+
+
+
+FROM openjdk:8u201-jdk- >>> alpine3.9 <<<
+
+
+
+, por isso que eu estou fazendo assim.
+
+
+
+29. Quando a gente fez no ubuntu, apt-get update, no alpine, eh diferente.
+
+
+
+30. No alpine, vai ser o apk, e a gente faz essa paradinha, ai.
+
+
+
+31. Bom, eu preciso adicionar, dentro da Imagem, a nossa Aplicacao.
+
+
+
+32. Certo?
+
+
+
+33. Onde que fica a nossa aplicacao?
+
+
+
+34. Quando a gente da Build, CTRL + F9, ela vem sempre para dentro da pasta build, eu vou, ate, dar Build, aqui, no Projeto, oh, Build / Build Project, ai, eh so esperar ele acabar de dar o Build, aqui, fez o Build, vamos olhar, aqui, pela Linha de comando, em beerstore, ls -l build/, hm... vamos dar o build, aqui, pelo Gradle (versao 4.7),
+
+
+
+> ./gradlew build
+
+
+
+, ou, no Windows,
+
+
+
+beerstore> gradlew build
+
+
+
+
+
+
+
+35. Ai, deveria aparecer, uma pasta, ai, /libs, dentro de /build, /libs, para a gente poder adicionar essa, a biblioteca do nosso jar, o jar vai ser gerado dentro de /build/libs, eh o que eu estou querendo fazer aqui.
+
+
+
+36. Esperar, aqui, um pouquinho.
+
+
+
+37. Pronto.
+
+
+
+38. Fez o build, ls -l build/libs
+
+
+
+39. Dar um ls, aqui.
+
+
+
+40. Olha la o beerstore-0.0.1-SNAPSHOT.jar, aqui, dentro, o jar dele.
+
+
+
+41. Okay?
+
+
+
+42. Entao, depois que a gente da o build, a gente tem esse jar.
+
+
+
+43. Entao, eu preciso adicionar esse jar, aqui, que eh a noss aplicacao, a gente vai colocar, aqui, dentro,
+
+
+
+FROM openjdk:...
+
+LABEL maintainer="semprebono@gmail.com"
+
+
+
+ENV LANG C.UTF-8
+
+
+
+RUN apk add --update bash
+
+
+
+
+
+44. Okay?
+
+
+
+45. Entao, se esta dentro de build/libs, ADD build/libs/, vamos colocar, aqui, *.jar, eh o arquivo que a gente tem la,
+
+
+
+
+
+FROM openjdk:8u201-jdk-alpine3.9
+
+LABEL maintainer="semprebono@gmail.com"
+
+
+
+ENV LANG C.UTF-8
+
+
+
+RUN apk add --update bash
+
+
+
+ADD build/libs/*.jar
+
+
+
+
+
+36. Eu nao vou colocar ele, exatamente, por causa da versao, ali, nao eh?
+
+
+
+37. Eu vou mandar ele para /app/app.jar
+
+
+
+38. Eu posso renomear ele para esse app.jar, aqui.
+
+
+
+39. Okay? Sem problema nenhum.
+
+
+
+40. E, agora, eh so executar o comando. Como que a gente executa um jar?
+
+
+
+41. java -jar, ele esta la dentro de /app, CMD java -jar /app/app.jar. Okay?
+
+
+
+42. Simples, simples, assim mesmo.
+
+
+
+43. Nao tem que fazer mais nada.
+
+
+
+44. Estou aqui, dentro de beerstore, no Prompt de comando, o Dockerfile esta aqui, entao, vamos fazer o Build dessa Imagem.
+
+
+
+45. Bom, agora, eu posso, eu ja vou adiantar um pouquinho do que que a gente vai fazer la na frente, oh, docker build -t, para a gente dar o nome do Repositorio, e, ai, o que eu colocar, aqui, na frente, eu vou colocar hibicode/, 
+
+
+
+
+
+beerstore> docker build -t hibicodesidarta/
+
+
+
+
+
+esse hibicode, aqui, vai ser o usuario que voce vai criar, ..., eu quero voltar, aqui, no hub do docker, hub.docker.com.
+
+
+
+46. Quando voce vier, aqui, oh, Sign up, https://hub.docker.com/signup, voce vai escolher um Docker Id, eu ja fiz, isso, para o hibicode, okay? Entao, voce vai criar um seu, vai criar a sua conta, aqui, bem simples, e, ai, voce vai criar, aqui, um Docker Id.
+
+
+
+47. Esse Docker Id vai ser o que voce vai colocar, aqui, oh,
+
+
+
+beerstore> docker build -t >>> hibicodesidarta/
+
+
+
+48. Porque, depois, a gente vai mandar essa Imagem, aqui, para o Docker Hub.
+
+
+
+49. Ai, esse, cara, aqui,
+
+
+
+beerstore> docker build -t >>> hibicodesidarta/
+
+
+
+, precisa ser o seu Docker Id. La na frente, a gente vai entender.
+
+
+
+50. Okay?
+
+
+
+51. docker build -t hibicodesidarta/beerstore:, ai, voce coloca o nome da aplicacao, eu vou colocar, aqui, a versao 0.1, por exemplo, e, oh, nao pode esquecer do ponto, lembra? O ponto eh para falar onde esta o Dockerfile.
+
+
+
+52. Dou o build, ele vai fazer da Imagem para mim,
+
+
+
+beerstore> docker build -t hibicodesidarta/beerstore:0.1 .
+
+
+
+53. Primeiro, nao tem o jdk, aqui, 8u201-jdk-alpine3.9, entao, ele nao tem, vou buscar.
+
+
+
+54. Comeca a buscar, vai fazer o Download.
+
+
+
+55. Demora, esta fazendo as outras partes, esta atualizando, agora, o sistema, esta adicionando o nosso jar, beleza, deu tudo certo.
+
+
+
+56. 
+
+
+
+> docker image ls
+
+
+
+
+
+57. Aqui, hibicodesidarta/beerstore, na TAG 0.1, okay?
+
+
+
+REPOSITORY TAG IMAGE ID CREATED SIZE
+
+hibicodesidarta/beerstore 0.1 ... 35 seconds ago 146MB
+
+
+
+
+
+
+
+58. Ficou com 146MB, essa Imagem.
+
+
+
+59. Okay:
+
+
+
+60. Entao, eh isso, daqui, para esta aula.
+
+
+
+61. Se voce tentar subir essa Imagem, ele vai dar erro,
+
+
+
+> docker run 
+
+
+
+, por isso que eu vou deixar para subir na proxima aula. Mas, se voce quiser tentar, e quiser ir tentando, ja, identificar, se eu subir essa imagem, ou seja, hibicodesidarta/beerstore, vai dar erro.
+
+
+
+62. Mesmo, se voce expor, aqui, oh, a porta 8080:8080, ela esta dentro da porta 8080, hibicodesidarta/beerstore , se voce fizer esse comando, aqui, isso vai dar erro, nao vou nem colocar -d, para os logs ficarem, aqui, na tela,
+
+
+
+> docker run -p 8080:8080 hibicodesidarta/beerstore
+
+
+
+63. Se fizer isso, ah,..., tem que passar a versao, aqui,
+
+
+
+> docker run -p 8080:8080 hibicodesidarta/beerstore:0.1, ele vai comecar a subir, e vai dar um erro, e a gente vai ver esse erro na proxima aula.
+
+
+
+64. Fim da Aula 06.002. Dockerizando a Aplicacao.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-->​

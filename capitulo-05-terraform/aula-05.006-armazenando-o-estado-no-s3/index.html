@@ -1,0 +1,325 @@
+<!-- 
+
+Aula 05.006. Armazenando o Estado no S3
+
+
+
+1. Bom, a gente vai armazenar o Estado de um arquivo do Terraform no S3.
+
+
+
+2. O que que eh esse arquivo de Estado?
+
+
+
+3. O Terraform, ele mantem um arquivo, no seu local, ai, na sua maquina, que representa o Estado do que ele fez na AWS.
+
+
+
+4. Okay?
+
+
+
+5. Entao, ele criou uma Instancia EC2. Ele vai ter essa Instancia EC2 em um Arquivo do Terraform local.
+
+
+
+6. Por que que ele faz isso?
+
+
+
+7. Para ele saber o que que ele ja aplicou, o que que ele nao aplicou, para ele encontrar as diferencas, e ele conseguir funcionar na Criacao. Tem hora que ele tem que criar, tem hora que ele tem que alterar, e por ai vai.
+
+
+
+8. Entao, ele tem esse arquivo de Estado.
+
+
+
+9. Esse arquivo de Estado, ele pode salvar esse arquivo local, ele vai criar esse arquivo e vai deixar, ai, no seu Projeto, e voce colocaria ele no Repositorio, como, por exemplo, no GitHub, ou a gente pode salvar esse arquivo no S3.
+
+
+
+10. Eh uma boa Pratica a gente salvar esse Arquivo no S3.
+
+
+
+11. Por que?
+
+
+
+12. Se voce coloca isso no GitHub, por exemplo, esta publico, entao, voce esta mostrando toda a sua Infraestrutura, tudo que voce criou, como que ela funciona, para todo mundo ver, na Internet.
+
+
+
+13. Entao, ao inves de voce fazer isso, vamos colocar isso dentro de um Bucket seu, dentro do S3, eu ja vou falar o que que eh isso na hora em que a gente chegar nesse Servico, que, basicamente, eh: "Eu nao vou salvar esse arquivo no GitHub, eu vou salvar esse Arquivo no S3, que eh um local onde a gente consegue armazenar arquivos dentro da AWS, e a gente tem um controle mais limitado, a gente consegue falar quem pode acessar ou nao esse arquivo".
+
+
+
+14. Okay?
+
+
+
+15. Entao, vamos la. No Console da AWS, ai, sim, voce vai acessar aqui, pelo Console, procurar o Servico S3, e, ai, voce vai cair nessa tela, ou, se voce nao tem nada, aqui, vai ser uma tela de Getting Started, alguma coisa assim, voce pode dar o Getting Started.
+
+
+
+16. E, ai, voce vai precisar criar um Bucket.
+
+
+
+17. Entao, o Bucket eh uma especie de pasta que voce tem dentro do S3, okay?
+
+
+
+18. Eu ja tenho algumas aqui.
+
+
+
+19. O Bucket, tem um nome unico no mundo.
+
+
+
+20. Okay? Entao, se voce criar um Bucket, por exemplo, teste, aqui, mandar criar, ele vai dar erro, ele vai falar que o Bucket ja existe, ta okay? Entao, voce tem que criar um nome unico seu, nao adianta colocar igual ao meu, que voce nao vai ter permissao para escrever la dentro.
+
+
+
+21. Tem que ser um Bucket unico, exclusivo, seu, que voce tem que criar, ai, okay?
+
+
+
+22. E nao vai poder ser 'teste', porque alguem ja criou.
+
+
+
+23. Eu tenho, ja, um Bucket, aqui, oh, que eu ja criei, oh, 'hibicode-terraform-state', que eh esse bucket, aqui, vai ser o que eu vou utilizar, okay?, e voce vai ter que criar outro.
+
+
+
+24. Entao, crie esse Bucket. Ah, na hora em que voce estiver criando, voce tem que escolher a Regiao que esse Bucket vai estar criado, eu coloquei ele na Virginia, US East, na Virginia, okay?
+
+
+
+25. Bom, eu crio o Bucket e, depois, vamos la no codigo, para a gente configurar o armazenamento desse Estado no S3. Como eh que a gente faz?
+
+
+
+26. A gente cria um novo arquivo, aqui, que eu vou chamar de terraform.tf, dentro da pasta /terraform, eu costumo chamar esse arquivo assim, e, aqui, a gente vai escrever, terraform {}, abre/fecha chaves, backend, ou seja, onde que eu vou salvar eh no "s3",
+
+
+
+terraform {
+
+backend "s3" {}
+
+}
+
+
+
+, okay? Qual eh o nome do bucket? hibicode-terraform-state-sidarta
+
+
+
+terraform {
+
+backend "s3" {
+
+bucket = "hibicode-terraform-state-sidarta"
+
+}
+
+}
+
+
+
+, no meu caso, lembre-se, voce vai ter que mudar e colocar o nome do seu Bucket.
+
+
+
+27. Beleza?
+
+
+
+28. Agora, aqui, oh, key. Qual eh o nome dos arquivos que ele vai salvar dentro desse Bucket?
+
+
+
+29. Ai, aqui, eu vou chamar de "beerstore-curso-online", okay?
+
+
+
+30. Porque eu sei que eh o nome unico la dentro desse Bucket, para nao misturar com outros que eu ja tenho la dentro. Okay?
+
+
+
+terraform {
+
+backend "s3" {
+
+bucket = "hibicode-terraform-state-sidarta"
+
+key = "beerstore-curso-online"
+
+}
+
+}
+
+
+
+31. Qual eh a Regiao que esta esse Bucket? Esta na us-east-1, que eh a Regiao do Norte da Virginia, que a gente escolheu, la, na hora de salvar.
+
+
+
+32. Okay?
+
+
+
+
+
+
+
+33. Salva, ai, esse arquivo, volta, la, e da o terraform init,
+
+
+
+> terraform init
+
+
+
+, mais uma vez, para ele inicializar o Back-end, la no S3.
+
+
+
+34. Okay?
+
+
+
+35. Deu um erro, ai, por que?
+
+
+
+36. Vamos ver, ele nao conseguiu encontrar credenciais validas,
+
+
+
+Error configuring the backend "s3": No valid credential sources found for AWS Provider.
+
+
+
+37. Por que?
+
+
+
+38. La dentro do meu .aws, vamos olhar, aqui, de novo, la no home,
+
+
+
+> ~/.aws/credentials
+
+
+
+[terraform]
+
+aws_access_key_id = ...
+
+aws_secret_access_key = ...
+
+
+
+39. Eu so tenho o Profile do Terraform,
+
+
+
+>>> [terraform]
+
+aws_access_key_id = ...
+
+aws_secret_access_key = ...
+
+
+
+40. Eu nao tenho um Profile default.
+
+
+
+41. Entao, ele nao saberia qual escolher.
+
+
+
+42. Ele nao sabe qual escolher, aqui, dentro, em terraform.tf,
+
+
+
+terraform {
+
+backend "s3" {
+
+bucket = "hibicode-terraform-state-sidarta"
+
+key = "beerstore-curso-online"
+
+region = "us-east-1"
+
+}
+
+}
+
+
+
+43. Entao, eu posso colocar, aqui, o profile Terraform, para ele poder escolher e fazer essa inicializacao,
+
+
+
+terraform {
+
+backend "s3" {
+
+bucket = "hibicode-terraform-state-sidarta"
+
+key = "beerstore-curso-online"
+
+region = "us-east-1"
+
+>>> profile = "terraform"
+
+}
+
+}
+
+
+
+44. Vamos la, no terraform init,
+
+
+
+> terraform init
+
+
+
+45. Agora, ele vai conseguir escolher aquele Profile, e inicializar tudo, pronto.
+
+
+
+46. Esta tudo inicializado, agora, dentro do nosso Projeto, se a gente entrar, aqui, dentro de hibicode-terraform-state-sidarta, https://console.aws.amazon.com/s3/buckets/hibicode-terraform-state-sidarta/?region=us-east-1&tab=overview, ele, ainda, nao inicializou aquele Projeto.
+
+
+
+47. Nao tem problema, porque a gente ainda vai fazer isso quando a gente criar os Recursos.
+
+
+
+48. Beleza? Entao, eh isso, daqui, para esta aula.
+
+
+
+49. Fim da 
+
+
+
+47. Aula 05.006. Armazenando o Estado no S3.
+
+
+
+
+
+-->​

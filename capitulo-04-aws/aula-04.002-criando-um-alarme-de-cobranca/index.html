@@ -1,0 +1,337 @@
+<!-- 
+
+Aula 04.002. Criando um Alarme de Cobranca
+
+
+
+1. Com a conta criada, a primeira coisa que voce tem que fazer eh criar um alarme para te falar quanto voce esta gastando na AWS.
+
+
+
+2. Essa parte eh importantissima.
+
+
+
+3. Caso contrario, voce pode esquecer, pode deixar alguma coisa ligada, e, ai, vem uma fatura alta, que voce nao estava esperando, no final do mes, nao eh?
+
+
+
+4. Isso pode acontecer, existem varios, casos, ai, na Internet, que isso ja aconteceu, de alguem criar uma maquina, la, uma nao, nao eh?, as vezes, cria varias, para fazer teste, porque esta aprendendo, esquece, e, depois, vem a cobranca da AWS no seu Cartao de Credito.
+
+
+
+5. Entao, nos vamos criar um Alarme para falar o quanto voce ja gastou na AWS. 
+
+
+
+6. Okay?
+
+
+
+7. Entao, depois que voce criar a sua conta, a gente tem que fazer o Login no Console, vai em Minha Conta / Console de Gerenciamento da AWS, https://console.aws.amazon.com/.
+
+
+
+8. Vou fazer o Login, aqui. Voce vai ver, depois, a gente vai precisar cadastrar esse Multi-factor Authentication, eh o MFA.
+
+
+
+9. Aqui, neste momento, voce nao esta vendo, mas eu estou abrindo um aplicativo do Google chamado Google Authenticator, que vai me mostrar esse numero, aqui, eh o Authentication Code. Ai, eu digito esse numero, e, ai, eu vou ser capaz de fazer o Login na AWS.
+
+
+
+10. Okay?
+
+
+
+11. Entao, voce vai precisar fazer isso, eu vou te mostrar como voce faz isso agora.
+
+
+
+12. Entao, vamos la. Esse, aqui, eh o Console da AWS, nos vamos mexer em algumas coisas, aqui, durante o curso, apesar de a gente fazer as coisas todas, os provisionamentos, pelo Terraform.
+
+
+
+13. Mas, de vez em quando, a gente vai entrar, aqui, para dar uma olhada.
+
+
+
+14. Okay?
+
+
+
+15. E, aqui, sao todos os Servicos que ela tem.
+
+
+
+16. Okay?
+
+
+
+17. Entao, dentro de Um, tem Outros, espalhados.
+
+
+
+18. Entao, por exemplo, dentro de EC2, a gente vai encontrar o Load Balancer, por exemplo.
+
+
+
+19. Beleza?
+
+
+
+20. Entao, o que a gente precisa encontrar, aqui, agora, eh o IAM.
+
+
+
+21. Esta dentro de Security, Identity e Compliance, ou, voce pode pesquisar aqui, oh, IAM, pela caixa de texto, para a gente gerenciar os Usuarios.
+
+
+
+22. Ai, o seu Usuario vai estar aqui, e, ai, quando, se a sua conta eh novinha, algumas dessas informacoes, aqui, nao vao estar, assim, verdinhas:
+
+
+
+Security Status
+
+
+
+- Delete your root access keys
+
+
+
+- Activate MFA on your root account
+
+
+
+- Create individual IAM users
+
+
+
+- Use groups to assign permissions
+
+
+
+- Apply an IAM password policy
+
+
+
+, elas vao estar com ponto de exclamacao.
+
+
+
+23. Entao, uma delas eh Ativar o MFA, eh o que eu acabei de falar sobre o Google Authenticator.
+
+
+
+24. Entao, voce vai vir, aqui, clicar em Manage MFA, clicar em Continue to Security Credentials, para irmos la nas Credenciais, surge a Tela Your Security Credentials.
+
+
+
+25. Clicar em Multi-factor Authentication (MFA). Oh, vai chegar o momento, aqui, que voce vai ter o Multi-factor authentication, e, ai, voce vai Gerenciar ele por aqui, vai adicionar, ou seja, clicar em Activate MFA. 
+
+
+
+26. Escolher a opcao Virtual MFA device. (Authenticator app installed on your mobile device or computer)
+
+
+
+27. E, ai, voce vai usar, para instalar, o Google Authenticator, okay? Esse Aplicativo, aqui, oh, voce instala ele no seu Celular, procura, la, ou na PlayStore, ou na Loja da Apple, voce vai encontrar, instala ele, e voce vai seguindo o Procedimento, que ele faz, aqui, eh bem simples, e, ai, voce vai conseguir fazer o Login.
+
+
+
+28. Okay?
+
+
+
+29. Vai conseguir habilitar isso, aumentando a Seguranca da sua Conta,
+
+
+
+1. Install a compatible app on your mobile device or computer.
+
+
+
+2. Use your virtual MFA app and your device's camera to scan the QR code.
+
+
+
+3. Clicar em Show QR code
+
+
+
+4. Type two consecutive MFA codes below.
+
+
+
+5. Clicar em Assign MFA.
+
+
+
+6. You have successfully assigned virtual MFA.
+
+
+
+30. Depois, a gente vai precisar vir, aqui, em Billing, para voce ver o que voce esta gastando na AWS.
+
+
+
+31. Na minha conta, eu nao gasto quase nada, eh bem pouquinho, olha so, entao, neste momento, eu vou pagar quase 1 dolar por uma chave que eu tenho usado, aqui.
+
+
+
+32. Inclusive, eu tenho que apagar, estava esquecendo dessa chave.
+
+
+
+33. Okay?
+
+
+
+34. Essa, aqui, eh uma chave de seguranca, eh um servico de critpografia da AWS, eh Key Management Service (kms).
+
+
+
+35. Bom, aqui, voce consegue ver as informacoes de cobranca, o que que esta te cobrando, okay?
+
+
+
+36. Mas, nos vamos, mesmo, eh la no CloudWatch, e, no CloudWatch que a gente vai conseguir configurar o Alarme.
+
+
+
+37. Entao, quando ele acabar de carregar, voce vem, aqui, oh, Alarms, no menu lateral esquerdo, seleciona, aqui, em Alarms. 
+
+
+
+38. Eu tenho Dois Alarmes, na AWS.
+
+
+
+39. Eu tenho, aqui, oh, cheguei a 10 Dolares, e outro, ja, em 30 Dolares.
+
+
+
+40. Por que que eu setei Dois Alarmes?
+
+
+
+41. Porque, as vezes, eu estou fazendo Testes, eu quero, nao eh?, eu cheguei em 10 Dolares, mas eu ainda quero continuar fazendo alguns Testes, entao, eu Deixo.
+
+
+
+42. Mas, ai, para eu nao deixar estourar demais, eu coloco o Segundo de 30 Dolares.
+
+
+
+43. Okay?
+
+
+
+44. Entao, Cheguei em 10, eu vou receber o e-mail. Se eu cheguei em 30, eu vou receber outro.
+
+
+
+45. Okay?
+
+
+
+46. Entao, oh, como que voce vai fazer? 
+
+
+
+47. Selecionar Billing
+
+
+
+48. Clicar em Billing preferences, no menu lateral esquerdo
+
+
+
+49. Checar as preferencias, ou seja, 
+
+
+
+- Receive PDF Invoice By Email
+
+
+
+- Receive Free Tier Usage Alerts
+
+
+
+- Receive Billing Alerts
+
+
+
+50. Clicar em Save preferences
+
+
+
+51. Alterar a Region para US East (N. Virginia), porque eh a Unica Regiao que suporta a Criacao de Alarmes de Billing.
+
+
+
+52. Voce vai clicar, aqui, em Create Alarm.
+
+
+
+53. Voltar em CloudWatch / Alarms / Create Alarm.
+
+
+
+54. Voce vai dar um Select metric, aqui, 
+
+
+
+55. Selecionar Billing / Total Estimated Charge.
+
+
+
+55. Ai, vai aparecer, aqui, para voce, o que que voce pode escolher, nao eh?, das informacoes, entao, voce vai escolher a moeda, Currency USD, Dolar, o Custo Estimado, EstimatedCharges, ou seja, quanto que vai te cobrar, vai clicar em Select metric. 
+
+
+
+56. Em "When my total AWS charges for the month exceed: 1 USD
+
+
+
+57. send a notification to: type your email address
+
+
+
+58. Clicar em Create Alarm.
+
+
+
+59. No Menu Lateral, selecionar INSUFFICIENT em Vermelho / Selecionar INSUFFICIENT_DATA / Actions / Modify / 1h / Select metric / Save Changes
+
+
+
+60. Verificar, no Menu Lateral, OK em Verde, apos Um minuto.
+
+
+
+61. Confirm new email addresses / View Alarm
+
+
+
+62. Okay? Ai, voce cria o Alarme.
+
+
+
+63. E eh assim. Isso eh muito importante. Se voce quiser fazer como eu, coloca 2. Coloca Um de 5 dolares e Um de 20, ou Um de 10 e Um de 30, como eu coloquei, Okay?
+
+
+
+64. Entao, eh isso, dai, importantissimo. Nao pule essa fase, caso contrario, voce pode ter alguma surpresinha.
+
+
+
+65. Fim da Aula 04.002. Criando um Alarme de Cobranca.
+
+
+
+-->​
+
+

@@ -1,0 +1,399 @@
+<!-- 
+
+Aula 07.014. Deploy da Aplicacao no Cluster
+
+
+
+1. Agora que o Cluster ja subiu, ta tudo certo, vamos fazer o deploy da nossa aplicacao.
+
+
+
+2. A gente vai fazer o deploy da aplicacao pela linha de comando, aqui, a gente vai fazer ssh em qualquer uma das maquinas, qualquer uma mesmo, okay?, vamos fazer ssh, aqui, em qualquer uma outra, 
+
+
+
+terraform> ssh -i key/beerstore_key ec2-user@3.84.132.23
+
+
+
+, a gente vai fazer, aqui, pelo ssh, entao, a gente acessa qualquer uma, e nos vamos executar o docker service create.
+
+
+
+3. Por que que eu vou fazer por aqui, na linha de comando?
+
+
+
+4. Porque fazer, aqui, pelo Portainer, eh muito simples. Se voce clicar, aqui, em Add service, voce pode dar o nome do Servico, o nome da Imagem, e ir selecionando, aqui, as outras opcoes, eh bem simples, depois, voce pode brincar.
+
+
+
+5. Mas eu quero fazer pela linha de comando, porque seria um proximo passo, para voce, por exemplo, colocar o Jenkins para fazer o deploy da sua aplicacao, entao, imagina, voce fez o commit, ja esta pronto para liberar no seu ambiente, voce vai la no Jenkins, o Jenkins vai fazer o Build da sua Aplicacao, e, ai, o Jenkins vai executar esse comando que a gente vai executar, aqui, agora, por exemplo. Seria o proximo passo, okay?
+
+
+
+6. Por isso que eu vou fazer por aqui.
+
+
+
+7. Entao, eh sudo docker service, lembra dos conceitos que eu falei para voce do docker swarm? Entao, a gente esta criando um servico. Um servico tem um conceito de um servico. Entao, a gente esta criando esse Servico, a gente vai dar alguns parametros para ele, aqui, como, por exemplo, o nome, beerstore, ah, e, ai, garanta que voce esta com a sua aplicacao no Repositorio Publico, em hub.docker.com. Aqui, nao vai ser hibicode/beerstore, vai ser o que voce colocou, do seu Usuario, okay? Da uma olhada na Tag, a minha, aqui, eh a 0.2, okay? Entao, vamos la,
+
+
+
+> sudo docker service create --name beerstore
+
+
+
+8. sudo docker service create --name beerstore, ai, a gente tem que passar as informacoes de conexao com o banco, sudo docker service create --name beerstore -e SPRING_DATASOURCE_URL=, vai sar a URL do banco de dados. Entao, a gente vem, aqui, no EC2, a gente procura o RDS, e a gente vem aqui, nas instancias, clicamos na Instancia do Banco, e vamos procurar, aqui, oh, o endpoint para a gente poder conectar,
+
+
+
+hibicode-beerstore-rds.crxyils0ua9a.us-east-1.rds.amazonaws.com
+
+
+
+Vamos dar uma olhada, aqui, no Security Group? Security Group - Inbound, porque, senao, a nossa Aplicacao nao vai ter permissao de chegar la. Ele aceita conexao apenas dessa fonte, so para quem tem esse Security Group, aqui.
+
+
+
+9. Okay?
+
+
+
+10. Entao, a gente pode associar esse Security Group a nossa Instancia.
+
+
+
+11. Entao, vamos fazer isso, primeiro, entao, em instances.tf. A gente vem, aqui, em vpc_security_group_ids, vamos colocar "${aws_security_group.database.id}"
+
+
+
+12. Se a gente coloca a nossa aplicacao dentro desse security_group.database, o que que significa? Que ela vai aceitar, a nossa aplicacao tambem aceita as requisicoes na porta 5432, vindos, quem tiver esse security_group. Entao, Source eh o Security Group.
+
+
+
+13. Parece estranho, nao eh?, a gente pode aceitar conexao na porta 5432, tambem, vindos desse Security Group. Mas, esse banco de dados nao acessa, nao eh?, nao vai sair na porta 5432.
+
+
+
+14. Beleza? Bom, entao, bora aplicar isso na nossa, ..., deixa eu abrir uma nova abinha, aqui, vamos aplicar esse terraform, aqui, okay?
+
+
+
+terraform> run-terraform.bat
+
+
+
+15. Porque, ai, a gente ja vai ter esse Security Group aplicado nas nossas Aplicacoes.
+
+
+
+16. Beleza?
+
+
+
+17. Entao, enquanto ele vai criando, aqui, vamos continuar executando, aqui.
+
+
+
+18. Entao, SPRING_DATASOURCE_URL, vamos pegar, aqui, em RDS, de novo, a URL, no Endpoint, que eh essa, daqui. Entao, eh jdbc:...//hibicode-beerstore-rds.crxyils0ua9a.us-east-1.rds.amazonaws.com, eh, conforme o application.properties, eh jdbc:postgresql://, na frente, e :5432/beerstore, ao final.
+
+
+
+
+
+sudo docker create --name beerstore -e SPRING_DATASOURCE_URL=jdbc:postgresql://hibicode-beerstore-rds.crxyils0ua9a.us-east-1.rds.amazonaws.com:5432/beerstore
+
+
+
+19. Okay? Beleza.
+
+
+
+20. O usuario e senha que esta configurado, aqui, em application.properties, eh beerstore / beerstore.
+
+
+
+21. O que a gente colocou, na aplicacao, em database.tf, eh beerstore / beerstore.
+
+
+
+22. Entao, eu nao preciso sobrescrever. Se eu precisasse, se fossem usuarios e senhas diferentes, -e SPRING_DATASOURCE_PASSWORD=, ai, passaria a nova senha, aqui. Mas, como eh a mesma, eu nao preciso, eu so preciso sobrescrever essa propriedade.
+
+
+
+23. Okay?
+
+
+
+24. Qual porta que eu vou expor, aqui?
+
+
+
+25. A 8080:8080, parte importante, --network, lembra que a gente criou a rede service? Vamos colocar essa aplicacao na rede service, ou seja, --network service. E hibicodesidarta/beerstore:0.4, que eh a tag que eu vou fazer o deploy. Okay?
+
+
+
+26. So isso, daqui,
+
+
+
+sudo docker service create --name beerstore -e SPRING_DATASOURCE_URL=jdbc:postgresql://hibicode-beerstore-rds.crxyils0ua9a.us-east-1.rds.amazonaws.com:5432/beerstore -p 8080:8080 --network service hibicodesidarta/beerstore:0.4
+
+
+
+26. Alterar, em Dockerfile, para:
+
+
+
+...
+
+
+
+CMD java -jar /app/app.jar '--spring.datasource.url=jdbc:postgresql://hibicode-beerstore-rds.crxyils0ua9a.us-east-1.rds.amazonaws.com:5432/beerstore'
+
+
+
+
+
+27. Vamos ver, eu acho que era so isso, mesmo, ele vai comecar a preparacao, aqui, vamos ver se vai faltar algum detalhe, eu vou colocar esse comando, aqui, para voce copiar, mas, lembre-se, voce precisa copiar a sua URL, eh a sua imagem, okay?, Entao, nao pode ser a minha, aqui.
+
+
+
+28. Bom, o servico rodou. Vamos dar uma olhada?
+
+
+
+> sudo docker service ls
+
+
+
+29. Beleza. Oh, o beerstore subiu.
+
+
+
+30. A gente poderia ter passado, aqui, nesse comando docker service create, tambem o numero de replicas. A gente poderia ter passado, ali, --replicas e passado algo como 3, por exemplo, mas eu deixei o padrao. E, se voce quiser, agora, voce pode, pelo Portainer, gerenciar o seu servico. Em Services, podemos ver que o beerstore esta rodando na porta 8080. A gente vai conseguir acessar? Nao.
+
+
+
+31. Por que nao?
+
+
+
+32. Security Group.
+
+
+
+33. Obviamente.
+
+
+
+34. Entao, o que que a gente pode fazer? A gente pode dar uma enganada, aqui. Por exemplo, vamos vir, aqui, em EC2, em Security Groups, em hibicode_allow_ssh, e vamos editar, em Edit inbound rules, aqui, oh, tem a porta 22, vamos colocar, aqui, HTTP tambem, que eh a porta 80, e eu vou aceitar Requisicao apenas do meu IP, aqui, okay? 
+
+
+
+35. Vou dar um Save. Opa, eu errei, nao eh a porta 80, eh a porta 8080. Vamos colocar Custom TCP, na porta 8080. Agora sim.
+
+
+
+36. Porque a 80, a gente vai acessar atraves do Balancer.
+
+
+
+37. Isso, aqui, eh so um truquezinho. A gente, acabando, aqui, de fazer o teste, eu vou apagar essa regra, aqui, okay?
+
+
+
+38. Entao, vamos la, eu posso pegar qualquer um dos IPs. Mesmo tendo apenas 1 Servico, eu nem sei qual que esta, eu peguei aquele primeiro IP por pegar, para voce ver, vamos executar pelo Postman, vamos ver se ele consegue retornar, GET, em http://3.85.100.54:8080/beers, retornou vazio.
+
+
+
+39. Entao, vamos salvar uma nova cerveja, coloquei, aqui, o IP, http://3.85.100.54:8080/beers, POST, Body, vamos salvar uma Eisenbahn, 
+
+
+
+{
+
+"name": "Eisenbahn"
+
+"type": "LAGER"
+
+"volume": "350"
+
+}
+
+
+
+e,... Send.
+
+
+
+40. Oh, ele retornou 201 Created, entao, salvou.
+
+
+
+41. Se a gente mandar Listar, essa Cerveja esta salva, ja la no banco de dados, la no RDS.
+
+
+
+42. Sim, eh verdade.
+
+
+
+43. E, ai, eu posso pegar qualquer um dos IPs. Como eu estava falando, oh, eu vou pegar esse outro, aqui, esse segundo IP, se eu vier, aqui, e mandar listar a partir desse segundo, tambem vai listar. Se eu pegar o terceiro, tambem vai listar.
+
+
+
+44. Okay?
+
+
+
+45. Entao, eu posso acessar qualquer uma.
+
+
+
+46. Lembra que a gente tem um Balancer, la, ja por default, no Cluster do Docker Swarm? Eh isso que a gente esta usando.
+
+
+
+47. Eu nem sei qual maquina ele criou o Servico, se a gente quiser saber, a gente pode vir, aqui, no Portainer, em Services, em beerstore, la embaixo, aparece, no ID, o ID do banco de dados, e, em Node, o Private DNS do IP Privado da Maquina onde esta o Banco de dados.
+
+
+
+48. Agora, indo em EC2, e procurando pelo Private DNS do IP Privado, ip-192.168.22.32.ec2.internal, chegamos na maquina 192.168.22.32, que tem o IP Publico 18.234.190.42.
+
+
+
+49. Bom, mas, voce viu que eu pude acessar de qualquer uma.
+
+
+
+50. Mas eu vou escalar esse Servico.
+
+
+
+51. Eu quero falar que isso nao tem importancia nenhuma. Entao, eu vou, em Portainer, em Services, em beerstore, em Replicas, eu eu vou colocar 5 Instancias, por exemplo, Okay?
+
+
+
+52. Update Service. Se eu for, tambem, na lista de servicos, na coluna Scheduling Mode, e escalar para 5 Instancias, e clicar em Okay, ai, ele vai demorar um pouquinho, nao eh?, para escalar, oh, esta subindo aos pouquinhos, ou seja, 2 / 5, 3 / 5, 4 / 5, 5 / 5, vai subir o segundo, vai subir o terceiro, ele vai subindo devagarzinho.
+
+
+
+53. Subiu as 5 Instancias.
+
+
+
+54. Pronto. Agora, essa Aplicacao nossa esta em 5 Maquinas. 
+
+
+
+55. Quer dizer, a gente so tem 3 Maquinas, nao eh?
+
+
+
+56. Entao, nas 3 Maquinas, vai ter algumas delas que vai ter duplicado. Entao, por exemplo, aparece duplicado as maquinas de final -96 e -218.
+
+
+
+57. Mas, repara que, agora, todas as 3 Instancias, olha la, a 11, a 218, e a 96 tem o nosso Container rodando. Entao, se uma delas Cair, beleza, esta rodando em outra.
+
+
+
+58. Se cair, esta rodando em outra. Okay?
+
+
+
+59. Entao, a gente tem uma disponibilidade ja bem maior, agora, nao e?
+
+
+
+60. Isso eh bem legal.
+
+
+
+61. Se a gente quiser ver os logs?
+
+
+
+62. Service Logs, e a gente consegue ver o log, aqui, dos nossos Containers sendo mostrados.
+
+
+
+63. Nao eh tao ideal ver o log por aqui. Okay? Por que? Aqui, tem esse Auto-refresh logs e o Wrap Lines, que ele me irrita bastante, entao, eu costumo desabilitar, muitas vezes, aqui, para ver o Log, Okay?
+
+
+
+64. O que acontece? Ele vai mostrando Log das Instancias de todos os nossos Containers, aqui, agrupados.
+
+
+
+65. Okay?
+
+
+
+66. Entao, quando voce esta analisando um erro, beleza, voce vem, aqui, bate o olho no erro, voce vai conseguir ver a excecao, e fazer o debug correto, ai, e entender o problema da sua aplicacao.
+
+
+
+67. Okay?
+
+
+
+68. Mas, como ele vai agrupando, tem hora que pode, se voce quiser achar que vai ver o log, aqui, sei, la, faz um select, aqui, oh, GET, em http://18.234.190.42:8080/beers, ele tem que mostrar o Log aqui, nao eh? Se voce fizer o Refresh, olha la, ele mostrou aqui, o select.
+
+
+
+69. Entao, se voce deixar o Auto-refresh ligado, ai, ele vai atualizar, e, ai, as vezes, ele troca de Instancia, e tal, entao, as vezes, isso incomoda um pouquinho.
+
+
+
+70. Mas, eh isso dai.
+
+
+
+71. Eh uma forma de voce ver o log, aqui, tambem.
+
+
+
+72. Beleza?
+
+
+
+73. Vamos ver mais algum detalhe, aqui, que a gente pode ver.
+
+
+
+74. Entao, a gente consegue atualizar o servico por aqui tambem. Entao, imagina que voce quer atualizar alguma coisa do servico, voce pode editar na hora aqui, tambem.
+
+
+
+75. Oh, o mapeamento das portas, questao de memoria, quanto que esta de limite de memoria, de CPU, tem para esse servico, voce consegue editar bastante coisa, aqui, do seu servico.
+
+
+
+76. Inclusive, se voce quiser diminuir as Replicas, fala, 'Nao, 5 esta muito, vamos colocar 3'. Deixar so 3 ele escala para baixo, tambem, matou duas Tasks, la, nao eh?, que tem 2 Containers dentro, executando.
+
+
+
+77. Beleza?
+
+
+
+78. Entao, Portainer eh para isso.
+
+
+
+79. Bom, a gente fez, aqui, uma gambiarra so para conseguir chegar, nao eh? Vamos tirar essa gambiarra, em EC2 / Security Groups / hibicode_allow_ssh / Edit inbound rules. Entao, eu vou vir, aqui, eu vou tirar esse cara, o Custom TCP. E, na proxima aula, a gente cria um Load Balancer para a gente poder chegar nessas Instancias, que, ai, eu acho que vai ficar mais legal, a gente vai colocar o endereco, cada hora, ele bate em um IP, a gente nao precisa ficar trocando IP, aqui, nao eh?, no Postman, que, ai, nao existe isso, nao eh verdade?
+
+
+
+80. Entao, beleza, vamos para o Load Balancer nas proximas aulas.
+
+
+
+81. Fim da Aula 07.014. Deploy da Aplicacao no Cluster.
+
+
+
+-->​

@@ -1,0 +1,251 @@
+<!--
+    Aula 05.011 - Criando Chave Assimetrica para Acessar as Instancias
+
+1. Antes de eu entrar, aqui, nesta aula, eu so vou falar que as maquinas, aqui, estao iniciando, novamente, porque eu destrui as instancias, so as instancias, e estou criando novamente.
+
+2. Okay?
+
+3. Entao, por isso, pode ver que os IP's, aqui, no Console da AWS, no Servico EC2, mudaram, em relacao a ultima aula.
+
+4. Okay?
+
+5. Entao, vamos la, eu vou copiar, aqui, no Console da AWS, no Servico EC2, o IP Publico, de uma Instancia, e falar, 'Bom, eu quero acessar essas maquinas via SSH. Como eh que voce vai fazer?'
+
+6. No Prompt de Comando, ssh, voce vai colocar o usuario. No caso das maquinas da AWS, com o Amazon Linux, ami com Amazon Linux, o usuario eh ec2-user@, e, ai, voce vai colocar o IP Publico, para fazer o acesso,
+
+> ssh ec2-user@3.85.106.51
+
+, okay?
+
+7. Mas, ai, qual que eh o Usuario e Senha?
+
+8. Nao sabe.
+
+9. O usuario voce sabe: ec2-user@3.85.106.51
+
+10. Qual que eh a senha?
+
+11. Entao, a senha nao tem. Nao tem essa Senha.
+
+12. E outra coisa. Ele vai ficar, aqui, pensando, pensando, nao vai conseguir fazer a conexao.
+
+13. Por que que ele nao vai conseguir fazer a conexao?
+
+14. Primeiro, porque nao tem essa senha. Okay? E, segundo, porque a gente precisa de permissoes de seguranca para a gente acessar la.
+
+15. E a gente vai fazer no Security Group, okay?
+
+16. Mas, nao neste momento.
+
+17. Entao, so para mostrar, aqui, o que que a gente precisa, a gente precisa criar uma Chave Assimetrica para a gente acessar. Entao, a gente vai precisar de uma Chave Publica, que eh a Chave que vai la para a AWS, e a Chave Privada, que a gente vai guardar pra gente, em segredo.
+
+18. Okay?
+
+19. Bom, entao, vamos criar essa Chave Publica e essa Chave Privada, e modificar a Instancia, para que a Chave Publica seja usada.
+
+20. Okay?
+
+21. Entao, pelo Prompt de Comando, estou, dentro, aqui, ja, do Projeto, eu criei uma pasta, aqui, dentro da pasta /terraform, chamada de key, deixa eu remover tudo o que esta la dentro, nao tem nada, aqui, dentro, mais. Entao, cria essa pasta, aqui, chamada key, e vamos gerar.
+
+22. Entao, no Prompt de Comando, ssh-keygen, e, ai, eu vou passar, aqui, uns parametros, para a criacao da chave, no algoritmo recomendado.
+
+23. Okay?
+
+24. Vai ser, ssh-keygen -t rsa -b 4096, entao, todos os parametros para tentar criar a senha mais segura possivel, a chave de uma forma mais segura, ssh-keygen -t rsa -b 4096 -o -a 100 -f key/beerstore, key/, vou salvar dentro da pasta key, e vou chamar de beerstore_key, okay?,
+
+> ssh-keygen -t rsa -b 4096 -o -a 100 -f key/beerstore_key
+
+25. Vamos mandar gerar. Ele vai te pedir um passphrase, aqui. Nao coloca nada, na hora de gerar essa Senha.
+
+26. Entao, nao coloca nada, so estou dando <Enter>
+
+27. Beleza.
+
+28. Ele gerou, aqui, dentro da pasta key, agora, 2 arquivos: o beerstore_key, e o beerstore_key.pub. .pub eh o arquivo publico, que eh o que a gente vai mandar para a AWS.
+
+29. Entao, beerstore_key.pub eh a chave publica e beerstore_key eh a chave privada, que a gente tem que guardar com a gente, quietinho. Nao manda essa chave privada, aqui, para o Git, nao, beleza?
+
+30. Bom, e, ai, o que que a gente precisa fazer?
+
+31. Associar essa Chave as Instancias.
+
+32. Okay?
+
+33. Entao, aqui, oh, no Console da AWS, no Servico de EC2, ao Selecionar uma Instancia, se voce olhar um pouquinho mais para baixo, tem Key pair name, entao, eu preciso da Chave, aqui.
+
+34. Eu nao vou fazer essa associacao por aqui, a gente vai fazer pelo Terraform.
+
+35. Eu vou vir, aqui, no arquivo instances.tf, mesmo, e eu vou colocar, aqui, em cima, o recurso de aws_key_pair, para a gente criar a chave,
+
+resource "aws_key_pair" "" {
+    public_key = ""
+}
+
+, okay?
+
+36. Entao, vamos chamar, aqui, de "keypair",
+
+resource "aws_key_pair" "keypair" {
+    public_key = ""
+}
+
+, mesmo, e, ai, eu preciso falar onde esta a chave publica. Entao, como que eu falo isso?
+
+37. Vou colocar, aqui, oh, "${file(key/beerstore_key.pub)}", .put, nao esqueca, okay?, vamos colocar isso, aqui, entre aspas, para nao dar problema, "${file("key/beerstore_key.pub")}", tem que ser aspas duplas, nao tem problema ficar duas aspas duplas, aqui, nao,
+
+resource "aws_key_pair" "keypair" {
+    public_key = "${file("key/beerstore_key.pub")}"
+}
+
+38. Okay? Entao, coloca isso, daqui, oh, .pub, tem que ser o .pub.
+
+39. Beleza? E, ai, eu preciso associar, agora, essa chave, aqui, nas minhas instancias. Entao, key_name = "", vai ser aws_key_pair.keypair.key_name. Dessa forma, aqui, eu consigo associar essa chave as minhas instancias,
+
+resource "aws_instance" "instances" {
+
+  count = 3
+
+  ami = "ami-0de53d8956e8dcf80"
+  instance_type = "t2.micro"
+
+  subnet_id = "${element(aws_subnet.public_subnet.*.id, count.index)}"
+
+  key_name = "${aws_key_pair.keypair.key_name}"
+
+  tags {
+    Name = "hibicode_instances"
+  }
+}
+
+40. Okay?
+
+41. Vamos mandar rodar?
+
+42. Vai ser terraform apply, e a gente ve o que que ele vai tentar criar,
+
+> terraform apply
+
+43. Pronto, oh, ele falou o que que ele vai fazer, aqui. Para eu conseguir criar a chave e associar as instancias, o Terraform vai precisar destruir e recriar as Instancias, okay?
+
+44. Entao, por isso que tem esse - e esse +, ele precisa de um Novo Recurso, entao, ele sabe que, para associar uma chave, ele precisa destruir e criar de novo,
+
+-/+ aws_instance.instances[0] (new resource required)
+
+45. Okay?
+
+46. Entao, ele vai destruir as instancias que a gente tem e recria-las, e vai criar o keypair,
+
+ + aws_key_pair.keypair   
+
+47. Por isso que aparece, aqui, oh, 4 para adicionar, e 3 para destruir,
+
+Plan: 4 to add, 0 to change, 3 to destroy. 
+
+48. Okay?
+
+49. Ele mostra, ate, a chave publica minha, aqui,
+
+ + aws_key_pair.keypair 
+  id:                           <computed>  
+  fingerprint:                  <computed>
+  key_name:                     <computed>
+  public_key:                   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDx5E0M/H6pFJcBxlOVhI4Hc94XXh1lgsHcAC58IHCFlfxchvYXTEpmc8MZzzouspbLhBBWd8mPD5uxCinPzymgbnK2Y0Lhh0S5LP9TgXwIV55ewNcUvnXp0aL8TfAWI6HbJqr4mVG8VBRY8nBO07oHPWWPSETf3bxB79K7fc7IrsC0RNU07Ua9HvHYydF1HjCfnghAFHakgIDI6BrsPmCs0rQLFViiG6RYC06Bwugj3qHJfUuRdcHtzqZ5Zs5fc+UT1uykY0tqTgmQM0LDcD+oUiW5c6Ls8Cf/mSBKYPAwI5kxCs1tAP8FaH//3PAWEUtY49qZYUX3K9LziXP0tTGW2rw0l3IBrvWSsT7aNHFkW7psVeEjJoJ18NOGvDqb698xH0dVNoustPCQl2/vZgNQJlX/HusWDISs+c6g2seJuOYiNAI9qmF4yM6JmcjT6q1eOqnztC7diKN0BSFrBGPa5W+Bx0sE7Dc+G+ROaetpZfa87eg5aSzRuYE6bSnENUWofaj3yaPSGZD8qTOAuLouT63UrxA4tbTVzmhorbL8N9fQF++4eVReZnoN9pcPoQ4ySnwGS4uisXogYrtwYkasle1FFxKbay5VHIpG3qI85HnvfCAvAaXmScGemdbn3j9hNjwdtvE74CI9Y9GgkWaSxrkDKm7KfEWzEm88h0OUPQ== sempr@DESKTOP-JVRCEV2"
+
+50. Entao, eu posso dar um yes, e, ai, eh so aguardar ele destruir as instancias, nao eh?, ele vai criar, primeiro, ai, a keypair, depois, vai destruir as instancias, e cria-las novamente.
+
+51. Beleza?
+
+52. Esta andando, esta destruindo, esta destruindo e criando, o Terraform vai fazendo o maximo de coisas, ai, que ele pode para agilizar a nossa infraestrutura.
+
+53. Ele ainda esta criando algumas coisas, demora alguns minutinhos, ai, nao eh tao instantaneo, assim, nao eh?, imagina, tem que destruir maquina, criar, nao eh?, oh, mas, ele ja esta quase terminando. A gente poderia, inclusive, colocar, vamos colocar uma opcao, aqui, oh, no Recurso, que eh o output,
+
+output "" {
+    value = ""
+}
+
+, voce ja aprende mais essa, aqui, do Terraform, vou chamar, aqui, de public_ips,
+
+output = "public_ips" {
+    value = ""
+}
+
+54. E vou mandar mostrar os IP's publicos das Instancias, aqui, la no Prompt de Comando. Na hora que ele terminar, aqui, ele vai mostrar, ao inves de a gente ter que entrar la no Console da AWS para ver os IP's publicos.
+
+55. Vamos ver?
+
+56. Entao, os IPs publicos, estao dentro de aws_instances.instances, dentro da variavel public_ip, okay?
+
+57. Para eu mostrar isso tudo na forma de um array, eu vou usar essa funcao, aqui, join(), ai, eu vou colocar, eu quero que voce faca o join usando virgula, okay?, de aws_instance.instances., de todas, ou seja, *, ai, vai retornar varios valores, .public_id,
+
+output = "public_ips" {
+    value = "${joint(", ", aws_instance.instances.*.public_ip)}"
+}
+
+58. Okay? Se eu mandar, aqui, de novo,
+
+> terraform apply
+
+, so para a gente ver ele mostrando o output, e, ai, tem uma outra opcao que eh o "terraform output", para, simplesmente, mostrar, o output.
+
+59. Eu so estou mostrando, para voce, o que que vai acontecer quando voce mandar o apply de novo. Ele nao vai ter nada para fazer, mas ele vai mostrar o output, aqui, os IPs Publicos.
+
+60. Vamos ver, so esperar um pouquinho, ai, beleza,
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.  
+
+Outputs:     
+
+public_ips = 54.85.145.56, 18.207.184.195, 54.175.186.176     
+
+
+55. Olha la, mostrou os IPs Publicos, aqui, okay?
+
+56. Se eu fizer terraform output,
+
+> terraform output
+
+, ele vai mostrar, la,
+
+
+public_ips = 54.85.145.56, 18.207.184.195, 54.175.186.176     
+
+
+, tambem. Legal, nao eh? Ai, eu posso copiar esses caras, aqui.
+
+57. Entao, mais esse Recurso, ai, que eh o output, para mostrar valores, aqui, do Terraform, quando voce esta executando.
+
+58. Boa, nao eh?
+
+59. Bom, mas e se eu tentar acessar, ainda, as instancias, eu nao vou conseguir.
+
+60. Para eu acessar com Uma Chave, 
+
+> ssh -i key/beerstore_key 
+
+, ai, eu vou usar a chave privada, okay?
+
+> ssh -i key/beerstore_key ec2-user@
+
+, um dos IPs, aqui,
+
+public_ips = 54.85.145.56, 18.207.184.195, 54.175.186.176 
+
+, entao, eu vou pegar esse primeiro, 54.85.145.56,
+
+> ssh -i key/beerstore_key ec2-user@54.85.145.56
+
+, colei, aqui, <enter>, nao vou conseguir tambem.
+
+61. Por que?
+
+62. Porque falta liberacao de seguranca.
+
+63. Eu so vou conseguir acessar, se eu liberar no Security Group.
+
+64. Mas, eu vou deixar para falar isso na proxima aula. 
+
+65. Beleza?
+
+66. Fim da     Aula 05.011 - Criando Chave Assimetrica para Acessar as Instancias.
+
+-->

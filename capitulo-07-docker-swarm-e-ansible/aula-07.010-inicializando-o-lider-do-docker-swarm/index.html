@@ -1,0 +1,563 @@
+<!-- 
+
+Aula 07.010. Inicializando o Lider do Docker Swarm
+
+
+
+1. Para a gente iniciar o Docker Swarm, a gente tem que escolher uma das maquinas, um dos nossos Servidores para fazer essa Inicializacao.
+
+
+
+2. Mas, eh so para inicializar.
+
+
+
+3. A gente esta criando, no nosso Cluster, 3 Managers, com 3 Workers. Os Managers e Workers sao as mesmas Maquinas, okay?
+
+
+
+4. Entao, a gente tem que so escolher um para comecar.
+
+
+
+5. Entao, ele vai escolher um Manager, inicia por ele, e os outros, eles vao como sendo Seguidores.
+
+
+
+6. Mas, se esse Manager cair, ou seja, o Lider, nao tem problema, os outros Managers assumem a Responsabilidade.
+
+
+
+7. Eh so porque a gente precisa, mesmo, de Um para comecar.
+
+
+
+8. Beleza?
+
+
+
+9. Entao, por isso que esta aula chama-se "Inicializando o Lider do Swarm.
+
+
+
+10. Beleza? Entao, vamos la.
+
+
+
+11. O que a gente precisa? Escolher uma das nossas Instancias para ser o Lider.
+
+
+
+12. Eh so isso.
+
+
+
+13. Beleza? Entao, a gente precisa escolher. E, ai, la no template, ou seja, hosts.tpl, a gente precisa ter essa diferenciacao. A gente vai ter, aqui, no template, para falar, 'Olha, eu preciso pegar so um IP para inicializar o cluster no Ansible.', porque a gente nao vai fazer para todos, repare que o nosso playbook, ou seja, beerstore-playbook.yml, hoje, esta como "hosts: all", mas eu nao vou inicializar o cluster no all, aqui, nao eh?, eu vou inicializar em apenas Uma. Entao, vamos ate criar, aqui, oh, vamos, ate, comecar, entao, -name: Initilize Swarm Mode, a gente vai inicializar o Modo Swarm, nao eh?
+
+
+
+14. Olha so, agora. Olha so, agora, hosts:. Quais sao as maquinas? Nao eh all. Para a gente inicializar o Lider, a gente tem que escolher Um. Entao, eu vou chamar, aqui, de manager-leader,
+
+
+
+- name: Initialize Swarm Mode
+
+hosts: manager-leader
+
+
+
+15. , para ser a Maquina de Manager Leader. 
+
+
+
+16. Que Maquina eh essa, Normandes? Como que voce vai, aqui no Template, ou seja, em hosts.tpl, diferenciar qual qual que eh qual?
+
+
+
+17. Ai que ta. Aqui, no Ansible, ou seja, em hosts.tpl, a gente consegue colocar Regioes.
+
+
+
+18. Entao, olha so.
+
+
+
+19. 
+
+
+
+[manager-leader]
+
+${PUBLIC_IP_0}
+
+
+
+
+
+${PUBLIC_IP_1}
+
+${PUBLIC_IP_2}
+
+
+
+, separei, aqui, oh, e vou colocar, aqui, [manager-follower],
+
+
+
+
+
+
+
+[manager-leader]
+
+${PUBLIC_IP_0}
+
+
+
+[manager_follower]
+
+${PUBLIC_IP_1}
+
+${PUBLIC_IP_2}
+
+
+
+20. Entao, essa, daqui, 
+
+
+
+[manager-leader]
+
+${PUBLIC_IP_0}
+
+
+
+
+
+, oh, comeca a descrever, 'Olha, agora, esses valores que estao abaixo de manager-leader, esses hosts que estarao aqui, fazem parte desse Grupo, manager-leader'.
+
+
+
+21. Os hosts que estiverem abaixo desse manager-follower, eles ficam, aqui, abaixo.
+
+
+
+22. Repare que ambos eu chamei de manager. Por que?
+
+
+
+23. Porque sao Managers, no contexto do Swarm.
+
+
+
+24. Mas, Um comeca como sendo Lider, e os outros o seguem.
+
+
+
+25. Okay?
+
+
+
+26. Entao, so por isso.
+
+
+
+27. Entao, vamos la.
+
+
+
+28. Vamos la no playbook, para a gente comecar aqui. Entao, esse manager-leader vai ser apenas esse IP, em hosts.tpl,
+
+
+
+[manager-leader]
+
+${PUBLIC_IP_0}
+
+
+
+, so para que aquele arquivo de template seja atualizado. Na verdade, o hosts, se a gente atualizou o template, e, agora, eu quero que o arquivo de hosts seja atualizado.
+
+
+
+29. Okay?
+
+
+
+30. Ele vai dar um Refresh no State, ai, e, agora mesmo, a gente volta, aqui, para dar o yes.
+
+
+
+31. Oh, ele vai falar que vai criar o outro arquivo para mim. Sim, pode criar.
+
+
+
+32. Ele cria rapidao. E a gente volta, aqui, oh, no hosts, olha la, tah o hosts, agora, so que a gente tem essas marcacoes, aqui, dentro do arquivo hosts, para a gente, ou seja, [manager-leader] e [manager-follower].
+
+
+
+33. Okay?
+
+
+
+34. Muito bem, entao, a gente ja fez essa parte, a gente so vai mexer no playbook, aqui, mesmo.
+
+
+
+35. Entao, manager-leader, ai, todas as outras coisas, aqui, continuam as mesmas.
+
+
+
+36. Entao, a gente tambem vai executar como remote_user: ec2-user, gather_facts: false, eu nao preciso recuperar informacoes do servidor, become: true, porque eu tenho que colocar o sudo na frente. Entao, quais que serao as tasks?
+
+
+
+- name: Initialize Swarm Mode
+
+hosts: manager-leader
+
+remote_user: ec2-user
+
+gather_facts: false
+
+become: true
+
+tasks: 
+
+
+
+37. Nos vamos evoluir essas Tasks, aqui, com o tempo, eu vou colocar algumas de uma forma mais direta, aqui, okay? Entao, vamos la.
+
+
+
+38. - name: Swarm init, para a gente inicializar o Swarm. Qual que vai ser o comando que a gente vai executar? Ai, ja eh um comando, eu nao vou executar um Servico que nao tem aqui ainda. Entao, para inicializar o Swarm, entao, docker swarm init, e, ai, a gente vai precisar mexer um pouquinho, ainda no nosso Template. A gente pode ter mais de um IP no nosso Servidor, e, la, a gente tem, a gente tem o IP Privado e a gente tem o IP Publico. E eu quero que seja inicializado o Docker Swarm, ali, para o IP Privado, dele, nao eh? A comunicacao do Swarm nao precisa sair pela Internet. Entao, a gente pode adicionar, aqui, oh, essa propriedade, --advertise-addr, e, ai, a gente vai passar, aqui, o IP Privado do Lider, docker swarm init --advertise-addr {{}}. Okay? Entao, aqui, eu vou colocar {{ private_ip }}, 
+
+
+
+tasks:
+
+- name: Swarm init
+
+- command: docker swarm init --advertise-addr {{}}
+
+
+
+
+
+39. Ueh, Normandes, de onde esta vindo esse private_ip?
+
+
+
+40. Vamos voltar, aqui, no Template, ou seja, hosts.tpl,
+
+
+
+[manager-leader]
+
+${PUBLIC_IP_0}
+
+
+
+[manager-follower]
+
+${PUBLIC_IP_1}
+
+${PUBLIC_IP_2}
+
+
+
+41. Aqui, eu posso passar, ainda, variaveis dentro de um Host. Entao, eu tenho esse Host, aqui, principal, 
+
+
+
+[manager-leader]
+
+>>> ${PUBLIC_IP_0}
+
+
+
+[manager-follower]
+
+${PUBLIC_IP_1}
+
+${PUBLIC_IP_2}
+
+
+
+42. Eu posso ter uma variavel, aqui, na frente, oh, 
+
+
+
+[manager-leader]
+
+${PUBLIC_IP_0} private_ip=
+
+
+
+[manager-follower]
+
+${PUBLIC_IP_1}
+
+${PUBLIC_IP_2}
+
+
+
+, ai, eu consigo recuperar essa variavel, usando o nome dela, aqui, em beerstore-playbook.yml.
+
+
+
+43. E, ai, eh so eu inicializar, ${PRIVATE_IP_0},
+
+
+
+[manager-leader]
+
+${PUBLIC_IP_0} private_ip=${PRIVATE_IP_0}
+
+
+
+[manager-follower]
+
+${PUBLIC_IP_1}
+
+${PUBLIC_IP_2}
+
+
+
+44. Okay?
+
+
+
+45. So fazer isso, daqui.
+
+
+
+46. Entao, la, nas Instancias, em instances.tf, aqui, agora, eu vou inicializar o PRIVATE_IP_0, com "${aws_instance.instances.*.private_ip[0]}", aqui, ao inves de public_ip, sera private_ip,
+
+
+
+data "template_file" "hosts" {
+
+template = "${file("./template/hosts.tpl")}"
+
+
+
+vars {
+
+PUBLIC_IP_0 = "${aws_instance.instances.*.public_ip[0]}"
+
+PUBLIC_IP_1 = "${aws_instance.instances.*.public_ip[1]}"
+
+PUBLIC_IP_2 = "${aws_instance.instances.*.public_ip[2]}"
+
+
+
+PRIVATE_IP_0 = "${aws_instance.instances.*.private_ip[0]}"
+
+}
+
+}
+
+
+
+47. Okay?
+
+
+
+48. Muito simples, nao eh?
+
+
+
+49. Resolve tudo para a gente.
+
+
+
+50. Entao, ai, eu tenho que rodar de novo o Terraform, ou seja, run-terraform.bat.
+
+
+
+51. Entao, vamos la, eu inicializei, aqui, em beerstore-playbook.yml, com o private_ip, e vamos la, para ele atualizar o arquivo para a gente, de hosts, okay.
+
+
+
+52. Vamos abrir, aqui, o arquivo hosts, olha la, com private_ip, show, fechou, era isso que eu queria.
+
+
+
+53. Entao, aqui, estamos inicializando o docker swarm. Eh so isso que a gente precisaria fazer. So isso se a gente ficasse no simples, mas, como a gente esta executando um comando, aqui, e esse comando, se ele for executado e o docker swarm ja tiver sido inicializado, vai dar erro, o que que eu costumo fazer?
+
+
+
+54. Usar um outro recurso do Ansible, que nos auxilia nisso, ou seja, eu vou criar uma forma do estado manual, aqui. Entao, eu vou adicionar, aqui, oh, um script shell, que vai ser executado, okay?, e, ai, eu vou colocar, aqui, oh, se eu fizer um docker info, ele vai mostrar um monte de informacao, entao, se voce for na sua linha de comando e fizer um docker info, vem um monte de coisas, okay?, entao, entre elas, ele vai falar se o modo swarm esta ativo ou nao.
+
+
+
+55. Entao, eu vou fazer, justamente, uma pesquisa em cima disso. Okay? Entao, eu vou verificar, eu vou executar esse comando, aqui, ai, para voce ver, oh, vamos copiar ele, aqui, e vamos executar na linha de comando, aqui, na minha maquina, mesmo,
+
+
+
+- name: Initialize Swarm Mode
+
+hosts: manager-leader
+
+remote_user: ec2-user
+
+gather_facts: false
+
+become: true
+
+tasks:
+
+- shell: "docker info | grep 'Swarm' | awk"
+
+
+
+- name: Swarm init
+
+command: docker swarm init --advertise-addr {{ private_ip }}
+
+
+
+55. docker info | grep 'Swarm' | awk, ai, isso, aqui, entra muito Linux, okay?, para voce conseguir implementar essa expressaozinha, aqui, mas, vou te explicar, ja, ja, o que que ela esta fazendo, vou te mostrar, na verdade, 
+
+
+
+> docker info | grep 'Swarm' | awk -F'Swarm: ' '{print $NF}'
+
+inactive
+
+
+
+56. Beleza. Entao, olha so o que que ele retornou.
+
+
+
+57. Inativo.
+
+
+
+58. Se o Docker Swarm estivesse ativo, ia retornar ativo.
+
+
+
+59. Okay? Entao, eu vou copiar essa expressao, aqui, e vamos colar, aqui, dentro,
+
+
+
+tasks:
+
+- shell: docker info | grep 'Swarm' | awk -F'Swarm: ' '{print $NF}'
+
+
+
+, e ele vai registrar isso em uma variavel, register, eu vou chamar de swarm_mode, okay?
+
+
+
+60. Entao, eu registrei a saida desse comando, no modo swarm_mode,
+
+
+
+tasks:
+
+- shell: docker info | grep 'Swarm' | awk -F'Swarm: ' '{print $NF}'
+
+register: swarm_mode
+
+
+
+
+
+60.1. Para executar esse comando no App Ubuntu do Windows 10, seguir as instrucoes em: https://medium.com/@sebagomez/installing-the-docker-client-on-ubuntus-windows-subsystem-for-linux-612b392a44c4.
+
+
+
+61. Entao, essa, aqui, eh so uma expressao para buscar la dentro do docker info, oh, tem um monte de coisa, entao, eu fiz so uma expressao para tirar, la, de dentro, quando eh a parte do swarm.
+
+
+
+62. Entao, se voce olhar, aqui, em cima, ele vai mostrar, oh, Swarm: inactive
+
+
+
+63. Eu fiz um comandinho que recupera esse cara, aqui.
+
+
+
+64. Okay? E registra, aqui, no swarm_mode
+
+
+
+65. Esse comando de inicializacao, ou seja, 
+
+
+
+command: docker swarm init --advertise-addr {{ private_ip }}
+
+
+
+, so vai ser executado quando, olha so, o swarm_mode.stdout, muita gente esquece desse cara, entao, nao pode esquecer, estiver "inactive",
+
+
+
+command: docker swarm init --advertise-addr {{ private_ip }}
+
+when: swarm_mode.stdout == "inactive"
+
+
+
+66. Okay?
+
+
+
+67. Quando estiver inativo, ai, sim, voce inicializa o Swarm para mim.
+
+
+
+68. Okay?
+
+
+
+69. Entao, essa eh a ideia. A gente ainda vai colocar mais coisas, aqui, para o projeto, para a inicializacao do Swarm, mas eu quero terminar essa parte, por aqui, nao eh?, vamos executar isso la, voltar, aqui, entrar na pastinha do ansible, e vamos rodar ./run-ansible.sh, vamos esperar ele executar, entao, ele vai fazer, nao eh?, toda aquela parte inicial, ele executa tudo, entao, ele vai executando o playbook inteiro, ai, ele vai verificar que o Docker ja esta instalado, nessa Task, vai verificar que o Docker ja esta startado, nas outras, e, ai, apenas para o Host Manager Leader, ele vai fazer a Inicializacao do Swarm. Okay? Entao, ele executou, apenas em Um, olha so, nesse pedaco, oh, Swarm init, ele so executou no 3.90.145.96, nao executou nas outras, justamente, por conta da separacao que a gente fez, aqui, oh, no arquivo hosts, eu so falei para fazer no manager-leader,
+
+
+
+[manager-leader]
+
+34.201.40.124 private_ip=192.168.20.11
+
+
+
+[manager-follower]
+
+54.174.192.28
+
+54.208.81.76
+
+
+
+70. Okay? E, ai, ele executou e inicializou o Docker Swarm para a gente.
+
+
+
+71. Muito legal, nao eh? Se a gente mandar executar de novo, nao tem problema, ele vai verificar que o Docker Swarm ja esta ativo, atraves desse shellzinho que eu fiz, aqui, em beerstore-playbook.yml, e, ai, nao vai inicializar o Swarm de novo. Se nao tivesse aquela parte, nessa segunda vez que voce executasse, iria dar erro, ele iria falar, 'Ah, mas o Swarm ja esta ativo, voce tentou inicializar ele de novo'.
+
+
+
+72. Vamos so ver, aqui, se esta realmente funcionando, muito bem, olha la, ele fala que deu, aqui, o changed 1, porque ele executou a task shell, aquela taskzinha do shell, la, entao, ele registrou numa variavel. Mas, so foi essa mudanca, o Swarm init ele deu skipping, entao, ele pulou, ele falou, oh, skip_reason, qual foi a razao dele pular: a condicao para ele executar retornou false. Entao, se nao eh para executar, nao executa. Pronto, ele nao executou o Swarm init.
+
+
+
+73. Entao, a gente esta com o estado, eu gosto muito de fazer os ansibles assim, atraves de estado, porque, ai, nao tem perigo, eu posso executar a hora que eu quiser. Ah, sera que esta instalado? Vai la e executa o ansible. Nao tenho certeza, sera que esta tudo funcionando, esta tudo instalado? Vai la e roda. Entendeu? Se estiver com estado, voce tiver seguranca do que o seu ansible estiver garantindo o estado correto de tudo, vai la e executa, nao tem problema nenhum.
+
+
+
+74. Fim da Aula 07.010. Inicializando o Lider do Docker Swarm.
+
+
+
+
+
+
+
+-->​

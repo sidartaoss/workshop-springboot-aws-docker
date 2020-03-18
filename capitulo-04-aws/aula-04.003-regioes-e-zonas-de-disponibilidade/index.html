@@ -1,0 +1,269 @@
+<!-- 
+
+Aula 04.003. Regioes e Zonas de Disponibilidade
+
+
+
+1. Vamos falar um pouquinho da Infra-Estrutura Global da AWS.
+
+
+
+2. Ela tem 18 Regioes e 55 Zonas de Disponibilidade.
+
+
+
+3. O que que significa Regiao e Zona de Disponibilidade?
+
+
+
+4. Vamos la. Nos vamos entender isso, aqui agora, oh.
+
+
+
+5. Vamos pegar, aqui, nesse mapa.
+
+
+
+6. E vamos olhar, aqui, na America do Sul, aonde a gente tem essa bolinha laranja, que significa Uma Regiao.
+
+
+
+7. E, essa aqui, eh a Regiao sa-east-1.
+
+
+
+8. Cada Regiao tem um Codigo de Nome.
+
+
+
+9. Entao, se voce pesquisar nomes regiao aws, no Google, e voce entrar no segundo link, https://docs.aws.amazon.com/pt_br/general/latest/gr/rande.html, vai aparecer, ai, oh, o Nome da Regiao, e, aqui, o codigo dela.
+
+
+
+10. Okay?
+
+
+
+11. Oh, a de Sao Paulo, America do Sul (Sao Paulo), eh sa-east-1. Isso eh uma Regiao.
+
+
+
+12. Okay?
+
+
+
+13. E esse numero 3, aqui, dentro, fala Quantas Zonas de Disponibilidade tem dentro dessa Regiao.
+
+
+
+14. Entao, voltando, aqui, oh, nos temos 18 Regioes Geograficas, e 55 Zonas de Disponibilidade. Por isso que eu tenho mais Zonas do que Regioes.
+
+
+
+15. Porque, Regiao, oh, dentro de uma Regiao, eu tenho varias Zonas de Disponibilidade.
+
+
+
+16. E o que eh uma Zona de Disponibilidade?
+
+
+
+17. Eh Um ou Mais de Um Datacenter, separado por uma pequena distancia.
+
+
+
+18. E uma Zona de Disponibilidade, da outra, se difere por esses Datacenters sendo separados por uma distancia um pouco maior. Okay?
+
+
+
+19. Mas, tudo calculado para que a Latencia, dentro dessa Regiao, ou seja, o Trafego de dados, ali, entre essas Zonas de Disponibilidade, dentro da mesma Regiao, seja muito, muito rapida.
+
+
+
+20. Okay? Entao, a conversa entre os Datacenters, aqui, entre as Zonas de Disponibilidade, aqui, dentro, eh muito rapido.
+
+
+
+21. Okay? 
+
+
+
+22. Diferente entre uma conversa entre Uma Regiao de Sao Paulo e Uma Regiao, aqui, em cima, ou seja, nos EUA, ou, sei la, aqui, na Australia, okay?
+
+
+
+23. Como eh que chama, aqui, o da Australia? Oh, Asia-Pacifico, em Sydney, ap-southeast-2.
+
+
+
+24. Oh, aqui, tem um em Cingapura, e, aqui, tem o de Sydney, Asia-Pacifio (Sydney), eh o ap-southeast-2, okay?
+
+
+
+25. Entao, a conversa entre esse, ou seja, a Regiao de Sao Paulo e esse, ou seja, a Regiao da Australia, da para a gente perceber que eh um pouquinho mais demorada, nao eh?, do que aqui dentro, na Regiao de Sao Paulo, onde sao separadas as Zonas de Disponibilidade por alguns kilometros, mas, bem calculado. 
+
+
+
+26. A AWS mantem esses Datacenters intra-conectados, aqui, com Redes de Fibra Otica, de alta velocidade, redundancia, eh um negocio bem profissional, mesmo, nao eh?, da para a gente imaginar.
+
+
+
+27. Okay?
+
+
+
+28. Bom, da para ver que, nos Estados Unidos, tem muitas Regioes. Entao, aqui, oh, sao 3 Regioes, bem pertinho uma da outra, oh, aqui, nessa Costa, aqui, California, fica por aqui, nao eh? Vamos ver, aqui, fica no Oeste dos Estados Unidos. Entao, tem Oeste dos Estados Unidos (Norte da California), Oeste dos Estados Unidos (Oregon), Leste dos Estados Unidos eh la do outro lado.
+
+
+
+29. Virginia, Leste dos Estados Unidos, que eh o us-east-1, que fica alguma coisa por aqui, no Mapa dos EUA, eu acho que eh esse Numero 6, aqui, porque eh a que tem mais Zonas de Disponibilidade.
+
+
+
+30. Entao, essa Regiao, aqui, 6, eh a us-east-1, eh a das mais famosas, eh a que eu mais utilizo para fazer os meus testes.
+
+
+
+31. Por que, Normandes, voce usa na Virginia e nao usa em Sao Paulo?
+
+
+
+32. Bom, acontece que, alguns Servicos, da AWS, existem em algumas Regioes e nao existem em outras.
+
+
+
+33. Entao, se voce quiser usar um Servico, voce tem que ver se ele tem nessa Regiao.
+
+
+
+34. Entao, a Regiao de Sao Paulo tem menos Servicos do que Virginia.
+
+
+
+35. Entao, normalmente, se eh lancado algum Servico, esse Servico vai ser lancado, primeiro, nos Estados Unidos, nao eh?, e depois, vai conseguir chegar aqui, em Sao Paulo.
+
+
+
+36. Entao, por exemplo, o ultimo que eu fiz alguns testes, foi o Amazon MQ, que eh um ActiveMQ gerenciado pela AWS.
+
+
+
+37. E, ai, eu fiz os Testes na AWS, na Virginia, e, ai, quando eu fui verificar se eu podia colocar em Sao Paulo, nao podia.
+
+
+
+38. Okay?
+
+
+
+39. Entao, voce tem que tomar cuidado, ai. Se voce vai fazer alguma coisa, precisa ser em Sao Paulo, pode ser que o Servico nao exista.
+
+
+
+40. Okay?
+
+
+
+41. Porque isso pode acontecer.
+
+
+
+42. Pode ser que voce precise que os seus dados fiquem dentro do Brasil, por alguma lei. No caso do meu trabalho, como envolve, eh uma Instituicao Financeira, entao, os dados de pessoas, os dados financeiros, tem que ficar no Brasil, eh uma Lei, eh uma Regulamentacao.
+
+
+
+43. Entao, eu nao poderia usar o ActiveMQ, nao eh?, o AmazonMQ, porque nao tinha em Sao Paulo. A nao ser que eu instalasse, obviamente.
+
+
+
+44. Okay?
+
+
+
+45. O que mais que a gente pode falar?
+
+
+
+46. Se voce quiser que uma Regiao converse com outra Regiao, nao eh?, como eu ja falei, a Latencia, os dados vao demorar mais para chegar.
+
+
+
+47. E nao eh automatico, voce precisa configurar.
+
+
+
+48. Entre as Zonas de Disponibilidade, eh bem mais simples, as coisas funcionam de forma mais automatica.
+
+
+
+49. Entao, por exemplo, se o AmazonMQ, eu estava instalando, aqui, na Virginia, ele sobe em Uma Zona de Disponibilidade e, se essa Zona de Disponibilidade, por algum motivo, ficar fora, cair, ou, se aquela instancia, la, cair, ele consegue migrar para outra Zona de Disponibilidade, ele consegue subir a outra, ali, de forma muito transparente, nao tem que fazer nada.
+
+
+
+50. Okay? Eh bem direto.
+
+
+
+51. Banco de dados, tambem. Por exemplo, o RDS. Voce consegue subir o Postgres em Uma Zona de Disponibilidade e subir uma outra Instancia, de stand-by, caso aquela primeira tenha alguma falha, o RDS libera a conexao para a outra, que estava la em stand-by.
+
+
+
+52. Okay? Isso tudo, dentro da mesma Regiao, eh muito simples de fazer.
+
+
+
+53. Okay? Eh bem automatico. Eh o que a gente vai fazer.
+
+
+
+54. Okay? Se voce quiser entre Regioes, da um pouquinho mais de trabalho, envolve outros custos, tambem.
+
+
+
+55. E esse verdinho, aqui, essa bolinhas verdes, sao planos futuros para novas Regioes, para onde a AWS vai liberar, lancar mais Datacenters.
+
+
+
+56. Okay?
+
+
+
+57. Bom, eh isso, dai, que eu queria falar para voces, sobre a Infraestrutura. Muito importante entender, entao, Regiao e Zona de Disponibilidade, porque voce fala sobre Regioes e Zonas de Disponibilidade o tempo inteiro na AWS, o tempo inteiro a gente esta falando disso, okay?
+
+
+
+58. Regiao, entao, eh uma Area Geografica, nao eh?, bem isolada, totalmente, isolada, aqui, okay?, e, dentro dessa Regiao, temos varias outras Zonas de Disponibilidade. No caso, aqui, em Sao Paulo, temos 3.
+
+
+
+59. Ah, e um detalhe importante que eu lembrei. Aqui, na America do Sul, em Sao Paulo, apesar de termos 3, so podemos usar Duas, porque Uma ja esta Lotada, nao cabe mais a expansao la, ela ja chegou no Limite. Entao, a gente so pode usar Duas, okay?
+
+
+
+60. Mas, enfim, temos, entao, a Zona de Disponibilidade, onde a gente cria, entao, a gente vai criar um Servico, por exemplo, uma Instancia EC2, eu vou falar, eu quero que essa Instancia EC2 fique na Zona de Disponibilidade sa-east-1a, por exemplo, que eh o codigo de uma Zona de Disponibilidade.
+
+
+
+61. Mas, tem Servicos que sao Por Regiao, tambem.
+
+
+
+62. Okay? Entao, tem Servicos que, por exemplo, o S3, que eh o armazenamento de objetos, na AWS. Entao, voce consegue, por exemplo, falar, "Eu quero ter uma especie de Pasta, eles chamam de Bucket, dentro da Regiao de Sao Paulo".
+
+
+
+26. E, ai, voce salva os arquivos, que sao os Objetos, dentro daquela Regiao, e nao dentro de uma Zona de Disponibilidade.
+
+
+
+27. Entao, eh muito importante voce entender esses Conceitos, porque voce usa eles sempre.
+
+
+
+28. Fim da Aula 04.003. Regioes e Zonas de Disponibilidade.
+
+
+
+-->​
+
+
